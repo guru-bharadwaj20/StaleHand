@@ -49,3 +49,11 @@ def test_config_holds_job_seed_and_environment(tmp_path):
     assert cfg["job"]["id"] == "83d285fd1485" and cfg["seed"] == 7
     assert cfg["models"]["planner"]["name"] == "p"
     assert cfg["git"] is None and "python" in cfg and "host" in cfg and "versions" in cfg
+
+
+def test_config_records_serving_settings_from_the_environment(tmp_path, monkeypatch):
+    monkeypatch.setenv("STALEHAND_BACKEND", "openai")
+    monkeypatch.setenv("STALEHAND_PRECISION", "fp8")
+    monkeypatch.setenv("UNRELATED_SECRET", "x")
+    cfg = config(JOB, models={}, root=tmp_path)
+    assert cfg["serving"] == {"STALEHAND_BACKEND": "openai", "STALEHAND_PRECISION": "fp8"}

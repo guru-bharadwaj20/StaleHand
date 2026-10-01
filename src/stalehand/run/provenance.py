@@ -1,4 +1,5 @@
 """What a run directory's config.json records, so any result can be traced to code, weights and libraries."""
+import os
 import platform
 import socket
 import subprocess
@@ -37,4 +38,6 @@ def model_info(short: str, model, backend: str) -> dict:
 def config(job, models: dict, root) -> dict:
     return {"job": asdict(job), "seed": job.seed, "models": models, "git": git_state(root),
             "versions": versions(), "python": sys.version.split()[0], "platform": platform.platform(),
-            "host": socket.gethostname(), "started": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+            "host": socket.gethostname(), "started": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            # how the models were reached and served (backend, URLs, STALEHAND_PRECISION such as fp8 on the Ada)
+            "serving": {k: v for k, v in sorted(os.environ.items()) if k.startswith("STALEHAND_")}}
