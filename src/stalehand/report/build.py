@@ -1,7 +1,7 @@
 """Markdown report of a set of runs: outcome rates per group, and paired guard comparisons against a baseline."""
 from typing import List
 
-from ..metrics.stats import compare
+from ..metrics.stats import compare, pair
 from .tables import rates
 
 COLUMNS = ("success", "stale", "wrong_item", "wrong_detail", "aborted", "no_commit")
@@ -48,6 +48,9 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
                 pick = lambda g: [r for r in arms if r["guard"] == g and (dom == "all" or r["domain"] == dom)]
                 base, other = pick(baseline), pick(guard)
                 if not base or not other:
+                    continue
+                if not pair(other, base)[0]:  # partial runs: the two arms have not reached the same scenarios
+                    lines.append([arch, guard, dom, "0", "no shared scenarios yet", "", "", "", "", ""])
                     continue
                 c = compare(other, base, n_boot=n_boot, seed=seed)
                 lo, hi = c["diff_ci"]
