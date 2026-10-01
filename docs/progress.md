@@ -53,6 +53,8 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
   `delegated` dropped `self_check` (the costliest guard and a weak one in main) and `domains_lab` dropped
   `dom_subtask_replan` (`rebind_dom` reads the same DOM signal with fewer false alarms). The stall-return ablation
   was added after the timing study. Order: timing, main_stall, delegated, domains_lab, flat.
-- Code is promoted on worker-1 only between matrices. `main_stall` and later matrices run commit `210dd66`; `main`
-  and `timing` ran `b019e4e`. The commits in between add the `hierarchical_stall` architecture and report code
-  and don't change how the other architectures behave.
+- Code is promoted on worker-1 only between matrices. `main` ran commit `3c5edae`, `timing` ran `b019e4e`, and
+  `main_stall` and later matrices run `210dd66`, as each run's `config.json` records. Between them, `src/` gained
+  report code, serving provenance and the `hierarchical_stall` architecture, and `apps/` did not change, so the
+  other architectures behave the same in every matrix. Every run is marked dirty because `results/` is not synced
+  to the lab boxes.
