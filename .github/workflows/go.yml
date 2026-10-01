@@ -2,7 +2,7 @@ name: go
 
 on:
   push:
-    paths: ["runner/**", ".github/workflows/go.yml"]
+    paths: ["runner/**", "schema/fixtures/job.json", ".github/workflows/go.yml"]
   pull_request:
 
 jobs:
