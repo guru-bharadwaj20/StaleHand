@@ -63,3 +63,8 @@ def test_resolved_target():
 def test_same_target_ignores_case_quotes_and_punctuation():
     assert same_target("Q3 Budget Review.", "'q3 budget review'")
     assert not same_target("Q3 budget review", "Q4 budget review")
+
+
+def test_empty_replies_count_as_done():
+    assert parse_subtask("") is None and parse_subtask("  \n") is None
+    assert parse_rule("") is None
