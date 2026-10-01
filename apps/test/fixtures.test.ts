@@ -7,7 +7,7 @@ import { applyChange } from "../src/core/changes.js";
 import { resolve } from "../src/core/resolve.js";
 import type { Scenario } from "../src/core/types.js";
 
-const fixtures = ["inbox", "shop", "files"].flatMap((d) =>
+const fixtures = ["inbox", "shop", "files", "tickets"].flatMap((d) =>
   readFileSync(fileURLToPath(new URL(`../../../schema/fixtures/${d}.jsonl`, import.meta.url)), "utf8")
     .split("\n").filter(Boolean).map((l) => JSON.parse(l) as Scenario));
 

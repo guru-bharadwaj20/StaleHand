@@ -1,0 +1,33 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { width: 1288px; height: 728px; overflow: hidden; background: #f4f5f7; color: #172b4d;
+  font: 14px "Noto Sans", "DejaVu Sans", Arial, sans-serif; position: relative; }
+.top { position: absolute; left: 0; top: 0; width: 1288px; height: 56px; background: #0747a6; color: #fff; display: flex; align-items: center; gap: 24px; padding: 0 20px; }
+.logo { font-size: 20px; font-weight: 700; width: 180px; }
+.search { background: #fff; color: #6b778c; border-radius: 4px; height: 36px; width: 520px; padding: 8px 12px; }
+.side { position: absolute; left: 0; top: 56px; width: 200px; padding: 12px; }
+.f { height: 34px; padding: 8px 12px; border-radius: 4px; }
+.f.on { background: #deebff; color: #0052cc; font-weight: 700; }
+.main { position: absolute; left: 200px; top: 56px; width: 1088px; height: 672px; background: #fff; overflow: hidden; }
+.bar { height: 48px; padding: 14px 16px; font-size: 16px; font-weight: 600; }
+.banner { background: #fffae6; color: #5c4400; padding: 10px 16px; font-size: 13px; }
+.list { height: 580px; overflow-y: auto; }
+.row { height: 52px; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #ebecf0; cursor: pointer; }
+.row.head { height: 36px; cursor: default; color: #6b778c; font-size: 12px; font-weight: 600; }
+.key { width: 72px; flex: none; color: #0052cc; font-weight: 600; }
+.ti { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc { width: 80px; flex: none; }
+.pri { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 3px; }
+.pri.high { background: #ffebe6; color: #bf2600; }
+.pri.medium { background: #fff0b3; color: #974f0c; }
+.pri.low { background: #e3fcef; color: #006644; }
+.rp, .as { width: 130px; flex: none; color: #42526e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm { width: 76px; flex: none; text-align: right; color: #6b778c; font-size: 13px; }
+.pane { padding: 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+.pane h1 { font-size: 22px; font-weight: 500; }
+.meta { color: #42526e; }
+.gone { color: #bf2600; font-weight: 600; }
+button { font: inherit; border: 1px solid #c1c7d0; background: #fff; border-radius: 4px; padding: 8px 20px; cursor: pointer; align-self: flex-start; }
+button[data-role="assign"], button[data-role="save"] { background: #0052cc; color: #fff; border-color: #0052cc; }
+input { font: inherit; border: 1px solid #c1c7d0; border-radius: 4px; padding: 10px 12px; width: 480px; }
+.mode { font-weight: 600; }
+.toast { background: #e3fcef; color: #006644; padding: 12px 16px; border-radius: 4px; align-self: flex-start; }
