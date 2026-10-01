@@ -9,7 +9,7 @@ from stalehand.scenarios.export import write_jsonl
 FIXTURES = Path(__file__).parents[2] / "schema" / "fixtures"
 
 
-@pytest.mark.parametrize("domain", ["inbox", "shop", "files", "tickets", "calendar"])
+@pytest.mark.parametrize("domain", ["inbox", "shop", "files", "tickets", "calendar", "chat"])
 def test_fixture_is_current(domain, tmp_path):
     fresh = tmp_path / f"{domain}.jsonl"
     write_jsonl(registry.generate(domain, seed=0, n=2), fresh)

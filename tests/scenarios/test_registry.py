@@ -4,7 +4,7 @@ from stalehand.scenarios import registry
 
 
 def test_known_domains():
-    assert {"inbox", "shop", "files", "tickets", "calendar"} <= set(registry.DOMAINS)
+    assert {"inbox", "shop", "files", "tickets", "calendar", "chat"} <= set(registry.DOMAINS)
 
 
 def test_generate_covers_every_kind_and_variant():
