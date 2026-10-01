@@ -73,3 +73,15 @@ def test_serve_loads_the_named_model_and_listens(monkeypatch):
     assert main(["serve", "--model", "ui-tars-1.5-7b", "--port", "8002"]) == 0
     assert seen == {"model_id": "ByteDance-Seed/UI-TARS-1.5-7B", "batch": 1, "host": "127.0.0.1", "port": 8002,
                     "served": True}
+
+
+def test_report_command_writes_markdown(tmp_path, capsys):
+    run = tmp_path / "runs" / "pilot" / "job1"
+    run.mkdir(parents=True)
+    rows = [{"scenario_id": "shop-cheapest-000-L1", "guard": g, "outcome": o, "change_kind": "relevant",
+             "kind": "cheapest", "false_alarm": False, "planner_calls": 1, "architecture": "hierarchical"}
+            for g, o in (("none", "stale"), ("replan_every_step", "success"))]
+    (run / "results.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    out = tmp_path / "report.md"
+    assert main(["report", "--runs", str(tmp_path / "runs"), "--out", str(out), "--n-boot", "100"]) == 0
+    assert "Built from 2 scored episodes." in out.read_text()

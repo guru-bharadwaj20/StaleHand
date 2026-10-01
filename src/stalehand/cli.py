@@ -48,6 +48,20 @@ def _serve(args) -> int:
     return 0
 
 
+def _report(args) -> int:
+    from .report.build import markdown
+    from .report.tables import load_rows
+    rows = load_rows(args.runs)
+    if not rows:
+        print(f"no results.jsonl under {args.runs}", file=sys.stderr)
+        return 1
+    text = markdown(rows, baseline=args.baseline, n_boot=args.n_boot, seed=args.seed)
+    with open(args.out, "w") as f:
+        f.write(text)
+    print(f"wrote {args.out} from {len(rows)} episodes")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="stalehand")
     sub = p.add_subparsers(dest="command", required=True)
@@ -70,6 +84,13 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--host", default="127.0.0.1", help="interface to listen on; reachable from other boxes only if set")
     v.add_argument("--port", type=int, default=8000)
     v.set_defaults(func=_serve)
+    rp = sub.add_parser("report", help="markdown report from the results.jsonl files under a directory")
+    rp.add_argument("--runs", required=True)
+    rp.add_argument("--out", required=True)
+    rp.add_argument("--baseline", default="none", help="guard the others are paired against")
+    rp.add_argument("--n-boot", type=int, default=10000)
+    rp.add_argument("--seed", type=int, default=0)
+    rp.set_defaults(func=_report)
     return p
 
 
