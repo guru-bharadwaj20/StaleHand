@@ -48,7 +48,7 @@ Runs stay on their owner's machines and write to separate result directories (`r
 |---|---|---|
 | ✅ | Files domain: generator, app and browser tests ("share the newest report"; uploads, renames) | `src/stalehand/scenarios/domains/files.py`, `apps/src/files/`, `tests/` |
 | ✅ | Tickets domain ("assign the oldest high-priority ticket"; new tickets, priority changes) | `.../domains/tickets.py`, `apps/src/tickets/` |
-| ❌ | Calendar domain ("join the next meeting with Kenji"; reschedules, cancellations) | `.../domains/calendar.py`, `apps/src/calendar/` |
+| ✅ | Calendar domain ("join the next meeting with Kenji"; reschedules, cancellations) | `.../domains/calendar.py`, `apps/src/calendar/` |
 | ❌ | Chat domain ("reply to the latest message from Grace"; new and edited messages) | `.../domains/chat.py`, `apps/src/chat/` |
 | ❌ | `stalestats` crate: cluster bootstrap and exact McNemar over result JSONL, checked against the Python version on the same files | `crates/stalestats/` |
 | ❌ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | `scripts/ada/` |
