@@ -1,0 +1,7 @@
+{
+  "hosts": [
+    {"name": "gpu1", "ssh": "user@gpu1.example", "slots": 1, "workdir": "~/StaleHand", "python": ".venv/bin/python",
+     "env": {"CUDA_VISIBLE_DEVICES": "0"}},
+    {"name": "laptop", "slots": 1, "workdir": ".", "python": ".venv/bin/python"}
+  ]
+}
