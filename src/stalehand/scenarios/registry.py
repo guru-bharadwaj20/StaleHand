@@ -1,10 +1,24 @@
 """Look up scenario generators by domain name and build whole scenario sets."""
 from typing import Iterable, List, Optional
 
-from .domains import inbox, shop
+import importlib
+import pkgutil
+
+from . import domains as _domains
 from .scenario import Scenario
 
-DOMAINS = {"inbox": inbox, "shop": shop}
+
+def _discover():
+    """Every module in scenarios/domains/ that defines build, KINDS and VARIANTS is a domain."""
+    found = {}
+    for info in pkgutil.iter_modules(_domains.__path__):
+        mod = importlib.import_module(f"{_domains.__name__}.{info.name}")
+        if all(hasattr(mod, a) for a in ("build", "KINDS", "VARIANTS")):
+            found[info.name] = mod
+    return found
+
+
+DOMAINS = _discover()
 
 
 def generate(domain: str, seed: int, n: int, kinds: Optional[Iterable[str]] = None,
