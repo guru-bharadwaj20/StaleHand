@@ -1,18 +1,12 @@
 // DOM rendering for the inbox. Every clickable thing carries data-role, and mail rows carry data-item-id,
 // so the Python side can find ground-truth boxes without guessing from pixels.
+import { button, el } from "../core/dom.js";
 import { formatTime, initials } from "../core/format.js";
 import type { Store } from "../core/store.js";
 import type { Item } from "../core/types.js";
 import type { InboxAction, InboxState } from "./state.js";
 
 const FOLDERS = ["Inbox", "Starred", "Snoozed", "Sent", "Drafts", "Archive", "Spam"];
-
-function el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string, string> = {}, text?: string) {
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
 
 const str = (item: Item, key: string) => String(item.attrs[key] ?? "");
 
@@ -24,12 +18,6 @@ function row(item: Item, onOpen: () => void): HTMLElement {
   r.append(sub, el("div", { class: "tm" }, formatTime(Number(item.attrs.received ?? 0))));
   r.addEventListener("click", onOpen);
   return r;
-}
-
-function button(role: string, label: string, onClick: () => void): HTMLElement {
-  const b = el("button", { "data-role": role, type: "button" }, label);
-  b.addEventListener("click", onClick);
-  return b;
 }
 
 function mainView(state: InboxState, go: (a: InboxAction) => void): HTMLElement {
