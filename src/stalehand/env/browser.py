@@ -9,7 +9,7 @@ from typing import Dict, Optional, Tuple
 
 from ..scenarios.scenario import Scenario
 from ..scenarios.serialize import change_to_dict, scenario_to_dict
-from .actions import Click, Done, Key, Scroll, Type
+from .actions import Click, Done, Key, Scroll, Type, Wait
 from .apps import app_url
 
 VIEWPORT = (1288, 728)  # multiples of 28, so Qwen2.5-VL style encoders see the screen unresized
@@ -80,7 +80,7 @@ class BrowserEnv:
             page.keyboard.press(action.key)
         elif isinstance(action, Scroll):
             page.mouse.wheel(action.dx, action.dy)
-        elif not isinstance(action, Done):
+        elif not isinstance(action, (Done, Wait)):
             raise TypeError(f"unsupported action {action!r}")
         self.step += 1
         self._apply_due_changes()

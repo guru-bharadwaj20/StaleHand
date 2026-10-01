@@ -29,11 +29,16 @@ class Scroll:
 
 
 @dataclass(frozen=True)
+class Wait:
+    """Do nothing this step; the screen may still change."""
+
+
+@dataclass(frozen=True)
 class Done:
     message: str = ""
 
 
-_KINDS = {"click": Click, "type": Type, "key": Key, "scroll": Scroll, "done": Done}
+_KINDS = {"click": Click, "type": Type, "key": Key, "scroll": Scroll, "wait": Wait, "done": Done}
 _NAMES = {v: k for k, v in _KINDS.items()}
 
 
