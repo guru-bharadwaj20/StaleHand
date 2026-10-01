@@ -29,7 +29,8 @@ impl Integral {
 
     fn window(&self, x: usize, y: usize, n: usize) -> f64 {
         let w = self.w;
-        self.s[(y + n) * w + x + n] - self.s[y * w + x + n] - self.s[(y + n) * w + x] + self.s[y * w + x]
+        self.s[(y + n) * w + x + n] - self.s[y * w + x + n] - self.s[(y + n) * w + x]
+            + self.s[y * w + x]
     }
 }
 
@@ -62,8 +63,14 @@ pub fn ssim(a: &Gray, b: &Gray) -> Result<f64, SizeMismatch> {
     let mut count = 0usize;
     for y in 0..=h - n {
         for x in 0..=w - n {
-            total += window_ssim(nn, ia.window(x, y, n), ib.window(x, y, n), iaa.window(x, y, n),
-                                 ibb.window(x, y, n), iab.window(x, y, n));
+            total += window_ssim(
+                nn,
+                ia.window(x, y, n),
+                ib.window(x, y, n),
+                iaa.window(x, y, n),
+                ibb.window(x, y, n),
+                iab.window(x, y, n),
+            );
             count += 1;
         }
     }
@@ -78,7 +85,9 @@ mod tests {
         let mut s = seed;
         let px = (0..w * h)
             .map(|_| {
-                s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+                s = s
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(1442695040888963407);
                 ((s >> 33) % 256) as f32
             })
             .collect();
@@ -96,7 +105,11 @@ mod tests {
                 for dy in 0..n {
                     for dx in 0..n {
                         let (p, q) = (a.at(x + dx, y + dy) as f64, b.at(x + dx, y + dy) as f64);
-                        sa += p; sb += q; saa += p * p; sbb += q * q; sab += p * q;
+                        sa += p;
+                        sb += q;
+                        saa += p * p;
+                        sbb += q * q;
+                        sab += p * q;
                     }
                 }
                 total += window_ssim((n * n) as f64, sa, sb, saa, sbb, sab);
@@ -123,8 +136,12 @@ mod tests {
         let a = noise(40, 40, 3);
         let mut small = a.clone();
         let mut large = a.clone();
-        for i in 0..40 { small.px[i] = 0.0; }
-        for i in 0..800 { large.px[i] = 0.0; }
+        for i in 0..40 {
+            small.px[i] = 0.0;
+        }
+        for i in 0..800 {
+            large.px[i] = 0.0;
+        }
         let (s, l) = (ssim(&a, &small).unwrap(), ssim(&a, &large).unwrap());
         assert!(s > l && s < 1.0, "small {s} large {l}");
     }

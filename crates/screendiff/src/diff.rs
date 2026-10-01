@@ -5,7 +5,11 @@ use crate::gray::Gray;
 pub struct SizeMismatch;
 
 fn check(a: &Gray, b: &Gray) -> Result<(), SizeMismatch> {
-    if a.width == b.width && a.height == b.height { Ok(()) } else { Err(SizeMismatch) }
+    if a.width == b.width && a.height == b.height {
+        Ok(())
+    } else {
+        Err(SizeMismatch)
+    }
 }
 
 /// Mean absolute difference in luma, 0 for identical images; 0 for empty images.
@@ -14,7 +18,11 @@ pub fn mean_abs_diff(a: &Gray, b: &Gray) -> Result<f64, SizeMismatch> {
     if a.px.is_empty() {
         return Ok(0.0);
     }
-    let sum: f64 = a.px.iter().zip(&b.px).map(|(x, y)| (x - y).abs() as f64).sum();
+    let sum: f64 =
+        a.px.iter()
+            .zip(&b.px)
+            .map(|(x, y)| (x - y).abs() as f64)
+            .sum();
     Ok(sum / a.px.len() as f64)
 }
 
@@ -24,7 +32,11 @@ pub fn changed_fraction(a: &Gray, b: &Gray, threshold: f32) -> Result<f64, SizeM
     if a.px.is_empty() {
         return Ok(0.0);
     }
-    let n = a.px.iter().zip(&b.px).filter(|(x, y)| (*x - *y).abs() > threshold).count();
+    let n =
+        a.px.iter()
+            .zip(&b.px)
+            .filter(|(x, y)| (*x - *y).abs() > threshold)
+            .count();
     Ok(n as f64 / a.px.len() as f64)
 }
 
@@ -58,6 +70,9 @@ mod tests {
 
     #[test]
     fn size_mismatch_is_an_error() {
-        assert_eq!(mean_abs_diff(&flat(0.0, 2), &flat(0.0, 3)), Err(SizeMismatch));
+        assert_eq!(
+            mean_abs_diff(&flat(0.0, 2), &flat(0.0, 3)),
+            Err(SizeMismatch)
+        );
     }
 }

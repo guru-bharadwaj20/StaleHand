@@ -17,7 +17,11 @@ pub struct Region {
 
 impl Gray {
     pub fn new(width: usize, height: usize, px: Vec<f32>) -> Self {
-        assert_eq!(px.len(), width * height, "pixel count must equal width * height");
+        assert_eq!(
+            px.len(),
+            width * height,
+            "pixel count must equal width * height"
+        );
         Gray { width, height, px }
     }
 
@@ -65,21 +69,36 @@ mod tests {
 
     #[test]
     fn crop_takes_the_region() {
-        let c = ramp(4, 3).crop(Region { x: 1, y: 1, w: 2, h: 2 });
+        let c = ramp(4, 3).crop(Region {
+            x: 1,
+            y: 1,
+            w: 2,
+            h: 2,
+        });
         assert_eq!((c.width, c.height), (2, 2));
         assert_eq!(c.px, vec![5.0, 6.0, 9.0, 10.0]);
     }
 
     #[test]
     fn crop_is_clipped_to_the_image() {
-        let c = ramp(4, 3).crop(Region { x: 3, y: 2, w: 10, h: 10 });
+        let c = ramp(4, 3).crop(Region {
+            x: 3,
+            y: 2,
+            w: 10,
+            h: 10,
+        });
         assert_eq!((c.width, c.height), (1, 1));
         assert_eq!(c.px, vec![11.0]);
     }
 
     #[test]
     fn crop_outside_is_empty() {
-        let c = ramp(4, 3).crop(Region { x: 9, y: 9, w: 2, h: 2 });
+        let c = ramp(4, 3).crop(Region {
+            x: 9,
+            y: 9,
+            w: 2,
+            h: 2,
+        });
         assert_eq!((c.width, c.height), (0, 0));
     }
 }

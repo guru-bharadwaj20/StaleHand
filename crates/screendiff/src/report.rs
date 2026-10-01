@@ -1,5 +1,5 @@
 //! One comparison of two screenshots, optionally restricted to a region, as a serialisable report.
-use crate::diff::{changed_fraction, mean_abs_diff, SizeMismatch};
+use crate::diff::{SizeMismatch, changed_fraction, mean_abs_diff};
 use crate::gray::{Gray, Region};
 use crate::ssim::ssim;
 use serde::Serialize;
@@ -15,7 +15,12 @@ pub struct Report {
     pub changed_fraction: f64,
 }
 
-pub fn compare(a: &Gray, b: &Gray, region: Option<Region>, threshold: f32) -> Result<Report, SizeMismatch> {
+pub fn compare(
+    a: &Gray,
+    b: &Gray,
+    region: Option<Region>,
+    threshold: f32,
+) -> Result<Report, SizeMismatch> {
     if a.width != b.width || a.height != b.height {
         return Err(SizeMismatch);
     }
@@ -42,8 +47,21 @@ mod tests {
     fn region_ignores_changes_elsewhere() {
         let a = Gray::new(20, 20, vec![100.0; 400]);
         let mut b = a.clone();
-        for i in 0..20 { b.px[i] = 0.0; } // top row changes
-        let r = compare(&a, &b, Some(Region { x: 0, y: 10, w: 20, h: 10 }), 8.0).unwrap();
+        for i in 0..20 {
+            b.px[i] = 0.0;
+        } // top row changes
+        let r = compare(
+            &a,
+            &b,
+            Some(Region {
+                x: 0,
+                y: 10,
+                w: 20,
+                h: 10,
+            }),
+            8.0,
+        )
+        .unwrap();
         assert_eq!(r.changed_fraction, 0.0);
         assert!((r.ssim - 1.0).abs() < 1e-9);
         let full = compare(&a, &b, None, 8.0).unwrap();

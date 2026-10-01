@@ -17,7 +17,9 @@ mod tests {
         let dir = std::env::temp_dir().join("screendiff-load-test");
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("white.png");
-        image::RgbImage::from_pixel(3, 2, image::Rgb([255, 255, 255])).save(&path).unwrap();
+        image::RgbImage::from_pixel(3, 2, image::Rgb([255, 255, 255]))
+            .save(&path)
+            .unwrap();
         let g = load_gray(&path).unwrap();
         assert_eq!((g.width, g.height), (3, 2));
         assert!(g.px.iter().all(|&p| (p - 255.0).abs() < 1e-3));
