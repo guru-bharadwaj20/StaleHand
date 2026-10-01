@@ -1,5 +1,6 @@
 """Command line entry point: `stalehand <command> ...`."""
 import argparse
+import os
 import sys
 from typing import List, Optional
 
@@ -19,6 +20,24 @@ def _scenarios(args) -> int:
     return 0
 
 
+def _run_job(args) -> int:
+    from .run import execute as ex
+    from .run.job import decode
+    from .run.loader import backend_of, model_loader
+    try:
+        job = decode(args.job)
+    except ValueError as e:  # includes malformed base64 and JSON
+        print(f"bad job: {e}", file=sys.stderr)
+        return 2
+
+    def make_env(timing):
+        from .env.browser import BrowserEnv
+        return BrowserEnv(change_timing=timing)
+    ex.execute(job, args.out, root=args.root, load_model=model_loader(os.environ), make_env=make_env,
+               backend=backend_of(os.environ))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="stalehand")
     sub = p.add_subparsers(dest="command", required=True)
@@ -31,6 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--change-step", type=int, default=1)
     s.add_argument("--out", required=True)
     s.set_defaults(func=_scenarios)
+    r = sub.add_parser("run-job", help="run one job from the Go runner (see stalehand.run)")
+    r.add_argument("--job", required=True, help="base64 JSON job spec, as runner/launch writes it")
+    r.add_argument("--out", required=True, help="run directory; a rerun resumes it")
+    r.add_argument("--root", default=".", help="directory that scenario paths are relative to")
+    r.set_defaults(func=_run_job)
     return p
 
 
