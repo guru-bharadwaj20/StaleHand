@@ -1,0 +1,49 @@
+{
+  "name": "delegated",
+  "scenarios": [
+    "experiments/main/shards/inbox-00.jsonl",
+    "experiments/main/shards/inbox-01.jsonl",
+    "experiments/main/shards/inbox-02.jsonl",
+    "experiments/main/shards/inbox-03.jsonl",
+    "experiments/main/shards/inbox-04.jsonl",
+    "experiments/main/shards/inbox-05.jsonl",
+    "experiments/main/shards/inbox-06.jsonl",
+    "experiments/main/shards/inbox-07.jsonl",
+    "experiments/main/shards/inbox-08.jsonl",
+    "experiments/main/shards/inbox-09.jsonl",
+    "experiments/main/shards/shop-00.jsonl",
+    "experiments/main/shards/shop-01.jsonl",
+    "experiments/main/shards/shop-02.jsonl",
+    "experiments/main/shards/shop-03.jsonl",
+    "experiments/main/shards/shop-04.jsonl",
+    "experiments/main/shards/shop-05.jsonl",
+    "experiments/main/shards/shop-06.jsonl",
+    "experiments/main/shards/shop-07.jsonl",
+    "experiments/main/shards/shop-08.jsonl",
+    "experiments/main/shards/shop-09.jsonl",
+    "experiments/main/shards/shop-10.jsonl"
+  ],
+  "architectures": [
+    "delegated"
+  ],
+  "guards": [
+    "none",
+    "replan_every_step",
+    "self_check",
+    "dom_subtask_replan",
+    "rebind_dom"
+  ],
+  "planners": [
+    "qwen3-vl-8b"
+  ],
+  "executors": [
+    "ui-tars-1.5-7b"
+  ],
+  "seeds": [
+    0
+  ],
+  "max_steps": 12,
+  "timings": [
+    "after_handoff"
+  ]
+}
