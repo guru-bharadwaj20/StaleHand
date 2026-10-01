@@ -6,12 +6,12 @@ Built from 140 scored episodes.
 
 ## Summary by guard
 
-Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that leaves the target where it was. Calls: planner plus checker calls per episode.
+Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that leaves the target where it was. Fired: the guard re-planned, re-bound or aborted at least once. Calls: planner plus checker calls per episode.
 
-| architecture | guard | relevant n | success | stale | harmless n | success | false alarms | calls |
-|---|---|---|---|---|---|---|---|---|
-| hierarchical | replan_every_step | 35 | 23% | 40% | 35 | 60% | 100% | 3.2 |
-| hierarchical | none | 35 | 6% | 34% | 35 | 46% | 0% | 2.3 |
+| architecture | guard | relevant n | fired | success | stale | harmless n | success | false alarms | calls |
+|---|---|---|---|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 35 | 100% | 23% | 40% | 35 | 60% | 100% | 3.2 |
+| hierarchical | none | 35 | 0% | 6% | 34% | 35 | 46% | 0% | 2.3 |
 
 ## By change kind
 

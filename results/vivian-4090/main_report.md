@@ -6,18 +6,18 @@ Built from 1640 scored episodes.
 
 ## Summary by guard
 
-Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that leaves the target where it was. Calls: planner plus checker calls per episode.
+Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that leaves the target where it was. Fired: the guard re-planned, re-bound or aborted at least once. Calls: planner plus checker calls per episode.
 
-| architecture | guard | relevant n | success | stale | harmless n | success | false alarms | calls |
-|---|---|---|---|---|---|---|---|---|
-| hierarchical | replan_every_step | 55 | 80% | 0% | 145 | 77% | 100% | 7.5 |
-| hierarchical | rebind_step | 55 | 53% | 0% | 145 | 63% | 62% | 10.8 |
-| hierarchical | pixel_0.02_replan | 55 | 64% | 4% | 145 | 69% | 100% | 5.1 |
-| hierarchical | rebind_dom | 55 | 55% | 2% | 145 | 68% | 15% | 2.8 |
-| hierarchical | self_check | 55 | 36% | 18% | 145 | 68% | 25% | 9.2 |
-| hierarchical | rule_subtask | 55 | 27% | 5% | 145 | 50% | 0% | 1.7 |
-| hierarchical | none | 55 | 4% | 44% | 145 | 69% | 0% | 2.3 |
-| hierarchical | dom_subtask_replan | 55 | 58% | 0% | 145 | 67% | 76% | 3.1 |
+| architecture | guard | relevant n | fired | success | stale | harmless n | success | false alarms | calls |
+|---|---|---|---|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 55 | 100% | 80% | 0% | 145 | 77% | 100% | 7.5 |
+| hierarchical | rebind_step | 55 | 93% | 53% | 0% | 145 | 63% | 62% | 10.8 |
+| hierarchical | pixel_0.02_replan | 55 | 100% | 64% | 4% | 145 | 69% | 100% | 5.1 |
+| hierarchical | rebind_dom | 55 | 91% | 55% | 2% | 145 | 68% | 15% | 2.8 |
+| hierarchical | self_check | 55 | 51% | 36% | 18% | 145 | 68% | 25% | 9.2 |
+| hierarchical | rule_subtask | 55 | 0% | 27% | 5% | 145 | 50% | 0% | 1.7 |
+| hierarchical | none | 55 | 0% | 4% | 44% | 145 | 69% | 0% | 2.3 |
+| hierarchical | dom_subtask_replan | 55 | 100% | 58% | 0% | 145 | 67% | 76% | 3.1 |
 
 ## By change kind
 
