@@ -1,7 +1,7 @@
 """Score one episode: what did the agent commit to, and was the guard's firing warranted?
 
 Outcomes:
-  success       the committing action hit the correct target (and, for forward/reply, with the right details)
+  success       the committing action hit the correct target (and with the right recipient or reply mode)
   stale         it hit the target the planner saw, which is no longer correct
   wrong_item    it hit some other item
   wrong_detail  right item, wrong recipient or wrong mode
@@ -28,8 +28,11 @@ def _committing_event(scenario, events: List[dict]) -> Optional[dict]:
 
 def _details_ok(scenario, event: dict) -> bool:
     action, detail = scenario.meta.get("action"), event.get("detail") or {}
+    to_ok = (detail.get("to") or "").strip() == scenario.meta.get("recipient")
     if action == "forward":
-        return detail.get("mode") == "forward" and detail.get("to", "").strip() == scenario.meta.get("recipient")
+        return detail.get("mode") == "forward" and to_ok
+    if action in ("share", "assign"):
+        return to_ok
     if action == "reply":
         return detail.get("mode") == "reply"
     return True

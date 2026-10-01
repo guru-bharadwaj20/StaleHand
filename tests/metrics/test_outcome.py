@@ -1,6 +1,8 @@
+import pytest
+
 from stalehand.agents.trajectory import Trajectory
 from stalehand.metrics.outcome import score
-from stalehand.scenarios.domains import inbox, shop
+from stalehand.scenarios.domains import files, inbox, shop, tickets
 
 REL = inbox.build(seed=0, kind="relative", index=0, variant="L1")   # target moves at step 1
 FWD = next(inbox.build(seed=0, kind="relative", index=i, variant="L1") for i in range(50)
@@ -92,3 +94,13 @@ def test_commit_before_change_is_flagged():
     late = dict(early, step=4)
     assert score(SHOP, traj([early]))["commit_before_change"]
     assert not score(SHOP, traj([late]))["commit_before_change"]
+
+
+@pytest.mark.parametrize("domain,kind", [(files, "share"), (tickets, "assign")], ids=["share", "assign"])
+def test_share_and_assign_check_recipient(domain, kind):
+    task = domain.build(seed=0, kind="fixed", index=0, variant="none")
+    final = task.target_at(task.last_change_step)
+    ev = {"kind": kind, "itemId": final, "commit": True, "detail": {"to": "Nobody Here"}}
+    assert score(task, traj([ev]))["outcome"] == "wrong_detail"
+    ev["detail"]["to"] = task.meta["recipient"]
+    assert score(task, traj([ev]))["outcome"] == "success"
