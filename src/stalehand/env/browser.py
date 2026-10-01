@@ -40,6 +40,21 @@ _BOXES_JS = """() => {
   return out;
 }"""
 
+# Figure annotations for render(): a box around each item, with its label above it, so identity is in the text
+_OUTLINE_JS = """(marks) => {
+  const colors = ['#b42318', '#1d4ed8'];
+  marks.forEach(({box: [x, y, w, h], label}, i) => {
+    const c = colors[i % colors.length];
+    const frame = document.createElement('div');
+    frame.style.cssText = `position:fixed;left:${x - 3}px;top:${y - 3}px;width:${w}px;height:${h}px;` +
+      `border:3px ${i % 2 ? 'dashed' : 'solid'} ${c};border-radius:6px;z-index:9999;pointer-events:none`;
+    const tag = document.createElement('div');
+    tag.textContent = label;
+    tag.style.cssText = `position:fixed;left:${x}px;top:${Math.max(0, y - 24)}px;background:${c};color:#fff;` +
+      `font:600 13px sans-serif;padding:3px 8px;border-radius:4px;z-index:10000`;
+    document.body.append(frame, tag);
+  });
+}"""
 
 _driver = {"pw": None, "users": 0}  # Playwright allows one sync driver per process; environments share it
 
@@ -177,6 +192,26 @@ class BrowserEnv:
 
     def view(self):
         return self._page.evaluate("window.stalehand.view()")
+
+    def render(self, scenario: Scenario, through_step: Optional[int] = None,
+               outline: Optional[Dict[str, str]] = None) -> bytes:
+        """Screenshot of a scenario without running an episode: its first screen, or the screen once every change up
+        to through_step has landed. outline maps item ids to labels drawn around them. Uses its own page, so a live
+        episode in this environment is left as it was."""
+        page = self._browser.new_page(viewport={"width": VIEWPORT[0], "height": VIEWPORT[1]})
+        try:
+            page.goto(app_url(scenario.domain))
+            page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
+            for sc in scenario.changes:
+                if through_step is not None and sc.step <= through_step:
+                    page.evaluate("c => window.stalehand.apply(c)", change_to_dict(sc.change))
+            if outline:
+                boxes = page.evaluate(_BOXES_JS)
+                page.evaluate(_OUTLINE_JS, [{"box": boxes[i], "label": label} for i, label in outline.items()
+                                            if i in boxes])
+            return page.screenshot(type="png")
+        finally:
+            page.close()
 
     def close(self) -> None:
         if self._page is not None:

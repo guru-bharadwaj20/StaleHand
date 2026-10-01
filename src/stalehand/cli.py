@@ -98,6 +98,30 @@ def _final(args) -> int:
     return 0
 
 
+def _render(args) -> int:
+    from pathlib import Path
+
+    from .env.browser import BrowserEnv
+    from .scenarios.export import read_jsonl
+    found = [s for s in read_jsonl(args.scenarios) if s.id == args.id]
+    if not found:
+        print(f"no scenario {args.id} in {args.scenarios}", file=sys.stderr)
+        return 1
+    s, out = found[0], Path(args.out_dir)
+    final = s.target_at(s.last_change_step)
+    env = BrowserEnv(channel=None if args.channel == "none" else args.channel)
+    try:
+        (out / f"{s.id}-planner.png").write_bytes(env.render(s, outline={s.stale_target: "planner's target"}))
+        marks = {s.stale_target: "planner's target"}
+        if final is not None and final != s.stale_target:
+            marks[final] = "correct now"
+        (out / f"{s.id}-changed.png").write_bytes(env.render(s, through_step=s.last_change_step, outline=marks))
+    finally:
+        env.close()
+    print(f"wrote {s.id}-planner.png and {s.id}-changed.png to {out}")
+    return 0
+
+
 def _readme(args) -> int:
     from .report.readme import section, splice
     with open(args.readme, encoding="utf-8") as f:
@@ -159,6 +183,12 @@ def build_parser() -> argparse.ArgumentParser:
     fp.add_argument("--n-boot", type=int, default=10000)
     fp.add_argument("--seed", type=int, default=0)
     fp.set_defaults(func=_final)
+    rn = sub.add_parser("render", help="screenshots of a scenario before and after its change, for figures")
+    rn.add_argument("--scenarios", required=True)
+    rn.add_argument("--id", required=True)
+    rn.add_argument("--out-dir", default=".")
+    rn.add_argument("--channel", default="chrome", help="browser channel, or none for Playwright's Chromium")
+    rn.set_defaults(func=_render)
     rd = sub.add_parser("readme", help="rebuild the results section of README.md from result files")
     rd.add_argument("--results", default="results")
     rd.add_argument("--readme", default="README.md")
