@@ -30,4 +30,4 @@ def test_loop_rows_join_trajectories_to_results(tmp_path):
     assert rows == [{"run_set": "main", "architecture": "h", "guard": "none", "outcome": "no_commit",
                      "end_reason": "max_steps", "loop": True}]
     md = markdown(rows)
-    assert "| main | h | none | 1 | 100% | 100% | 100% |" in md
+    assert "| main | h | none | 1 | 100% | 100% | 100% | 100% |" in md

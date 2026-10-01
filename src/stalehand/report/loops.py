@@ -42,12 +42,13 @@ def markdown(rows: List[dict]) -> str:
         groups.setdefault((r["run_set"], r["architecture"], r["guard"]), []).append(r)
     frac = lambda rs, f: sum(map(f, rs)) / len(rs)
     lines = [[*key, str(len(rs)), _pct(frac(rs, lambda r: r["outcome"] == "no_commit")),
-              _pct(frac(rs, lambda r: r["end_reason"] == "max_steps")), _pct(frac(rs, lambda r: r["loop"]))]
+              _pct(frac(rs, lambda r: r["end_reason"] == "max_steps")), _pct(frac(rs, lambda r: r["loop"])),
+              _pct(frac(nc, lambda r: r["loop"])) if (nc := [r for r in rs if r["outcome"] == "no_commit"]) else "n/a"]
              for key, rs in groups.items()]
     head = [f"Built from {len(rows)} episodes. Click loop: the episode hit the step limit and its last four actions "
             "were clicks within 15 px of one spot.", ""]
     return "\n".join(head + _table(["run set", "architecture", "guard", "episodes", "no commit", "ran out of steps",
-                                    "click loop"], lines)) + "\n"
+                                    "click loop", "click loop among no commit"], lines)) + "\n"
 
 
 if __name__ == "__main__":
