@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Callable
 
 from ..agents.delegated import Delegated
+from ..agents.flat import Flat
 from ..agents.hierarchical import Hierarchical
 from ..guards import registry as guards
 from ..models.registry import MODELS
@@ -13,7 +14,8 @@ from ..scenarios.export import read_jsonl
 from .episodes import run_episodes
 from .provenance import config, model_info
 
-ARCHITECTURES = {"hierarchical": Hierarchical, "delegated": Delegated}
+ARCHITECTURES = {"hierarchical": Hierarchical, "delegated": Delegated, "flat": Flat}
+PLANNERLESS = ("flat",)  # these jobs name their planner "none"
 
 
 def _resuming(out: Path, job) -> bool:
@@ -36,11 +38,11 @@ def execute(job, out_dir, root, load_model: Callable[[str, str], object], make_e
     resuming = _resuming(out, job)
     scenarios = read_jsonl(root / job.scenarios)
     random.seed(job.seed)
-    planner = load_model(job.planner, "planner")
+    planner = None if job.architecture in PLANNERLESS else load_model(job.planner, "planner")
     executor = load_model(job.executor, "executor")
     if not resuming:
         out.mkdir(parents=True, exist_ok=True)
-        cfg = config(job, {"planner": model_info(job.planner, planner, backend),
+        cfg = config(job, {"planner": None if planner is None else model_info(job.planner, planner, backend),
                            "executor": model_info(job.executor, executor, backend)}, root)
         (out / "config.json").write_text(json.dumps(cfg, indent=2, sort_keys=True) + "\n")
     guard = guards.make(job.guard, checker=planner)

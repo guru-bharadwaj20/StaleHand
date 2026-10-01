@@ -95,3 +95,13 @@ def test_delegated_architecture(root):
             make_env=lambda t: FakeEnv(), backend="scripted")
     row = json.loads((out / "results.jsonl").read_text().splitlines()[0])
     assert row["architecture"] == "delegated"
+
+
+def test_flat_architecture_loads_no_planner(root):
+    loaded = []
+    out = root / "runs" / "f"
+    execute(replace(JOB, architecture="flat", planner="none"), out, root=root, load_model=models(loaded),
+            make_env=lambda t: FakeEnv(), backend="scripted")
+    assert loaded == [("executor-m", "executor")]
+    assert json.loads((out / "config.json").read_text())["models"]["planner"] is None
+    assert json.loads((out / "results.jsonl").read_text().splitlines()[0])["planner_calls"] == 0
