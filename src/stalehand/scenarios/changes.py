@@ -61,3 +61,16 @@ def _update(change: Update, items: List[Item]) -> List[Item]:
     if change.id not in {it.id for it in items}:
         raise ValueError(f"cannot update missing id {change.id}")
     return [Item(it.id, {**it.attrs, **change.attrs}) if it.id == change.id else it for it in items]
+
+
+@dataclass(frozen=True)
+class Sort:
+    field: str
+    descending: bool = False
+
+
+@_applies(Sort)
+def _sort(change: Sort, items: List[Item]) -> List[Item]:
+    present = sorted((it for it in items if it.get(change.field) is not None),
+                     key=lambda it: it.get(change.field), reverse=change.descending)
+    return present + [it for it in items if it.get(change.field) is None]

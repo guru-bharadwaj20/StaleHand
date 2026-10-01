@@ -52,3 +52,14 @@ def test_update_missing_id_is_rejected():
     from stalehand.scenarios.changes import Update
     with pytest.raises(ValueError):
         apply(BASE, Update("zz", {"v": 1}))
+
+
+def test_sort_orders_by_field():
+    from stalehand.scenarios.changes import Sort
+    assert ids(apply(BASE, Sort("v", descending=True))) == ["c", "b", "a"]
+
+
+def test_sort_puts_missing_field_last():
+    from stalehand.scenarios.changes import Sort
+    items = [Item("x", {}), Item("y", {"v": 1}), Item("z", {"v": 2})]
+    assert ids(apply(items, Sort("v"))) == ["y", "z", "x"]
