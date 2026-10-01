@@ -58,14 +58,18 @@ class BrowserEnv:
         self._page.goto(app_url(scenario.domain))
         self._page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
         self._page.evaluate(_MUTATIONS_JS)
-        self.scenario, self.step = scenario, 0
+        self.scenario, self.step, self._external = scenario, 0, 0
         self._apply_due_changes()
         return self.observe()
 
     def _apply_due_changes(self) -> None:
-        for sc in self.scenario.changes:
-            if sc.step == self.step:
-                self._page.evaluate("c => window.stalehand.apply(c)", change_to_dict(sc.change))
+        due = [sc for sc in self.scenario.changes if sc.step == self.step]
+        if not due:
+            return
+        before = self.mutations_since_mark()
+        for sc in due:
+            self._page.evaluate("c => window.stalehand.apply(c)", change_to_dict(sc.change))
+        self._external += self.mutations_since_mark() - before
 
     def observe(self) -> Observation:
         return Observation(self.step, self._page.screenshot(type="png"))
@@ -92,6 +96,13 @@ class BrowserEnv:
 
     def mutations_since_mark(self) -> int:
         return self._page.evaluate("window.__stalehandMutations")
+
+    def mark_external(self) -> None:
+        """Start counting DOM mutations caused by scheduled changes only, not by the agent's own actions."""
+        self._external = 0
+
+    def external_since_mark(self) -> int:
+        return self._external
 
     def item_boxes(self) -> Dict[str, Box]:
         """Visible part of every item element, in screen pixels: {item_id: (x, y, w, h)}."""

@@ -72,3 +72,21 @@ def test_cosmetic_change_also_mutates_dom(env):
     env.mark_mutations()
     env.act(Click(5, 5))
     assert env.mutations_since_mark() > 0
+
+
+def test_own_actions_are_not_external_changes(env):
+    s = inbox.build(seed=0, kind="fixed", index=0, variant="none")
+    env.reset(s)
+    env.mark_external()
+    env.act(centre(env.item_boxes()[s.stale_target]))  # opening a mail rebuilds the DOM
+    assert env.mutations_since_mark() > 0 and env.external_since_mark() == 0
+
+
+def test_scheduled_change_counts_as_external(env):
+    s = inbox.build(seed=0, kind="fixed", index=0, variant="L0", change_step=2)
+    env.reset(s)
+    env.mark_external()
+    env.act(Click(5, 5))
+    assert env.external_since_mark() == 0
+    env.act(Click(5, 5))
+    assert env.external_since_mark() > 0
