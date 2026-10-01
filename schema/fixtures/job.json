@@ -1,0 +1,6 @@
+{
+  "job": {"id": "35eb0fb0bcee", "matrix": "pilot", "scenarios": "scenarios/inbox_pilot.jsonl",
+          "architecture": "hierarchical", "guard": "dom_step_abort", "planner": "qwen3-vl-8b",
+          "executor": "ui-tars-1.5-7b", "seed": 7, "max_steps": 12},
+  "base64": "eyJpZCI6IjM1ZWIwZmIwYmNlZSIsIm1hdHJpeCI6InBpbG90Iiwic2NlbmFyaW9zIjoic2NlbmFyaW9zL2luYm94X3BpbG90Lmpzb25sIiwiYXJjaGl0ZWN0dXJlIjoiaGllcmFyY2hpY2FsIiwiZ3VhcmQiOiJkb21fc3RlcF9hYm9ydCIsInBsYW5uZXIiOiJxd2VuMy12bC04YiIsImV4ZWN1dG9yIjoidWktdGFycy0xLjUtN2IiLCJzZWVkIjo3LCJtYXhfc3RlcHMiOjEyfQ=="
+}
