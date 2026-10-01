@@ -25,5 +25,5 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "-p no:cacheprovider"
+addopts = "-p no:cacheprovider --import-mode=importlib"
 markers = ["browser: needs Chrome through Playwright"]
