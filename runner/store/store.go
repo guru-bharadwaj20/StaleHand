@@ -123,6 +123,35 @@ func (s *Store) Release(host string) (int64, error) {
 	return res.RowsAffected()
 }
 
+// Placed is a finished job and the host whose disk holds its run directory.
+type Placed struct {
+	Job  matrix.Job
+	Host string
+}
+
+// Finished returns every done job, in id order.
+func (s *Store) Finished() ([]Placed, error) {
+	rows, err := s.db.Query(`SELECT spec, host FROM jobs WHERE status = 'done' ORDER BY id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var out []Placed
+	for rows.Next() {
+		var spec, host string
+		if err := rows.Scan(&spec, &host); err != nil {
+			return nil, err
+		}
+		var p Placed
+		if err := json.Unmarshal([]byte(spec), &p.Job); err != nil {
+			return nil, err
+		}
+		p.Host = host
+		out = append(out, p)
+	}
+	return out, rows.Err()
+}
+
 // Counts returns the number of jobs per status.
 func (s *Store) Counts() (map[string]int, error) {
 	rows, err := s.db.Query(`SELECT status, COUNT(*) FROM jobs GROUP BY status`)

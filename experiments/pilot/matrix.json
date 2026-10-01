@@ -1,0 +1,10 @@
+{
+  "name": "pilot",
+  "scenarios": ["experiments/pilot/inbox.jsonl", "experiments/pilot/shop.jsonl"],
+  "architectures": ["hierarchical"],
+  "guards": ["none", "replan_every_step"],
+  "planners": ["qwen3-vl-8b"],
+  "executors": ["ui-tars-1.5-7b"],
+  "seeds": [0],
+  "max_steps": 12
+}

@@ -1,6 +1,7 @@
 """Local transformers backend (greedy decoding, batched). Needs the `models` extra and a GPU."""
 import io
 import os
+from pathlib import Path
 from typing import List, Sequence
 
 from .base import Request
@@ -15,6 +16,12 @@ def conversation(r: Request) -> list:
     return [{"role": "user", "content": content}]
 
 
+def snapshot_revision(path: str):
+    """Commit hash of a Hugging Face cache snapshot directory, or None for any other directory."""
+    p = Path(path)
+    return p.name if p.parent.name == "snapshots" else None
+
+
 class HFVLM:
     def __init__(self, model_id: str, batch: int = 8, dtype: str = os.environ.get("DTYPE", "bfloat16")):
         import torch
@@ -22,6 +29,7 @@ class HFVLM:
         from transformers import AutoModelForImageTextToText, AutoProcessor
         local = model_id if os.path.isdir(model_id) else snapshot_download(model_id)
         self.name, self.batch, self._torch = model_id, batch, torch
+        self.revision = snapshot_revision(local)
         self.proc = AutoProcessor.from_pretrained(local)
         self.proc.tokenizer.padding_side = "left"
         self.model = AutoModelForImageTextToText.from_pretrained(
