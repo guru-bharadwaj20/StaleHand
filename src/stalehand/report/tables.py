@@ -51,6 +51,7 @@ def guard_summary(rows: Iterable[dict]) -> List[Dict]:
         out.append({"architecture": g["architecture"], "guard": g["guard"], "n": g["n"],
                     "relevant_n": len(rel), "relevant_success": frac(rel, lambda r: r["outcome"] == "success"),
                     "relevant_stale": frac(rel, lambda r: r["outcome"] == "stale"),
+                    "relevant_fired": frac(rel, lambda r: r.get("fired", 0) > 0),
                     "harmless_n": len(harm), "harmless_success": frac(harm, lambda r: r["outcome"] == "success"),
                     "false_alarm": frac(harm, lambda r: r["false_alarm"]),
                     "calls": sum(r["planner_calls"] + r.get("checker_calls", 0) for r in rs) / len(rs)})

@@ -40,11 +40,13 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
     rows = [dict(r, domain=domain_of(r)) for r in rows]
     out = [f"Built from {len(rows)} scored episodes.", "", "## Summary by guard", "",
            "Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that "
-           "leaves the target where it was. Calls: planner plus checker calls per episode.", ""]
-    out += _table(["architecture", "guard", "relevant n", "success", "stale", "harmless n", "success",
+           "leaves the target where it was. Fired: the guard re-planned, re-bound or aborted at least once. Calls: "
+           "planner plus checker calls per episode.", ""]
+    out += _table(["architecture", "guard", "relevant n", "fired", "success", "stale", "harmless n", "success",
                    "false alarms", "calls"],
-                  [[g["architecture"], g["guard"], str(g["relevant_n"]), _pct(g["relevant_success"]),
-                    _pct(g["relevant_stale"]), str(g["harmless_n"]), _pct(g["harmless_success"]),
+                  [[g["architecture"], g["guard"], str(g["relevant_n"]), _pct(g["relevant_fired"]),
+                    _pct(g["relevant_success"]), _pct(g["relevant_stale"]), str(g["harmless_n"]),
+                    _pct(g["harmless_success"]),
                     _pct(g["false_alarm"]), f"{g['calls']:.1f}"] for g in guard_summary(rows)])
     out += ["", "## By change kind", "",
             "Success on each kind of change. When the change removed the target there is no correct item, so the "

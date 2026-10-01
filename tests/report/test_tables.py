@@ -55,3 +55,10 @@ def test_guard_summary_splits_relevant_and_harmless():
     assert s["relevant_success"] == pytest.approx(0.5) and s["relevant_stale"] == pytest.approx(0.5)
     assert s["harmless_success"] == pytest.approx(0.5) and s["false_alarm"] == pytest.approx(0.5)
     assert s["calls"] == pytest.approx(4.0)  # planner + checker calls per episode: (3 + 3 + 5 + 5) / 4
+
+
+def test_guard_summary_counts_relevant_episodes_where_the_guard_fired():
+    from stalehand.report.tables import guard_summary
+    rows = [dict(row("g", "success"), fired=2), dict(row("g", "stale"), fired=0),
+            dict(row("g", "success", change_kind="none"), fired=1)]
+    assert guard_summary(rows)[0]["relevant_fired"] == pytest.approx(0.5)

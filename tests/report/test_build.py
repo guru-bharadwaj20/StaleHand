@@ -38,7 +38,7 @@ def test_arms_without_shared_scenarios_are_reported_not_fatal():
 def test_markdown_opens_with_guard_summary():
     md = markdown(ROWS, n_boot=50)
     assert md.index("## Summary by guard") < md.index("## Outcomes")
-    assert "| hierarchical | none | 6 | 0% | 100% | 1 | 100% | 0% | 1.0 |" in md
+    assert "| hierarchical | none | 6 | 0% | 0% | 100% | 1 | 100% | 0% | 1.0 |" in md
 
 
 def test_outcome_rows_are_ordered_baseline_first_then_by_name():

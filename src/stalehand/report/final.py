@@ -15,7 +15,7 @@ from .contrasts import SUBSETS, load_runs
 from .loops import loop_rows
 from .tables import guard_summary
 
-SUMMARY = ("relevant_n", "relevant_success", "relevant_stale", "harmless_n", "harmless_success", "false_alarm")
+SUMMARY = ("relevant_n", "relevant_fired", "relevant_success", "relevant_stale", "harmless_n", "harmless_success", "false_alarm")
 
 
 def values(root, run_sets: List[str], n_boot: int = 10000, seed: int = 0) -> Dict[str, str]:
