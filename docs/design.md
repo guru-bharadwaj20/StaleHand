@@ -42,13 +42,13 @@ scenarios ──► apps (HTML/JS) ──► env (Playwright) ◄──► agent
 | Package | Responsibility |
 |---|---|
 | `stalehand.scenarios` | Pure data. Items, the task's selection criterion, change events, and a resolver that computes the correct target for any list of items. Deterministic from a seed. |
-| `stalehand.apps` | One small web app per domain (inbox, shop, files, tickets, calendar, chat). Items carry `data-item-id`, and every user action is logged. Changes are applied live through a JavaScript hook. |
+| `apps/` (TypeScript) | One small web app per domain (inbox, shop, files, tickets, calendar, chat). Items carry `data-item-id`, and every user action is logged. Changes are applied live through a JavaScript hook. |
 | `stalehand.env` | A Playwright environment around an app: reset, screenshot, act, apply a change at a set step, and report DOM mutations. A static mode renders before and after screens for cheap single-step runs. |
 | `stalehand.models` | One interface for vision-language models: local transformers, an OpenAI-compatible server (vLLM), and a scripted fake for tests. Output parsers live with each model family. |
 | `stalehand.agents` | Three architectures: hierarchical (planner and worker, Agent S2 style), delegated (orchestrator and GUI operator with a step budget and summary, CoAct-1 style) and flat (one policy per step, Agent S3 style, as a reference). |
-| `stalehand.guards` | Hooks that run before each executor action: none, re-plan every step, self-check, rule subtask, DOM-change abort, pixel-diff abort, and target re-binding. |
-| `stalehand.metrics` | Per-episode outcomes and paired statistics (exact McNemar, cluster bootstrap over scenario templates). |
-| `stalehand.runner` | Expands a config into a run matrix, shards it across machines, writes JSONL results with the full config, seed and library versions, and resumes after a crash. |
+| `stalehand.guards` | Hooks that run before each executor action (the pixel-diff engine is the Rust crate `screendiff`): none, re-plan every step, self-check, rule subtask, DOM-change abort, pixel-diff abort, and target re-binding. |
+| `stalehand.metrics` | Per-episode outcomes and paired statistics (exact McNemar, cluster bootstrap over scenario templates; the bootstrap core is in Rust). |
+| `runner/` (Go) | Expands a config into a run matrix, shards it across machines, writes JSONL results with the full config, seed and library versions, and resumes after a crash. |
 | `stalehand.report` | Tables and charts from result files only. |
 
 ## Languages
