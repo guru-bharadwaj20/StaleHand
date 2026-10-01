@@ -79,3 +79,10 @@ def test_correlated_clusters_widen_the_interval():
     clustered = stats.cluster_bootstrap(units, f, lambda u: u[0], n_boot=1000)
     iid = stats.cluster_bootstrap(units, f, lambda u: id(u), n_boot=1000)
     assert clustered[1] - clustered[0] > 1.5 * (iid[1] - iid[0])
+def test_compare_summarises_discordant_pairs():
+    a = [row(f"x-k-{i:03d}-L1", "success") for i in range(12)]
+    b = [row(f"x-k-{i:03d}-L1", "success" if i < 2 else "stale") for i in range(12)]
+    r = stats.compare(a, b, n_boot=200)
+    assert (r["n"], r["a_only"], r["b_only"]) == (12, 10, 0)
+    assert r["a_rate"] == 1.0 and r["b_rate"] == pytest.approx(2 / 12)
+    assert r["p"] == pytest.approx(stats.mcnemar_exact(10, 0))

@@ -59,3 +59,18 @@ def cluster_bootstrap(units, stat, cluster_of, n_boot: int = 10000, seed: int = 
     lo = values[int(math.floor(alpha / 2 * (n_boot - 1)))]
     hi = values[int(math.ceil((1 - alpha / 2) * (n_boot - 1)))]
     return lo, hi
+
+
+def compare(rows_a, rows_b, success=_ok, n_boot: int = 10000, seed: int = 0) -> dict:
+    """Paired comparison of two arms on the same scenarios: rates, discordant pairs, exact McNemar p, and a
+    template-clustered bootstrap interval for the difference in success rate (a minus b)."""
+    pairs, missing = pair(rows_a, rows_b, success)
+    if not pairs:
+        raise ValueError("the two arms share no scenarios")
+    a_only = sum(1 for _, x, y in pairs if x and not y)
+    b_only = sum(1 for _, x, y in pairs if y and not x)
+    diff = lambda ps: (sum(x for _, x, _ in ps) - sum(y for _, _, y in ps)) / len(ps)
+    lo, hi = cluster_bootstrap(pairs, diff, lambda p: template_of(p[0]), n_boot=n_boot, seed=seed)
+    return {"n": len(pairs), **missing, "a_rate": sum(x for _, x, _ in pairs) / len(pairs),
+            "b_rate": sum(y for _, _, y in pairs) / len(pairs), "diff": diff(pairs), "diff_ci": [lo, hi],
+            "a_only": a_only, "b_only": b_only, "p": mcnemar_exact(a_only, b_only), "n_boot": n_boot, "seed": seed}
