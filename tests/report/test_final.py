@@ -59,3 +59,16 @@ def test_values_include_click_loop_shares(tmp_path):
     (tmp_path / "main" / "job1" / "trajectories" / "inbox-a-000-L1.json").write_text(json.dumps(traj))
     v = values(tmp_path, ["main"], n_boot=20)
     assert v["main.none.click_loop"] == "50%" and v["main.none.loop_among_no_commit"] == "100%"
+
+
+def test_values_include_recovery_after_a_missed_first_open(tmp_path):
+    rows = [dict(row(f"inbox-a-00{i}-L1", "none", o, "irrelevant"), correct_target="m1")
+            for i, o in enumerate(("success", "wrong_item"))]
+    write(tmp_path, "timing", rows)
+    (tmp_path / "timing" / "job1" / "trajectories").mkdir()
+    for r in rows:
+        (tmp_path / "timing" / "job1" / "trajectories" / f"{r['scenario_id']}.json").write_text(
+            json.dumps({"entries": [], "app_events": [{"kind": "open", "itemId": "m2"}]}))
+    v = values(tmp_path, ["main", "timing"], n_boot=20)
+    assert v["timing.none.first_open_missed"] == "100%"
+    assert v["timing.none.recovered"] == "50%" and v["timing.none.wrong_after_miss"] == "50%"

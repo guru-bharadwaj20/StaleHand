@@ -13,6 +13,7 @@ from ..metrics.stats import compare, holm, pair
 from .build import _p, _pct
 from .contrasts import SUBSETS, load_runs
 from .loops import loop_rows
+from .recovery import recovery_rows
 from .tables import guard_summary
 
 SUMMARY = ("relevant_n", "relevant_fired", "relevant_success", "relevant_stale", "harmless_n", "harmless_success", "false_alarm")
@@ -35,6 +36,14 @@ def values(root, run_sets: List[str], n_boot: int = 10000, seed: int = 0) -> Dic
             nc = [r for r in rs if r["outcome"] == "no_commit"]
             out[f"{name}.{guard}.click_loop"] = _pct(sum(r["loop"] for r in rs) / len(rs))
             out[f"{name}.{guard}.loop_among_no_commit"] = _pct(sum(r["loop"] for r in nc) / len(nc)) if nc else "n/a"
+        harmless = recovery_rows(Path(root) / name)
+        for guard in dict.fromkeys(r["guard"] for r in harmless):
+            rs = [r for r in harmless if r["guard"] == guard]
+            missed = [r for r in rs if r["missed"]]
+            out[f"{name}.{guard}.first_open_missed"] = _pct(len(missed) / len(rs))
+            for key, outcome in (("recovered", "success"), ("wrong_after_miss", "wrong_item")):
+                out[f"{name}.{guard}.{key}"] = (_pct(sum(r["outcome"] == outcome for r in missed) / len(missed))
+                                                if missed else "n/a")
     base = run_sets[0]
     found = []
     for name, rs in rows.items():
