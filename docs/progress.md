@@ -30,3 +30,29 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
   Kept, but they don't measure staleness. The results bar still read "sorted by relevance", the planner kept
   asking to sort, and the executor searched for a sort control that does not exist. Rerun as `pilot_shop_rerun`
   after `fix: drop sort wording from shop results`. Use those rows for shop relative tasks instead.
+
+## Known confounds
+
+- **Executor click loops** (main runs, all guards). Most no-commit episodes end at the step limit with the executor
+  clicking one spot (`results/vivian-4090/loops_report.md`). The usual case: the planner says "click the Reply
+  button", the click works, and the compose view then shows a bold "Reply" or "Forward" label close to where the
+  button was. The executor keeps clicking the label. The screen doesn't change, so it never reports the subtask
+  finished and the planner is never asked again. Replaying one such episode in Chrome confirmed that each click on
+  the label leaves the screenshot byte-identical. The same pattern shows up on an email or product that is already
+  open, and after Add to cart.
+  This affects every guard on the same scenarios, so the paired guard comparisons stay valid. But it lowers success
+  for all of them, and `replan_every_step` escapes most of these loops simply because it asks the planner at every
+  step. Part of its lead may therefore come from breaking loops rather than catching stale subtasks. The
+  stall-return ablation (`experiments/main/matrix_stall.json`, architecture `hierarchical_stall`) tests this. There
+  the executor hands control back after two actions in a row that leave the screen unchanged, with no change to the
+  apps or scenarios, so it pairs with `main` scenario by scenario.
+
+## Plan changes on the night of 1 October
+
+- The main comparison took about four hours, and the queue behind it would not have finished by 07:00. To fit,
+  `delegated` dropped `self_check` (the costliest guard and a weak one in main) and `domains_lab` dropped
+  `dom_subtask_replan` (`rebind_dom` reads the same DOM signal with fewer false alarms). The stall-return ablation
+  was added after the timing study. Order: timing, main_stall, delegated, domains_lab, flat.
+- Code is promoted on worker-1 only between matrices. `main_stall` and later matrices run commit `210dd66`; `main`
+  and `timing` ran `b019e4e`. The commits in between add the `hierarchical_stall` architecture and report code
+  and don't change how the other architectures behave.
