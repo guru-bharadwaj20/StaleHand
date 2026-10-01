@@ -36,3 +36,21 @@ def rates(rows: Iterable[dict], by: Sequence[str]) -> List[Dict]:
         g["planner_calls"] = sum(r["planner_calls"] for r in rs) / n
         out.append(g)
     return out
+
+
+def guard_summary(rows: Iterable[dict]) -> List[Dict]:
+    """One line per (architecture, guard): what happens on relevant changes, on harmless ones, and the model-call
+    cost (planner plus checker calls per episode). target_removed episodes are left out of both halves."""
+    out = []
+    for g in rates(rows, by=("architecture", "guard")):
+        rs = [r for r in rows if r["architecture"] == g["architecture"] and r["guard"] == g["guard"]]
+        rel = [r for r in rs if r["change_kind"] == "relevant"]
+        harm = [r for r in rs if r["change_kind"] in HARMLESS]
+        frac = lambda xs, f: sum(map(f, xs)) / len(xs) if xs else None
+        out.append({"architecture": g["architecture"], "guard": g["guard"], "n": g["n"],
+                    "relevant_n": len(rel), "relevant_success": frac(rel, lambda r: r["outcome"] == "success"),
+                    "relevant_stale": frac(rel, lambda r: r["outcome"] == "stale"),
+                    "harmless_n": len(harm), "harmless_success": frac(harm, lambda r: r["outcome"] == "success"),
+                    "false_alarm": frac(harm, lambda r: r["false_alarm"]),
+                    "calls": sum(r["planner_calls"] + r.get("checker_calls", 0) for r in rs) / len(rs)})
+    return out

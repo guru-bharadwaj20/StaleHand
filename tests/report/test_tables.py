@@ -40,3 +40,18 @@ def test_load_rows_reads_every_run_directory(tmp_path):
         d.mkdir(parents=True)
         (d / "results.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rs))
     assert len(load_rows(tmp_path)) == 3
+
+
+def test_guard_summary_splits_relevant_and_harmless():
+    from stalehand.report.tables import guard_summary
+    rows = [row("g", "success", change_kind="relevant", planner_calls=2),
+            row("g", "stale", change_kind="relevant", planner_calls=2),
+            row("g", "success", change_kind="none", false_alarm=True, planner_calls=4),
+            row("g", "no_commit", change_kind="irrelevant", planner_calls=4)]
+    for r in rows:
+        r["checker_calls"] = 1
+    (s,) = guard_summary(rows)
+    assert s["guard"] == "g" and s["relevant_n"] == 2 and s["harmless_n"] == 2
+    assert s["relevant_success"] == pytest.approx(0.5) and s["relevant_stale"] == pytest.approx(0.5)
+    assert s["harmless_success"] == pytest.approx(0.5) and s["false_alarm"] == pytest.approx(0.5)
+    assert s["calls"] == pytest.approx(4.0)  # planner + checker calls per episode: (3 + 3 + 5 + 5) / 4
