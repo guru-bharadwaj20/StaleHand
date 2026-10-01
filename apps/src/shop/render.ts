@@ -39,7 +39,7 @@ function mainView(state: ShopState, go: (a: ShopAction) => void): HTMLElement {
   if (state.banner) main.append(el("div", { class: "banner", "data-role": "banner" }, "Festive sale: extra 10% off with UPI"));
   const v = state.view;
   if (v.name === "list") {
-    main.append(el("div", { class: "bar" }, `Results for "${category(state)}", sorted by relevance`));
+    main.append(el("div", { class: "bar" }, `Results for "${category(state)}"`));
     const list = el("div", { class: "list", "data-role": "results" });
     state.items.forEach((it) => list.append(listing(it, () => go({ type: "open", id: it.id }))));
     main.append(list);

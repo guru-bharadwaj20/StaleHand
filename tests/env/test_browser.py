@@ -124,4 +124,4 @@ def test_events_carry_the_step_of_the_action(env):
 def test_shop_shows_no_dead_controls(env):
     env.reset(shop.build(seed=0, kind="cheapest", index=0, variant="none"))
     text = env._page.inner_text("body")
-    assert "Sort" not in text and "Filters" not in text
+    assert "sort" not in text.lower() and "Filters" not in text
