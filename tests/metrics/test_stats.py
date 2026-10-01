@@ -86,3 +86,10 @@ def test_compare_summarises_discordant_pairs():
     assert (r["n"], r["a_only"], r["b_only"]) == (12, 10, 0)
     assert r["a_rate"] == 1.0 and r["b_rate"] == pytest.approx(2 / 12)
     assert r["p"] == pytest.approx(stats.mcnemar_exact(10, 0))
+
+
+def test_holm_adjusts_in_step_down_order_and_stays_monotone():
+    from stalehand.metrics.stats import holm
+    assert holm([0.01, 0.04, 0.03]) == pytest.approx([0.03, 0.06, 0.06])
+    assert holm([0.5, 0.9]) == pytest.approx([1.0, 1.0])
+    assert holm([]) == []

@@ -101,3 +101,17 @@ def test_report_command_writes_charts_next_to_markdown(tmp_path):
     assert (tmp_path / "main_report_hierarchical_tradeoff.svg").exists()
     assert (tmp_path / "main_report_hierarchical_outcomes.svg").exists()
     assert "![" in out.read_text() and "main_report_hierarchical_tradeoff.svg" in out.read_text()
+
+
+def test_contrasts_command_reads_several_run_sets(tmp_path):
+    for name, arch in (("main", "hierarchical"), ("delegated", "delegated")):
+        run = tmp_path / name / "job1"
+        run.mkdir(parents=True)
+        (run / "config.json").write_text(json.dumps({"job": {"change_timing": "after_handoff"}}))
+        row = {"scenario_id": "shop-cheapest-000-L1", "guard": "none", "outcome": "success", "change_kind": "relevant",
+               "kind": "cheapest", "false_alarm": False, "planner_calls": 1, "architecture": arch}
+        (run / "results.jsonl").write_text(json.dumps(row) + "\n")
+    out = tmp_path / "contrasts.md"
+    assert main(["contrasts", "--runs", str(tmp_path / "main"), str(tmp_path / "delegated"), "--out", str(out),
+                 "--n-boot", "20"]) == 0
+    assert "## Architecture: `delegated` against `hierarchical`" in out.read_text()

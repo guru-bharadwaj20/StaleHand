@@ -76,6 +76,18 @@ def _report(args) -> int:
     return 0
 
 
+def _contrasts(args) -> int:
+    from .report.contrasts import load_runs, markdown
+    rows = [r for d in args.runs for r in load_runs(d)]
+    if not rows:
+        print(f"no results.jsonl under {' '.join(args.runs)}", file=sys.stderr)
+        return 1
+    with open(args.out, "w") as f:
+        f.write(markdown(rows, n_boot=args.n_boot, seed=args.seed))
+    print(f"wrote {args.out} from {len(rows)} episodes")
+    return 0
+
+
 def _readme(args) -> int:
     from .report.readme import section, splice
     with open(args.readme, encoding="utf-8") as f:
@@ -123,6 +135,12 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--seed", type=int, default=0)
     rp.add_argument("--charts", action="store_true", help="also write SVG charts next to the report")
     rp.set_defaults(func=_report)
+    cp = sub.add_parser("contrasts", help="paired architecture and timing contrasts across run sets on the same scenarios")
+    cp.add_argument("--runs", nargs="+", required=True, help="run-set directories that share scenarios")
+    cp.add_argument("--out", required=True)
+    cp.add_argument("--n-boot", type=int, default=10000)
+    cp.add_argument("--seed", type=int, default=0)
+    cp.set_defaults(func=_contrasts)
     rd = sub.add_parser("readme", help="rebuild the results section of README.md from result files")
     rd.add_argument("--results", default="results")
     rd.add_argument("--readme", default="README.md")

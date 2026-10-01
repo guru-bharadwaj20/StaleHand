@@ -74,3 +74,12 @@ def compare(rows_a, rows_b, success=_ok, n_boot: int = 10000, seed: int = 0) -> 
     return {"n": len(pairs), **missing, "a_rate": sum(x for _, x, _ in pairs) / len(pairs),
             "b_rate": sum(y for _, _, y in pairs) / len(pairs), "diff": diff(pairs), "diff_ci": [lo, hi],
             "a_only": a_only, "b_only": b_only, "p": mcnemar_exact(a_only, b_only), "n_boot": n_boot, "seed": seed}
+
+
+def holm(ps):
+    """Holm step-down adjusted p-values, in the input order; controls the family-wise error rate."""
+    m, adjusted, running = len(ps), [0.0] * len(ps), 0.0
+    for rank, i in enumerate(sorted(range(m), key=lambda i: ps[i])):
+        running = max(running, min(1.0, (m - rank) * ps[i]))
+        adjusted[i] = running
+    return adjusted
