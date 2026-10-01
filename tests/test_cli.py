@@ -1,4 +1,8 @@
 import json
+import os
+import subprocess
+import sys
+from pathlib import Path
 
 from stalehand.cli import main
 
@@ -23,7 +27,7 @@ def test_change_step_option(tmp_path):
     assert all(json.loads(l)["changes"][0]["step"] == 3 for l in out.read_text().splitlines())
 
 
-FIXTURE = json.loads((__import__("pathlib").Path(__file__).parents[1] / "schema" / "fixtures" / "job.json").read_text())
+FIXTURE = json.loads((Path(__file__).parents[1] / "schema" / "fixtures" / "job.json").read_text())
 
 
 def test_run_job_passes_decoded_job_to_execute(tmp_path, monkeypatch):
@@ -43,3 +47,10 @@ def test_run_job_passes_decoded_job_to_execute(tmp_path, monkeypatch):
 def test_run_job_rejects_a_bad_job(tmp_path, capsys):
     assert main(["run-job", "--job", "bm90IGpzb24=", "--out", str(tmp_path)]) == 2
     assert "bad job" in capsys.readouterr().err
+
+
+def test_module_entry_point_runs_the_cli():
+    src = str(Path(__file__).parents[1] / "src")
+    r = subprocess.run([sys.executable, "-m", "stalehand", "--help"], capture_output=True, text=True,
+                       env={**os.environ, "PYTHONPATH": src})
+    assert r.returncode == 0 and "run-job" in r.stdout
