@@ -5,8 +5,6 @@ body { width: 1288px; height: 728px; overflow: hidden; background: #f3f4f6; colo
 .logo { font-size: 22px; font-weight: 700; width: 180px; }
 .search { background: #fff; color: #666; border-radius: 6px; height: 40px; width: 640px; padding: 10px 14px; }
 .cart { margin-left: auto; font-weight: 600; }
-.side { position: absolute; left: 0; top: 64px; width: 220px; padding: 16px; color: #333; line-height: 30px; }
-.side b { display: block; margin-top: 6px; }
 .main { position: absolute; left: 220px; top: 64px; width: 1068px; height: 664px; overflow: hidden; }
 .bar { height: 44px; padding: 14px 12px 0; color: #555; font-size: 13px; }
 .banner { background: #fff4ce; color: #5c4400; padding: 10px 16px; font-size: 13px; }

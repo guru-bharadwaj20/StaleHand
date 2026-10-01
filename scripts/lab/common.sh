@@ -8,3 +8,5 @@ PYTHON="${PYTHON:-python3}"
 export PYTHONPATH="$STALEHAND_DIR/src${EXTRA_PYTHONPATH:+:$EXTRA_PYTHONPATH}"
 export HF_HOME="${HF_HOME:-$HOME/capstone_pilots/hf}"
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
+# fewer out-of-memory failures from fragmentation on cards other jobs share
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"

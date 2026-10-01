@@ -3,7 +3,7 @@ import io
 from PIL import Image
 
 from stalehand.models.base import Request
-from stalehand.models.hf import conversation, snapshot_revision
+from stalehand.models.hf import conversation, snapshot_revision, trim
 
 
 def png(w=4, h=3):
@@ -30,3 +30,8 @@ def test_snapshot_revision_from_hub_cache_path():
 
 def test_snapshot_revision_of_plain_directory_is_none():
     assert snapshot_revision("/models/m_qwen8") is None
+
+
+def test_trim_cuts_each_row_to_its_own_limit():
+    rows = [[1, 2, 3, 4], [5, 6, 7, 8]]
+    assert trim(rows, [Request("a", None, 2), Request("b", None, 4)]) == [[1, 2], [5, 6, 7, 8]]

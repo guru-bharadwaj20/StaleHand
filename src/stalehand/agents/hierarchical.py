@@ -69,6 +69,11 @@ class Hierarchical:
             self.guard.on_subtask(c)
             return c
 
+        def replan(old: Context, o, history):
+            """A re-plan that hands back the same subtask continues it; the executor keeps its action history."""
+            c = new_subtask(o)
+            return c, (history if c is not None and c.subtask == old.subtask else [])
+
         ctx = new_subtask(obs)
         history = []
         while ctx is not None:
@@ -83,7 +88,7 @@ class Hierarchical:
                 replans[obs.step] = replans.get(obs.step, 0) + 1
                 if replans[obs.step] > self.max_replans:
                     return self._end(traj, env, "max_replans")
-                ctx, history = new_subtask(obs), []
+                ctx, history = replan(ctx, obs, history)
                 continue
             if decision == REBIND:
                 traj.subtask(step=obs.step, text=ctx.subtask, rebound=True, **ctx.extra)
@@ -108,7 +113,7 @@ class Hierarchical:
                 if replans[obs.step] > self.max_replans:
                     return self._end(traj, env, "max_replans")
                 obs = env.observe()
-                ctx, history = new_subtask(obs), []
+                ctx, history = replan(ctx, obs, history)
                 continue
             traj.action(step=obs.step, action=action, raw=raw)
             obs = env.act(action if action is not None else Wait())

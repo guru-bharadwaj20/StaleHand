@@ -53,3 +53,33 @@ def test_text_only_request_has_no_image(server):
     url, seen = server
     OpenAICompatVLM("qwen", base_url=url).generate([Request("hi")])
     assert [c["type"] for c in seen[0]["messages"][0]["content"]] == ["text"]
+
+
+def test_retries_until_the_server_comes_back():
+    import socket
+    from stalehand.models.serve import make_server
+
+    class M:
+        name = "m"
+
+        def generate(self, requests):
+            return ["ok" for _ in requests]
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    port = s.getsockname()[1]
+    s.close()  # nothing listens yet: the first attempts are refused
+
+    def start_later():
+        import time
+        time.sleep(0.6)
+        httpd = make_server(M(), "127.0.0.1", port)
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    threading.Thread(target=start_later, daemon=True).start()
+    client = OpenAICompatVLM("m", base_url=f"http://127.0.0.1:{port}/v1", retry_seconds=10, retry_wait=0.2)
+    assert client.generate([Request("x")]) == ["ok"]
+
+
+def test_gives_up_after_retry_window():
+    client = OpenAICompatVLM("m", base_url="http://127.0.0.1:9/v1", retry_seconds=0.5, retry_wait=0.1)
+    with pytest.raises(OSError):
+        client.generate([Request("x")])

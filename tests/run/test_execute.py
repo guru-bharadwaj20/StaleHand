@@ -105,3 +105,13 @@ def test_flat_architecture_loads_no_planner(root):
     assert loaded == [("executor-m", "executor")]
     assert json.loads((out / "config.json").read_text())["models"]["planner"] is None
     assert json.loads((out / "results.jsonl").read_text().splitlines()[0])["planner_calls"] == 0
+
+
+def test_refuses_to_resume_under_different_code(root):
+    out = root / "runs" / "g"
+    execute(JOB, out, root=root, load_model=models([]), make_env=lambda t: FakeEnv(), backend="scripted")
+    cfg = json.loads((out / "config.json").read_text())
+    cfg["git"] = {"commit": "0" * 40, "dirty": False}
+    (out / "config.json").write_text(json.dumps(cfg))
+    with pytest.raises(ValueError, match="different code"):
+        execute(JOB, out, root=root, load_model=models([]), make_env=lambda t: FakeEnv(), backend="scripted")

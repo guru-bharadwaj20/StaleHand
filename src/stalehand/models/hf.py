@@ -22,6 +22,11 @@ def snapshot_revision(path: str):
     return p.name if p.parent.name == "snapshots" else None
 
 
+def trim(rows, requests: Sequence[Request]):
+    """Cut each generated row to its own request's token limit, so a batched call returns what a lone call would."""
+    return [row[:r.max_new_tokens] for row, r in zip(rows, requests)]
+
+
 class HFVLM:
     def __init__(self, model_id: str, batch: int = 8, dtype: str = os.environ.get("DTYPE", "bfloat16")):
         import torch
@@ -47,5 +52,5 @@ class HFVLM:
                 self.image_grid = enc["image_grid_thw"][0].tolist()
             with self._torch.no_grad():
                 g = self.model.generate(**enc, max_new_tokens=max(r.max_new_tokens for r in chunk), do_sample=False)
-            out += self.proc.batch_decode(g[:, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+            out += self.proc.batch_decode(trim(g[:, enc["input_ids"].shape[1]:], chunk), skip_special_tokens=True)
         return out

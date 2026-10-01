@@ -1,10 +1,43 @@
 {
   "name": "pilot",
-  "scenarios": ["experiments/pilot/inbox.jsonl", "experiments/pilot/shop.jsonl"],
-  "architectures": ["hierarchical"],
-  "guards": ["none", "replan_every_step"],
-  "planners": ["qwen3-vl-8b"],
-  "executors": ["ui-tars-1.5-7b"],
-  "seeds": [0],
+  "scenarios": [
+    "experiments/pilot/shards/inbox-00.jsonl",
+    "experiments/pilot/shards/inbox-01.jsonl",
+    "experiments/pilot/shards/inbox-02.jsonl",
+    "experiments/pilot/shards/inbox-03.jsonl",
+    "experiments/pilot/shards/inbox-04.jsonl",
+    "experiments/pilot/shards/inbox-05.jsonl",
+    "experiments/pilot/shards/inbox-06.jsonl",
+    "experiments/pilot/shards/inbox-07.jsonl",
+    "experiments/pilot/shards/inbox-08.jsonl",
+    "experiments/pilot/shards/inbox-09.jsonl",
+    "experiments/pilot/shards/shop-00.jsonl",
+    "experiments/pilot/shards/shop-01.jsonl",
+    "experiments/pilot/shards/shop-02.jsonl",
+    "experiments/pilot/shards/shop-03.jsonl",
+    "experiments/pilot/shards/shop-04.jsonl",
+    "experiments/pilot/shards/shop-05.jsonl",
+    "experiments/pilot/shards/shop-06.jsonl",
+    "experiments/pilot/shards/shop-07.jsonl",
+    "experiments/pilot/shards/shop-08.jsonl",
+    "experiments/pilot/shards/shop-09.jsonl",
+    "experiments/pilot/shards/shop-10.jsonl"
+  ],
+  "architectures": [
+    "hierarchical"
+  ],
+  "guards": [
+    "none",
+    "replan_every_step"
+  ],
+  "planners": [
+    "qwen3-vl-8b"
+  ],
+  "executors": [
+    "ui-tars-1.5-7b"
+  ],
+  "seeds": [
+    0
+  ],
   "max_steps": 12
 }

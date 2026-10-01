@@ -179,3 +179,21 @@ def test_subtask_budget_returns_control_to_the_planner():
     assert subs == [(0, "keep clicking"), (2, "then stop")]
     assert "keep clicking [budget]" in p.calls[1].prompt
     assert "then stop [ok]" in p.calls[2].prompt
+
+
+def test_replan_to_the_same_subtask_keeps_executor_history():
+    from stalehand.guards.replan import ReplanEveryStep
+    p = planner("type the address", "type the address", "type the address", "send it")
+    e = executor(CLICK, "Action: type(content='kenji@example.com')", "Action: finished(content='')",
+                 "Action: finished(content='')")
+    Hierarchical(p, e, ReplanEveryStep(), max_steps=6).run(FakeEnv(), SCEN)
+    assert "1. Action: click" in e.calls[1].prompt  # same subtask after the re-plan: history survives
+    assert "2. Action: type" in e.calls[2].prompt
+
+
+def test_replan_to_a_new_subtask_clears_executor_history():
+    from stalehand.guards.replan import ReplanEveryStep
+    p = planner("open the mail", "forward it")
+    e = executor(CLICK, "Action: finished(content='')", "Action: finished(content='')")
+    Hierarchical(p, e, ReplanEveryStep(), max_steps=6).run(FakeEnv(), SCEN)
+    assert "forward it" in e.calls[1].prompt and "1. Action" not in e.calls[1].prompt
