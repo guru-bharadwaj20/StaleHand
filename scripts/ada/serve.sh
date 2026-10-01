@@ -11,6 +11,8 @@ args=(serve "$id" --served-model-name "$id" --host 127.0.0.1 --port "$port"
       --gpu-memory-utilization "$frac" --max-model-len "$MAX_MODEL_LEN" --seed 0
       --limit-mm-per-prompt '{"image": 1}')
 [ "$QUANT" = none ] || args+=(--quantization "$QUANT")
+# InternVL ships its config and image processor as remote code
+case "$id" in OpenGVLab/*) args+=(--trust-remote-code) ;; esac
 if [ -n "${DRY_RUN:-}" ]; then
   echo vllm "${args[@]}"
   exit 0

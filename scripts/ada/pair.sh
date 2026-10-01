@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Serve a planner on :8000 and an executor on :8001 side by side, then wait for both.
-# usage: pair.sh PLANNER EXECUTOR    e.g. pair.sh qwen3-vl-8b ui-tars-1.5-7b
+# usage: pair.sh PLANNER EXECUTOR    e.g. pair.sh qwen3-vl-8b internvl3.5-8b
 set -euo pipefail
 dir="$(dirname "$0")"
 [ $# -eq 2 ] || { echo "usage: $0 PLANNER EXECUTOR" >&2; exit 2; }

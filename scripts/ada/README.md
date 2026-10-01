@@ -5,8 +5,8 @@ Guru's workstation serves models over vLLM's OpenAI-compatible API; experiments 
 
 ```bash
 scripts/ada/setup.sh                                   # once: venv with pinned vLLM
-scripts/ada/download.sh qwen3-vl-8b ui-tars-1.5-7b     # weights; revisions appended to runs/ada/revisions.txt
-scripts/ada/pair.sh qwen3-vl-8b ui-tars-1.5-7b         # planner on :8000, executor on :8001
+scripts/ada/download.sh qwen3-vl-8b internvl3.5-8b     # weights; revisions appended to runs/ada/revisions.txt
+scripts/ada/pair.sh qwen3-vl-8b internvl3.5-8b         # planner on :8000, executor on :8001
 scripts/ada/stop.sh
 ```
 
