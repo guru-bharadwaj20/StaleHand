@@ -63,3 +63,8 @@ def test_sort_puts_missing_field_last():
     from stalehand.scenarios.changes import Sort
     items = [Item("x", {}), Item("y", {"v": 1}), Item("z", {"v": 2})]
     assert ids(apply(items, Sort("v"))) == ["y", "z", "x"]
+
+
+def test_cosmetic_change_keeps_items():
+    from stalehand.scenarios.changes import Cosmetic
+    assert apply(BASE, Cosmetic("promo_banner")) == BASE

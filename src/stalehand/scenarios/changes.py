@@ -74,3 +74,14 @@ def _sort(change: Sort, items: List[Item]) -> List[Item]:
     present = sorted((it for it in items if it.get(change.field) is not None),
                      key=lambda it: it.get(change.field), reverse=change.descending)
     return present + [it for it in items if it.get(change.field) is None]
+
+
+@dataclass(frozen=True)
+class Cosmetic:
+    """A change to the page that touches no item, such as a banner or a toast. Guards may still notice it."""
+    label: str
+
+
+@_applies(Cosmetic)
+def _cosmetic(change: Cosmetic, items: List[Item]) -> List[Item]:
+    return items
