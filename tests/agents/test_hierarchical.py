@@ -164,3 +164,18 @@ def test_rebind_switches_subtask_without_calling_the_planner():
     assert subs[1]["rebound"] is True and subs[1]["step"] == 1
     assert "open the other mail" in e.calls[1].prompt
     assert t.calls_by_role()["planner"] == 2  # the first subtask, then DONE; no extra planner call
+
+
+def test_subtask_budget_returns_control_to_the_planner():
+    class Budget2(Hierarchical):
+        subtask_budget = 2
+
+        def _report(self, subtask, message):
+            return f"{subtask} [{'budget' if message is None else message}]"
+    p = planner("keep clicking", "then stop")
+    e = executor(CLICK, CLICK, CLICK, "Action: finished(content='ok')")
+    t = Budget2(p, e, Guard(), max_steps=10).run(FakeEnv(), SCEN)
+    subs = [(x["step"], x["text"]) for x in t.entries if x["kind"] == "subtask"]
+    assert subs == [(0, "keep clicking"), (2, "then stop")]
+    assert "keep clicking [budget]" in p.calls[1].prompt
+    assert "then stop [ok]" in p.calls[2].prompt
