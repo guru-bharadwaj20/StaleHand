@@ -22,6 +22,9 @@ for dir in results/vivian-4090/*/; do
   if [ -f "$(find "$dir" -name results.jsonl -print -quit)" ]; then runs+=("${dir%/}"); fi
 done
 python3 -m stalehand.report.loops "${runs[@]}" > results/vivian-4090/loops_report.md
+if compgen -G "results/vivian-4090/tokens/*.jsonl" > /dev/null; then
+  python3 experiments/analysis/tokens.py report results/vivian-4090/tokens/*.jsonl > results/vivian-4090/tokens_report.md
+fi
 python3 experiments/audit/summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 python3 -m stalehand readme
 python3 -m stalehand final --results results/vivian-4090 --sets main timing main_stall delegated flat domains_lab \
