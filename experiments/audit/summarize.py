@@ -1,5 +1,5 @@
-"""Markdown summary of the model-free checks: the oracle audit, the click hazard audit and the handoff pixel
-calibration. Reads the JSONL rows those scripts wrote; writes no number by hand.
+"""Markdown summary of the model-free checks: the oracle audit, the click hazard audit, the handoff pixel
+calibration and the stall audit. Reads the JSONL rows those scripts wrote; writes no number by hand.
 
 usage: python summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 """
@@ -64,6 +64,17 @@ def main(root: str) -> None:
             cells = [f"{pct(sum(r['changed_fraction'] > t for r in harm) / len(harm))} / "
                      f"{pct(sum(r['changed_fraction'] > t for r in rel) / len(rel))}" for t in THRESHOLDS]
             out.append(f"| {d} | " + " | ".join(cells) + " |")
+        out.append("")
+    stall = [r for r in load(sorted(root.glob("audit/stall_*.jsonl"))) if r["unchanged"] is not None]
+    if stall:
+        out += ["## Stall return on correct runs", "",
+                "The oracle performs each scenario's correct flow; the stall return (`hierarchical_stall`) would "
+                "interrupt it wherever two actions in a row leave the screenshot unchanged.", "",
+                "| domain | scenarios | any unchanged action | two in a row (would be interrupted) |", "|---|---|---|---|"]
+        for d in sorted({r["domain"] for r in stall}) + ["all"]:
+            rs = [r for r in stall if d == "all" or r["domain"] == d]
+            out.append(f"| {d} | {len(rs)} | {pct(sum(any(r['unchanged']) for r in rs) / len(rs))} | "
+                       f"{pct(sum(r['longest_unchanged_run'] >= 2 for r in rs) / len(rs))} |")
         out.append("")
     print("\n".join(out))
 
