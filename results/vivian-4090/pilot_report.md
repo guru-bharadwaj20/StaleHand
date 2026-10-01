@@ -64,6 +64,15 @@ Success on episodes whose change moved the target, per task.
 | hierarchical | replan_every_step | shop | highest_rated | none | 10 | 10% | 0% | 10% | 0% | 0% | 80% | 10.7 |
 | hierarchical | replan_every_step | shop | highest_rated | relevant | 15 | 27% | 0% | 27% | 0% | 0% | 47% | 9.1 |
 
+## Cost per episode
+
+Means per episode. Model seconds add up the latency of every model call, so they include time spent waiting in a shared server's batch; compare them within one run set only.
+
+| architecture | guard | planner calls | checker calls | executor calls | model seconds | actions |
+|---|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 7.8 | 0.0 | 7.4 | 94.2 | 7.3 |
+| hierarchical | none | 1.9 | 0.0 | 8.5 | 86.1 | 7.5 |
+
 ## False alarms on harmless changes
 
 | architecture | guard | harmless episodes | false alarm rate | planner calls |
