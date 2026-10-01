@@ -38,6 +38,24 @@ _BOXES_JS = """() => {
 }"""
 
 
+_driver = {"pw": None, "users": 0}  # Playwright allows one sync driver per process; environments share it
+
+
+def _acquire():
+    if _driver["pw"] is None:
+        from playwright.sync_api import sync_playwright
+        _driver["pw"] = sync_playwright().start()
+    _driver["users"] += 1
+    return _driver["pw"]
+
+
+def _release():
+    _driver["users"] -= 1
+    if _driver["users"] == 0:
+        _driver["pw"].stop()
+        _driver["pw"] = None
+
+
 @dataclass(frozen=True)
 class Observation:
     step: int
@@ -51,9 +69,7 @@ class BrowserEnv:
         if change_timing not in self.TIMINGS:
             raise ValueError(f"change_timing must be one of {self.TIMINGS}")
         self.change_timing = change_timing
-        from playwright.sync_api import sync_playwright
-        self._pw = sync_playwright().start()
-        self._browser = self._pw.chromium.launch(headless=headless, channel=channel)
+        self._browser = _acquire().chromium.launch(headless=headless, channel=channel)
         self._page = None
         self.scenario: Optional[Scenario] = None
         self.step = 0
@@ -142,4 +158,4 @@ class BrowserEnv:
         if self._page is not None:
             self._page.close()
         self._browser.close()
-        self._pw.stop()
+        _release()
