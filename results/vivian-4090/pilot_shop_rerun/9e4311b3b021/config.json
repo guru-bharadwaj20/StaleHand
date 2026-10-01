@@ -1,0 +1,46 @@
+{
+  "git": {
+    "commit": "27e87839fa4c251cd53e8bf040dae89ad6e3b543",
+    "dirty": false
+  },
+  "host": "worker-1",
+  "job": {
+    "architecture": "hierarchical",
+    "change_timing": "before_observation",
+    "executor": "ui-tars-1.5-7b",
+    "guard": "none",
+    "id": "9e4311b3b021",
+    "matrix": "pilot_shop_rerun",
+    "max_steps": 12,
+    "planner": "qwen3-vl-8b",
+    "scenarios": "experiments/pilot/shards_shop_rerun/shop-relative-06.jsonl",
+    "seed": 0
+  },
+  "models": {
+    "executor": {
+      "backend": "openai",
+      "id": "ByteDance-Seed/UI-TARS-1.5-7B",
+      "name": "ui-tars-1.5-7b",
+      "revision": "683d002dd99d8f95104d31e70391a39348857f4e"
+    },
+    "planner": {
+      "backend": "openai",
+      "id": "Qwen/Qwen3-VL-8B-Instruct",
+      "name": "qwen3-vl-8b",
+      "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+    }
+  },
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "seed": 0,
+  "started": "2026-10-01T12:31:06+00:00",
+  "versions": {
+    "accelerate": "1.14.0",
+    "huggingface-hub": "0.34.4",
+    "pillow": "10.3.0",
+    "playwright": "1.55.0",
+    "stalehand": "0.1.0",
+    "torch": "2.8.0",
+    "transformers": "4.57.6"
+  }
+}
