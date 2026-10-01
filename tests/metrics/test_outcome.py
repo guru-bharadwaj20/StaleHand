@@ -104,3 +104,8 @@ def test_share_and_assign_check_recipient(domain, kind):
     assert score(task, traj([ev]))["outcome"] == "wrong_detail"
     ev["detail"]["to"] = task.meta["recipient"]
     assert score(task, traj([ev]))["outcome"] == "success"
+
+
+def test_rebind_counts_as_firing():
+    r = score(NONE, traj([], decisions=[(1, "rebind")]))
+    assert r["fired"] == 1 and r["false_alarm"]

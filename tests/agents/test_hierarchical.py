@@ -1,5 +1,5 @@
 from stalehand.agents.hierarchical import Hierarchical
-from stalehand.guards.base import ABORT, REPLAN, Guard
+from stalehand.guards.base import ABORT, PROCEED, REBIND, REPLAN, Guard
 from stalehand.models.base import ScriptedVLM
 from stalehand.scenarios.domains import inbox
 
@@ -145,3 +145,22 @@ def test_rule_planner_passes_the_rule_to_the_guard():
     guard = _Mode("rule")
     Hierarchical(p, executor("Action: finished(content='')"), guard, max_steps=5).run(FakeEnv(), SCEN)
     assert guard.seen == [{"rule": "newest mail from Samuel Lee"}]
+
+
+class _RebindAtStep1(Guard):
+    def before_think(self, ctx):
+        if ctx.step == 1 and ctx.subtask == "open the mail":
+            ctx.subtask = "open the other mail"
+            return REBIND
+        return PROCEED
+
+
+def test_rebind_switches_subtask_without_calling_the_planner():
+    p = planner("open the mail")
+    e = executor("Action: wait()", "Action: finished(content='')")
+    t = Hierarchical(p, e, _RebindAtStep1(), max_steps=5).run(FakeEnv(), SCEN)
+    subs = [x for x in t.entries if x["kind"] == "subtask"]
+    assert [s["text"] for s in subs] == ["open the mail", "open the other mail"]
+    assert subs[1]["rebound"] is True and subs[1]["step"] == 1
+    assert "open the other mail" in e.calls[1].prompt
+    assert t.calls_by_role()["planner"] == 2  # the first subtask, then DONE; no extra planner call

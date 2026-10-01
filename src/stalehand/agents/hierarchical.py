@@ -8,7 +8,7 @@ from typing import Optional, Tuple
 
 from ..env.actions import Done, Wait
 from ..env.browser import VIEWPORT
-from ..guards.base import ABORT, REPLAN, Context, Guard
+from ..guards.base import ABORT, REBIND, REPLAN, Context, Guard
 from ..models import prompts
 from ..models.base import Request
 from ..models.text_parsers import parse_bound, parse_rule, parse_subtask
@@ -79,6 +79,8 @@ class Hierarchical:
                     return self._end(traj, env, "max_replans")
                 ctx, history = new_subtask(obs), []
                 continue
+            if decision == REBIND:
+                traj.subtask(step=obs.step, text=ctx.subtask, rebound=True, **ctx.extra)
             req = Request(prompts.EXECUTOR.format(instruction=ctx.subtask,
                                                   history="\n".join(history) if history else "none"),
                           obs.png, self.executor_tokens)
