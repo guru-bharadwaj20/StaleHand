@@ -9,7 +9,7 @@ rules. ✅ means done and merged; ❌ means still to do.
 |---|---|---|---|---|---|---|
 | 1 | Shared schemas | M0 | 15 | 2 | 0 | ✅ |
 | 2 | Scenario core | M1 | 45 | 2 | 0 | ✅ |
-| 3 | Web apps and environment | M2, M3 | 90 | 4 | 1 | ❌ |
+| 3 | Web apps and environment | M2, M3 | 90 | 5 | 0 | ✅ |
 | 4 | Models and agents | M4, M5 | 85 | 8 | 0 | ✅ |
 | 5 | Guards | M6 | 55 | 4 | 0 | ✅ |
 | 6 | Metrics and statistics | M7 | 40 | 4 | 0 | ✅ |
@@ -17,7 +17,7 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 8 | 10 | ❌ |
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
-| | **Total** | | **495** | **47** | **14** | **77% done** |
+| | **Total** | | **495** | **48** | **13** | **79% done** |
 
 Remaining work: **16 tasks**, split 10 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
 
@@ -46,7 +46,7 @@ every commit is one real change (see [Commits](#commits)).
 | ✅ | Playwright environment: actions, change timing, DOM mutation tracking, event steps | Vivian | `src/stalehand/env/` |
 | ✅ | Handoff change timing: the change lands after the planner writes a subtask and before the executor's next screenshot | Vivian | `src/stalehand/env/`, `src/stalehand/agents/` |
 | ✅ | **Gate:** a scripted agent finishes forward-the-email in the live inbox, and a change at step 2 shows in the screenshot and DOM log | Vivian | `tests/env/` |
-| ❌ | Static render mode (render a scenario state to a screenshot without a live episode) | Vivian | `src/stalehand/env/` |
+| ✅ | Static render mode (render a scenario state to a screenshot without a live episode): `stalehand render` | Vivian | `src/stalehand/env/browser.py`, `results/figures/` |
 
 ## Phase 4: Models and agents (M4, M5)
 
@@ -153,7 +153,7 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | 6 | ✅ Change-kind and task-kind breakdowns | ❌ Eight-guard comparison on the new domains (blocked on memory) |
 | 7 | ❌ Combined final report | |
 | 8 | ✅ Full cost accounting | |
-| 9 | ❌ Static render mode | |
+| 9 | ✅ Static render mode | |
 | 10 | ❌ Choose a license | |
 
 Guru's first three tasks need nothing from Vivian and fit the Ada today; together they are about 1,200 episodes.
