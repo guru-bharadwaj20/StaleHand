@@ -12,20 +12,22 @@ from ..guards import registry as guards
 from ..models.registry import MODELS
 from ..scenarios.export import read_jsonl
 from .episodes import run_episodes
-from .provenance import config, model_info
+from .provenance import config, git_state, model_info
 
 ARCHITECTURES = {"hierarchical": Hierarchical, "delegated": Delegated, "flat": Flat}
 PLANNERLESS = ("flat",)  # these jobs name their planner "none"
 
 
-def _resuming(out: Path, job) -> bool:
-    """True if out already holds this job; an error if it holds another one."""
+def _resuming(out: Path, job, root: Path) -> bool:
+    """True if out already holds this job run by the same code; an error if it holds another job or other code."""
     path = out / "config.json"
     if not path.exists():
         return False
     old = json.loads(path.read_text())
     if old["job"] != asdict(job):
         raise ValueError(f"{out} holds a different job ({old['job']['id']}); refusing to mix results")
+    if old["git"] != git_state(root):
+        raise ValueError(f"{out} was run by different code ({old['git']}); move it aside to rerun")
     return True
 
 
@@ -35,7 +37,7 @@ def execute(job, out_dir, root, load_model: Callable[[str, str], object], make_e
     if job.architecture not in ARCHITECTURES:
         raise ValueError(f"unknown architecture {job.architecture!r}; available: {sorted(ARCHITECTURES)}")
     root, out = Path(root), Path(out_dir)
-    resuming = _resuming(out, job)
+    resuming = _resuming(out, job, root)
     scenarios = read_jsonl(root / job.scenarios)
     random.seed(job.seed)
     planner = None if job.architecture in PLANNERLESS else load_model(job.planner, "planner")
