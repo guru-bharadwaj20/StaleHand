@@ -33,3 +33,9 @@ def test_arms_without_shared_scenarios_are_reported_not_fatal():
     rows = [row("shop-cheapest-000-L1", "none", "stale"), row("shop-cheapest-001-L1", "replan_every_step", "success")]
     md = markdown(rows, n_boot=50)
     assert "| hierarchical | replan_every_step | shop | 0 | no shared scenarios yet |" in md
+
+
+def test_markdown_opens_with_guard_summary():
+    md = markdown(ROWS, n_boot=50)
+    assert md.index("## Summary by guard") < md.index("## Outcomes")
+    assert "| hierarchical | none | 6 | 0% | 100% | 1 | 100% | 0% | 1.0 |" in md

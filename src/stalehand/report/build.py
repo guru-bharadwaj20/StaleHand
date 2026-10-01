@@ -2,7 +2,7 @@
 from typing import List
 
 from ..metrics.stats import compare, pair
-from .tables import rates
+from .tables import guard_summary, rates
 
 COLUMNS = ("success", "stale", "wrong_item", "wrong_detail", "aborted", "no_commit")
 
@@ -22,7 +22,15 @@ def _table(header: List[str], lines: List[List[str]]) -> List[str]:
 
 def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed: int = 0) -> str:
     rows = [dict(r, domain=domain_of(r)) for r in rows]
-    out = [f"Built from {len(rows)} scored episodes.", "", "## Outcomes", ""]
+    out = [f"Built from {len(rows)} scored episodes.", "", "## Summary by guard", "",
+           "Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that "
+           "leaves the target where it was. Calls: planner plus checker calls per episode.", ""]
+    out += _table(["architecture", "guard", "relevant n", "success", "stale", "harmless n", "success",
+                   "false alarms", "calls"],
+                  [[g["architecture"], g["guard"], str(g["relevant_n"]), _pct(g["relevant_success"]),
+                    _pct(g["relevant_stale"]), str(g["harmless_n"]), _pct(g["harmless_success"]),
+                    _pct(g["false_alarm"]), f"{g['calls']:.1f}"] for g in guard_summary(rows)])
+    out += ["", "## Outcomes", ""]
     groups = rates(rows, by=("architecture", "guard", "domain", "kind", "change_kind"))
     out += _table(["architecture", "guard", "domain", "kind", "change", "n", *COLUMNS, "planner calls"],
                   [[g["architecture"], g["guard"], g["domain"], str(g["kind"]), g["change_kind"], str(g["n"]),
