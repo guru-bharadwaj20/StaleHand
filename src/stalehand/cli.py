@@ -62,6 +62,22 @@ def _report(args) -> int:
     return 0
 
 
+def _readme(args) -> int:
+    from .report.readme import section, splice
+    with open(args.readme, encoding="utf-8") as f:
+        doc = f.read()
+    new = splice(doc, section(args.results))
+    if args.check:
+        if new != doc:
+            print(f"{args.readme} results section is out of date; run `stalehand readme`", file=sys.stderr)
+            return 1
+        return 0
+    with open(args.readme, "w", encoding="utf-8", newline="\n") as f:
+        f.write(new)
+    print(f"updated the results section of {args.readme}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="stalehand")
     sub = p.add_subparsers(dest="command", required=True)
@@ -92,6 +108,11 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--n-boot", type=int, default=10000)
     rp.add_argument("--seed", type=int, default=0)
     rp.set_defaults(func=_report)
+    rd = sub.add_parser("readme", help="rebuild the results section of README.md from result files")
+    rd.add_argument("--results", default="results")
+    rd.add_argument("--readme", default="README.md")
+    rd.add_argument("--check", action="store_true", help="exit 1 if the section is out of date, change nothing")
+    rd.set_defaults(func=_readme)
     return p
 
 

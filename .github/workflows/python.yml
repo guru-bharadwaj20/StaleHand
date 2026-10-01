@@ -18,3 +18,4 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install -e ".[dev]"
       - run: pytest -q -m "not browser"
+      - run: python -m stalehand readme --check
