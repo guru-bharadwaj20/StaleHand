@@ -7,14 +7,15 @@ from typing import Callable
 
 from ..agents.delegated import Delegated
 from ..agents.flat import Flat
-from ..agents.hierarchical import Hierarchical
+from ..agents.hierarchical import Hierarchical, HierarchicalStall
 from ..guards import registry as guards
 from ..models.registry import MODELS
 from ..scenarios.export import read_jsonl
 from .episodes import run_episodes
 from .provenance import config, git_state, model_info
 
-ARCHITECTURES = {"hierarchical": Hierarchical, "delegated": Delegated, "flat": Flat}
+ARCHITECTURES = {"hierarchical": Hierarchical, "hierarchical_stall": HierarchicalStall, "delegated": Delegated,
+                 "flat": Flat}
 PLANNERLESS = ("flat",)  # these jobs name their planner "none"
 
 

@@ -213,3 +213,29 @@ def test_replan_guard_reacts_to_a_handoff_change():
     t = Hierarchical(p, e, ReplanEveryStep(), max_steps=5).run(FakeEnv(handoff_changes_at={0}), SCEN)
     assert p.calls[1].image_png == b"screen-0-changed"
     assert [x["text"] for x in t.entries if x["kind"] == "subtask"][:2] == ["open the mail", "open the newer mail"]
+
+
+def test_actions_that_leave_the_screen_unchanged_return_control_to_the_planner():
+    class Stall2(Hierarchical):
+        stall_limit = 2
+    p = planner("click the Reply button", "type the address")
+    e = executor(CLICK, CLICK, CLICK, "Action: finished(content='')")
+    t = Stall2(p, e, Guard(), max_steps=10).run(FakeEnv(frozen_from=1), SCEN)
+    subs = [(x["step"], x["text"]) for x in t.entries if x["kind"] == "subtask"]
+    assert subs == [(0, "click the Reply button"), (3, "type the address")]
+    assert "click the Reply button (stopped: the last 2 actions did not change the screen)" in p.calls[1].prompt
+    assert [x["step"] for x in t.entries if x["kind"] == "stall"] == [3]
+
+
+def test_stall_return_is_off_by_default():
+    env = FakeEnv(frozen_from=1)
+    t = Hierarchical(planner("click forever"), executor(*[CLICK] * 50), Guard(), max_steps=6).run(env, SCEN)
+    assert t.end_reason == "max_steps" and t.calls_by_role()["planner"] == 1
+
+
+def test_a_screen_change_resets_the_stall_count():
+    class Stall2(Hierarchical):
+        stall_limit = 2
+    p = planner("click around")
+    t = Stall2(p, executor(*[CLICK] * 50), Guard(), max_steps=6).run(FakeEnv(), SCEN)
+    assert t.end_reason == "max_steps" and t.calls_by_role()["planner"] == 1

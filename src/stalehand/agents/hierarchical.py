@@ -20,10 +20,14 @@ class Hierarchical:
     architecture = "hierarchical"
     plain_prompt = prompts.PLANNER   # planner template when the guard does not ask for rule or bound subtasks
     subtask_budget = None            # executor actions allowed per subtask before control returns to the planner
+    stall_limit = None               # actions in a row that leave the screen unchanged before control returns
 
     def _report(self, subtask: str, message: Optional[str]) -> str:
         """What the planner sees about a finished subtask; message is None when the step budget ran out."""
         return subtask
+
+    def _stall_report(self, subtask: str) -> str:
+        return f"{subtask} (stopped: the last {self.stall_limit} actions did not change the screen)"
 
     def __init__(self, planner, executor, guard: Guard, max_steps: int = 12, max_replans: int = 3,
                  executor_coords: str = "abs", planner_tokens: int = 160, executor_tokens: int = 256):
@@ -78,7 +82,7 @@ class Hierarchical:
             return c, (history if c is not None and c.subtask == old.subtask else [])
 
         ctx = new_subtask(obs)
-        history = []
+        history, stalls = [], 0
         while ctx is not None:
             if env.step >= self.max_steps:
                 return self._end(traj, env, "max_steps")
@@ -92,6 +96,7 @@ class Hierarchical:
                 if replans[obs.step] > self.max_replans:
                     return self._end(traj, env, "max_replans")
                 ctx, history = replan(ctx, obs, history)
+                stalls = stalls if history else 0
                 continue
             if decision == REBIND:
                 traj.subtask(step=obs.step, text=ctx.subtask, rebound=True, **ctx.extra)
@@ -103,7 +108,7 @@ class Hierarchical:
             if isinstance(action, Done):
                 traj.action(step=obs.step, action=action, raw=raw)
                 finished.append(self._report(ctx.subtask, action.message))
-                ctx, history = new_subtask(obs), []
+                ctx, history, stalls = new_subtask(obs), [], 0
                 continue
             env.begin_action()
             ctx.action = action
@@ -117,16 +122,30 @@ class Hierarchical:
                     return self._end(traj, env, "max_replans")
                 obs = env.observe()
                 ctx, history = replan(ctx, obs, history)
+                stalls = stalls if history else 0
                 continue
             traj.action(step=obs.step, action=action, raw=raw)
+            before = obs.png
             obs = env.act(action if action is not None else Wait())
             history.append(f"{len(history) + 1}. {raw.strip().splitlines()[-1] if raw.strip() else 'none'}")
+            stalls = stalls + 1 if obs.png == before else 0
+            if self.stall_limit is not None and stalls >= self.stall_limit:
+                traj.stall(step=obs.step, actions=stalls)
+                finished.append(self._stall_report(ctx.subtask))
+                ctx, history, stalls = new_subtask(obs), [], 0
+                continue
             if self.subtask_budget is not None and len(history) >= self.subtask_budget:
                 finished.append(self._report(ctx.subtask, None))
-                ctx, history = new_subtask(obs), []
+                ctx, history, stalls = new_subtask(obs), [], 0
         return self._end(traj, env, "planner_done")
 
     @staticmethod
     def _end(traj: Trajectory, env, reason: str) -> Trajectory:
         traj.finish(reason=reason, app_events=env.events())
         return traj
+
+
+class HierarchicalStall(Hierarchical):
+    """Hierarchical with a stall return: two actions in a row that leave the screen unchanged end the subtask."""
+    architecture = "hierarchical_stall"
+    stall_limit = 2

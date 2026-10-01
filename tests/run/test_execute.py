@@ -115,3 +115,10 @@ def test_refuses_to_resume_under_different_code(root):
     (out / "config.json").write_text(json.dumps(cfg))
     with pytest.raises(ValueError, match="different code"):
         execute(JOB, out, root=root, load_model=models([]), make_env=lambda t: FakeEnv(), backend="scripted")
+
+
+def test_hierarchical_stall_is_hierarchical_with_stall_return():
+    from stalehand.agents.hierarchical import Hierarchical
+    from stalehand.run.execute import ARCHITECTURES
+    arch = ARCHITECTURES["hierarchical_stall"]
+    assert issubclass(arch, Hierarchical) and arch.stall_limit == 2 and arch.architecture == "hierarchical_stall"

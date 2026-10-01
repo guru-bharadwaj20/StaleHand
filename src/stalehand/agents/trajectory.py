@@ -29,6 +29,9 @@ class Trajectory:
     def subtask(self, step: int, text: str, **extra) -> None:
         self.entries.append({"kind": "subtask", "step": step, "text": text, **extra})
 
+    def stall(self, step: int, actions: int) -> None:
+        self.entries.append({"kind": "stall", "step": step, "actions": actions})
+
     def finish(self, reason: str, app_events: List[Dict[str, Any]]) -> None:
         self.end_reason, self.app_events = reason, list(app_events)
 
