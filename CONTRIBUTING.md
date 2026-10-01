@@ -30,17 +30,18 @@ Runs stay on their owner's machines and write to separate result directories (`r
 | ✅ | Episode outcome scoring | `src/stalehand/metrics/outcome.py` |
 | ✅ | `screendiff` crate: pixel difference and SSIM | `crates/screendiff/` |
 | ✅ | Go runner: matrix, SQLite job store, ssh dispatch, `stalerun` command | `runner/` |
-| ❌ | `stalehand run-job` command, the entry point the Go runner calls | `src/stalehand/cli.py`, `src/stalehand/run/` |
-| ❌ | Delegated agent (orchestrator and GUI operator, CoAct-1 style) | `src/stalehand/agents/delegated.py` |
-| ❌ | Flat agent (one policy per step, Agent S3 style), as a reference | `src/stalehand/agents/flat.py` |
-| ❌ | Rebind guard: re-resolve the rule each step, re-plan only if the target moved | `src/stalehand/guards/rebind.py` |
+| ✅ | `stalehand run-job` command, the entry point the Go runner calls | `src/stalehand/cli.py`, `src/stalehand/run/` |
+| ✅ | Delegated agent (orchestrator and GUI operator, CoAct-1 style) | `src/stalehand/agents/delegated.py` |
+| ✅ | Flat agent (one policy per step, Agent S3 style), as a reference | `src/stalehand/agents/flat.py` |
+| ✅ | Rebind guard: re-resolve the rule each step, re-plan only if the target moved | `src/stalehand/guards/rebind.py` |
 | ✅ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | `src/stalehand/metrics/stats.py` |
-| ❌ | Runner provenance (git commit, model revisions, library versions) and result collection | `runner/`, `src/stalehand/run/` |
-| ❌ | Model serving scripts for the lab boxes | `scripts/lab/` |
-| ❌ | Pilot replication in the live environment (gate: stale subtask well below fresh on relative tasks) | `results/vivian-4090/` |
+| ✅ | Runner provenance (git commit, model revisions, library versions) and result collection | `runner/`, `src/stalehand/run/` |
+| ✅ | Model serving scripts for the lab boxes | `scripts/lab/` |
+| ✅ | Pilot replication in the live environment (gate: stale subtask well below fresh on relative tasks) | `results/vivian-4090/` |
+| ❌ | Handoff change timing: the change lands after the planner writes a subtask and before the executor's next screenshot, so the executor sees it and the subtask does not | `src/stalehand/env/`, `src/stalehand/agents/` |
 | ❌ | Main guard comparison on inbox and shop | `results/vivian-4090/` |
 | ❌ | Change-timing study: changes before the screenshot against changes between screenshot and action | `results/vivian-4090/` |
-| ❌ | Report builder that reads result files | `src/stalehand/report/` |
+| ✅ | Report builder that reads result files | `src/stalehand/report/` |
 
 ### Guru: new domains, statistics crate, second model family, results site
 
@@ -63,8 +64,8 @@ Runs stay on their owner's machines and write to separate result directories (`r
   (`src/stalehand/guards/base.py`). Changing a contract needs a pull request that both people approve.
 - **No shared lists to edit.** New scenario domains are discovered from `scenarios/domains/`, and new apps from
   `apps/src/*/main.ts`, so adding a domain touches only new files.
-- **Branches.** Work on `vivian/<topic>` or `guru/<topic>` and merge to `main` through a pull request with CI
-  green. Rebase before merging; never force-push `main`.
+- **Branches.** Guru works on `guru/<topic>` and merges to `main` through a pull request with CI green. Vivian
+  commits straight to `main`, with the tests passing before every push. Never force-push `main`.
 - **Authorship.** Each person commits under their own name and follows the commit rules below.
 - **Cross-checks.** The Python statistics (Vivian) and the Rust statistics (Guru) must agree on the same result
   files; a test in each language reads a shared fixture under `schema/fixtures/`.
