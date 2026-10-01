@@ -9,4 +9,5 @@ for dir in results/vivian-4090/*/; do
     python3 -m stalehand report --runs "$dir" --out "results/vivian-4090/${name}_report.md" --charts
   fi
 done
+python3 experiments/audit/summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 python3 -m stalehand readme
