@@ -20,3 +20,15 @@ def test_one_scenario_per_line_with_derived_fields(tmp_path):
     assert rows[0]["derived"] == {"stale_target": scen[0].stale_target,
                                   "final_target": scen[0].target_at(scen[0].last_change_step),
                                   "change_kind": "relevant"}
+
+
+def test_tampered_derived_target_is_rejected(tmp_path):
+    import pytest
+    scen = registry.generate("inbox", seed=0, n=1, kinds=["relative"], variants=["L1"])
+    path = tmp_path / "s.jsonl"
+    write_jsonl(scen, path)
+    row = json.loads(path.read_text())
+    row["derived"]["final_target"] = "m00"
+    path.write_text(json.dumps(row) + "\n")
+    with pytest.raises(ValueError):
+        read_jsonl(path)
