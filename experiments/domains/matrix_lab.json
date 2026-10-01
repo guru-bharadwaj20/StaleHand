@@ -1,0 +1,51 @@
+{
+  "name": "domains_lab",
+  "scenarios": [
+    "experiments/domains/shards/calendar-00.jsonl",
+    "experiments/domains/shards/calendar-01.jsonl",
+    "experiments/domains/shards/calendar-02.jsonl",
+    "experiments/domains/shards/calendar-03.jsonl",
+    "experiments/domains/shards/calendar-04.jsonl",
+    "experiments/domains/shards/calendar-05.jsonl",
+    "experiments/domains/shards/chat-00.jsonl",
+    "experiments/domains/shards/chat-01.jsonl",
+    "experiments/domains/shards/chat-02.jsonl",
+    "experiments/domains/shards/chat-03.jsonl",
+    "experiments/domains/shards/chat-04.jsonl",
+    "experiments/domains/shards/chat-05.jsonl",
+    "experiments/domains/shards/files-00.jsonl",
+    "experiments/domains/shards/files-01.jsonl",
+    "experiments/domains/shards/files-02.jsonl",
+    "experiments/domains/shards/files-03.jsonl",
+    "experiments/domains/shards/files-04.jsonl",
+    "experiments/domains/shards/files-05.jsonl",
+    "experiments/domains/shards/tickets-00.jsonl",
+    "experiments/domains/shards/tickets-01.jsonl",
+    "experiments/domains/shards/tickets-02.jsonl",
+    "experiments/domains/shards/tickets-03.jsonl",
+    "experiments/domains/shards/tickets-04.jsonl",
+    "experiments/domains/shards/tickets-05.jsonl"
+  ],
+  "architectures": [
+    "hierarchical"
+  ],
+  "guards": [
+    "none",
+    "replan_every_step",
+    "dom_subtask_replan",
+    "rebind_dom"
+  ],
+  "planners": [
+    "qwen3-vl-8b"
+  ],
+  "executors": [
+    "ui-tars-1.5-7b"
+  ],
+  "seeds": [
+    0
+  ],
+  "max_steps": 12,
+  "timings": [
+    "after_handoff"
+  ]
+}
