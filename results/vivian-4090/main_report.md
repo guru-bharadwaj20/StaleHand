@@ -19,6 +19,36 @@ Relevant: the change moved or removed the target the planner saw. Harmless: no c
 | hierarchical | none | 55 | 4% | 44% | 145 | 69% | 0% | 2.3 |
 | hierarchical | dom_subtask_replan | 55 | 58% | 0% | 145 | 67% | 76% | 3.1 |
 
+## By change kind
+
+Success on each kind of change. When the change removed the target there is no correct item, so the column counts episodes that held off: no commit, or a guard abort.
+
+| architecture | guard | no change | irrelevant | relevant | target removed: held off |
+|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 69% of 70 | 84% of 75 | 80% of 55 | 80% of 5 |
+| hierarchical | rebind_step | 59% of 70 | 67% of 75 | 53% of 55 | 80% of 5 |
+| hierarchical | pixel_0.02_replan | 61% of 70 | 76% of 75 | 64% of 55 | 80% of 5 |
+| hierarchical | rebind_dom | 59% of 70 | 76% of 75 | 55% of 55 | 80% of 5 |
+| hierarchical | self_check | 60% of 70 | 76% of 75 | 36% of 55 | 80% of 5 |
+| hierarchical | rule_subtask | 46% of 70 | 55% of 75 | 27% of 55 | 100% of 5 |
+| hierarchical | none | 63% of 70 | 75% of 75 | 4% of 55 | 80% of 5 |
+| hierarchical | dom_subtask_replan | 59% of 70 | 75% of 75 | 58% of 55 | 100% of 5 |
+
+## Relevant changes by task
+
+Success on episodes whose change moved the target, per task.
+
+| architecture | guard | inbox relative | shop cheapest | shop highest_rated |
+|---|---|---|---|---|
+| hierarchical | replan_every_step | 75% of 20 | 80% of 20 | 87% of 15 |
+| hierarchical | rebind_step | 50% of 20 | 55% of 20 | 53% of 15 |
+| hierarchical | pixel_0.02_replan | 50% of 20 | 60% of 20 | 87% of 15 |
+| hierarchical | rebind_dom | 50% of 20 | 55% of 20 | 60% of 15 |
+| hierarchical | self_check | 30% of 20 | 40% of 20 | 40% of 15 |
+| hierarchical | rule_subtask | 20% of 20 | 15% of 20 | 53% of 15 |
+| hierarchical | none | 0% of 20 | 10% of 20 | 0% of 15 |
+| hierarchical | dom_subtask_replan | 50% of 20 | 60% of 20 | 67% of 15 |
+
 ## Outcomes
 
 | architecture | guard | domain | kind | change | n | success | stale | wrong_item | wrong_detail | aborted | no_commit | planner calls |

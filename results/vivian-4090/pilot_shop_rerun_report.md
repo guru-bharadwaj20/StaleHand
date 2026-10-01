@@ -13,6 +13,24 @@ Relevant: the change moved or removed the target the planner saw. Harmless: no c
 | hierarchical | replan_every_step | 35 | 23% | 40% | 35 | 60% | 100% | 3.2 |
 | hierarchical | none | 35 | 6% | 34% | 35 | 46% | 0% | 2.3 |
 
+## By change kind
+
+Success on each kind of change. When the change removed the target there is no correct item, so the column counts episodes that held off: no commit, or a guard abort.
+
+| architecture | guard | no change | irrelevant | relevant | target removed: held off |
+|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 60% of 20 | 60% of 15 | 23% of 35 | n/a |
+| hierarchical | none | 35% of 20 | 60% of 15 | 6% of 35 | n/a |
+
+## Relevant changes by task
+
+Success on episodes whose change moved the target, per task.
+
+| architecture | guard | shop cheapest | shop highest_rated |
+|---|---|---|---|
+| hierarchical | replan_every_step | 25% of 20 | 20% of 15 |
+| hierarchical | none | 10% of 20 | 0% of 15 |
+
 ## Outcomes
 
 | architecture | guard | domain | kind | change | n | success | stale | wrong_item | wrong_detail | aborted | no_commit | planner calls |
