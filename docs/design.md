@@ -51,6 +51,21 @@ scenarios ──► apps (HTML/JS) ──► env (Playwright) ◄──► agent
 | `stalehand.runner` | Expands a config into a run matrix, shards it across machines, writes JSONL results with the full config, seed and library versions, and resumes after a crash. |
 | `stalehand.report` | Tables and charts from result files only. |
 
+## Languages
+
+Each language takes the part it suits. They meet at JSON files described by the schemas in `schema/`, so no
+component needs to import another language's code.
+
+| Language | Where | Why |
+|---|---|---|
+| Python | `src/stalehand/` | scenarios, model backends, agents, guards, metrics and analysis; the model ecosystem is here |
+| TypeScript | `apps/` | the domain web apps, their multi-step flows, the live change hook and the action log run in the browser |
+| Go | `runner/` | the run orchestrator: expands a run matrix, ships shards to GPU machines over ssh, tracks progress in SQLite and resumes after crashes; one static binary per machine |
+| Rust | `crates/` | the pixel-diff guard (SSIM on screenshots must take milliseconds per step) and a fast cluster bootstrap for the statistics |
+| JSON Schema | `schema/` | the contract for scenarios, episodes and results, checked by tests in every language |
+| SQL | `runner/` | run status and result index in SQLite |
+| Shell | `scripts/` | machine setup and model downloads |
+
 ## Ground truth
 
 The correct target is computed, never hand-labelled. A task has a criterion: equality filters (for example
