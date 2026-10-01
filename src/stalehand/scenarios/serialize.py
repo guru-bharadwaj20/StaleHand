@@ -52,3 +52,19 @@ def change_from_dict(d: Dict[str, Any]):
     if kind == "cosmetic":
         return C.Cosmetic(d["label"])
     raise ValueError(f"unknown change type {kind!r}")
+
+
+def scenario_to_dict(s) -> Dict[str, Any]:
+    return {"id": s.id, "domain": s.domain, "seed": s.seed, "task": s.task,
+            "criterion": criterion_to_dict(s.criterion), "items": [item_to_dict(i) for i in s.items],
+            "changes": [{"step": c.step, "change": change_to_dict(c.change)} for c in s.changes],
+            "meta": dict(s.meta)}
+
+
+def scenario_from_dict(d: Dict[str, Any]):
+    from .scenario import Scenario, ScheduledChange
+    return Scenario(id=d["id"], domain=d["domain"], seed=d["seed"], task=d["task"],
+                    criterion=criterion_from_dict(d["criterion"]),
+                    items=tuple(item_from_dict(i) for i in d["items"]),
+                    changes=tuple(ScheduledChange(c["step"], change_from_dict(c["change"])) for c in d["changes"]),
+                    meta=d.get("meta", {}))

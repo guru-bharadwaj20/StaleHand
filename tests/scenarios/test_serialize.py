@@ -40,3 +40,14 @@ def test_change_roundtrip(change):
 def test_unknown_change_type_is_rejected():
     with pytest.raises(ValueError):
         S.change_from_dict({"type": "explode"})
+
+
+def test_scenario_roundtrip():
+    from stalehand.scenarios.scenario import Scenario, ScheduledChange
+    s = Scenario(id="inbox-R-01-L1", domain="inbox", seed=3, task="Forward the latest email from Sam.",
+                 criterion=Criterion({"sender": "Sam"}, Order("received")),
+                 items=(Item("a", {"sender": "Sam", "received": 10}),),
+                 changes=(ScheduledChange(2, Insert((Item("n", {"sender": "Sam", "received": 30}),))),),
+                 meta={"task_kind": "relative", "level": 1})
+    back = roundtrip(s, S.scenario_to_dict, S.scenario_from_dict)
+    assert back == s and back.target_at(2) == "n"
