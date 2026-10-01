@@ -23,6 +23,27 @@ If the task is complete, reply "Target rule: DONE". Otherwise reply in exactly t
 Target rule: <rule>
 Action: <action>"""
 
+BOUND_PLANNER = """You are the planner of a computer-use agent. A separate executor carries out one subtask at a time, possibly after the screen has changed. Given the user's task, the subtasks already finished, and the current screenshot, write the next subtask as three fields.
+
+Task: {task}
+Finished subtasks: {history}
+
+Target rule: how to identify the element to act on, using only the criteria stated in the task (for example the sender and "most recent", or the product type and "cheapest").
+Target: the element on the current screen that the rule picks, by its visible text (for example its subject line or product name).
+Action: what to do with that element (for example "open it, then forward it to laura@example.com").
+
+If the task is complete, reply "Target rule: DONE". Otherwise reply in exactly this format:
+Target rule: <rule>
+Target: <visible text>
+Action: <action>"""
+
+RESOLVE = """Look at the current screenshot. Which element on the screen matches this rule?
+
+Rule: {rule}
+
+Reply with the element's visible text (for example its subject line or product name), or NONE if no element on the screen matches. Reply in exactly this format:
+Target: <visible text or NONE>"""
+
 SELF_CHECK = """You are the executor of a computer-use agent. The planner wrote a subtask for you a few seconds ago, and the screen may have changed since then.
 
 The user's task: {task}
