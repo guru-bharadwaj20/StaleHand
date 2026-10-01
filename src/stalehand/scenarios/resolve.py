@@ -29,5 +29,9 @@ def resolve(items: Iterable[Item], criterion: Criterion) -> Resolution:
 
 def _pick_by_order(found, criterion: Criterion) -> Resolution:
     key = criterion.order.field
-    best = max(found, key=lambda it: it.get(key)) if criterion.order.descending else min(found, key=lambda it: it.get(key))
-    return Resolution(best.id, "unique")
+    pick = max if criterion.order.descending else min
+    best = pick(it.get(key) for it in found)
+    top = [it for it in found if it.get(key) == best]
+    if len(top) > 1:
+        return Resolution(None, "ambiguous")
+    return Resolution(top[0].id, "unique")

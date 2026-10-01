@@ -40,3 +40,15 @@ def test_ascending_order_picks_minimum():
 def test_order_without_filters_considers_every_item():
     r = resolve(INBOX, Criterion(order=Order("received")))
     assert r.target == "c"
+
+
+def test_tie_at_the_top_is_ambiguous():
+    shop = [Item("p1", {"price": 299}), Item("p2", {"price": 299}), Item("p3", {"price": 899})]
+    r = resolve(shop, Criterion(order=Order("price", descending=False)))
+    assert (r.target, r.status) == (None, "ambiguous")
+
+
+def test_tie_below_the_top_does_not_matter():
+    shop = [Item("p1", {"price": 199}), Item("p2", {"price": 299}), Item("p3", {"price": 299})]
+    r = resolve(shop, Criterion(order=Order("price", descending=False)))
+    assert (r.target, r.status) == ("p1", "unique")
