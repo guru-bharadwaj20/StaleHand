@@ -86,3 +86,18 @@ def test_report_command_writes_markdown(tmp_path, capsys):
     out = tmp_path / "report.md"
     assert main(["report", "--runs", str(tmp_path / "runs"), "--out", str(out), "--n-boot", "100"]) == 0
     assert "Built from 2 scored episodes." in out.read_text()
+
+
+def test_report_command_writes_charts_next_to_markdown(tmp_path):
+    run = tmp_path / "runs" / "m" / "job1"
+    run.mkdir(parents=True)
+    rows = [{"scenario_id": "shop-cheapest-000-L1", "guard": g, "outcome": o, "change_kind": k,
+             "kind": "cheapest", "false_alarm": False, "planner_calls": 1, "checker_calls": 0,
+             "architecture": "hierarchical"}
+            for g, o, k in (("none", "stale", "relevant"), ("none", "success", "none"))]
+    (run / "results.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    out = tmp_path / "main_report.md"
+    assert main(["report", "--runs", str(tmp_path / "runs"), "--out", str(out), "--n-boot", "50", "--charts"]) == 0
+    assert (tmp_path / "main_report_hierarchical_tradeoff.svg").exists()
+    assert (tmp_path / "main_report_hierarchical_outcomes.svg").exists()
+    assert "![" in out.read_text() and "main_report_hierarchical_tradeoff.svg" in out.read_text()

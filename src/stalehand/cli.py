@@ -56,6 +56,20 @@ def _report(args) -> int:
         print(f"no results.jsonl under {args.runs}", file=sys.stderr)
         return 1
     text = markdown(rows, baseline=args.baseline, n_boot=args.n_boot, seed=args.seed)
+    if args.charts:
+        from pathlib import Path
+
+        from .report.charts import relevant_outcomes, tradeoff
+        out = Path(args.out)
+        links = []
+        for arch in dict.fromkeys(r["architecture"] for r in rows):
+            for kind, draw, title in (("tradeoff", tradeoff, "Success against false alarms"),
+                                      ("outcomes", relevant_outcomes, "Episodes with a relevant change")):
+                name = f"{out.stem}_{arch}_{kind}.svg"
+                (out.parent / name).write_text(draw(rows, arch, f"{title} ({arch})"))
+                links.append(f"![{title} ({arch})]({name})")
+        head, _, tail = text.partition("## Summary by guard")
+        text = head + "\n\n".join(links) + "\n\n## Summary by guard" + tail
     with open(args.out, "w") as f:
         f.write(text)
     print(f"wrote {args.out} from {len(rows)} episodes")
@@ -107,6 +121,7 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("--baseline", default="none", help="guard the others are paired against")
     rp.add_argument("--n-boot", type=int, default=10000)
     rp.add_argument("--seed", type=int, default=0)
+    rp.add_argument("--charts", action="store_true", help="also write SVG charts next to the report")
     rp.set_defaults(func=_report)
     rd = sub.add_parser("readme", help="rebuild the results section of README.md from result files")
     rd.add_argument("--results", default="results")
