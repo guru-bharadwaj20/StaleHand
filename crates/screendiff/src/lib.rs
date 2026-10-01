@@ -4,3 +4,4 @@ pub mod gray;
 pub mod diff;
 pub mod ssim;
 pub mod load;
+pub mod report;
