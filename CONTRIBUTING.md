@@ -15,9 +15,9 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 6 | Metrics and statistics | M7 | 40 | 4 | 0 | ✅ |
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
-| 9 | Experiments | M10 | 40 | 8 | 10 | ❌ |
+| 9 | Experiments | M10 | 40 | 9 | 9 | ❌ |
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
-| | **Total** | | **495** | **48** | **13** | **79% done** |
+| | **Total** | | **495** | **49** | **12** | **80% done** |
 
 Remaining work: **16 tasks**, split 10 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
 
@@ -113,8 +113,8 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | ✅ | Model-free checks on the 1080 box: oracle audit of all 790 scenarios, click hazard at mid-step, pixel change at handoff | Vivian | `experiments/audit/`, `experiments/calibration/`, `results/vivian-4090/checks_report.md` |
 | ✅ | Run the main guard comparison on inbox and shop | Vivian | `results/vivian-4090/main/`, `main_report.md` |
 | ✅ | Click-loop table: how many episodes end with the executor clicking one spot | Vivian | `results/vivian-4090/loops_report.md` |
-| ❌ | Run the change-timing study (running) | Vivian | `results/vivian-4090/timing/` |
-| ❌ | Run the stall-return ablation: main scenarios, three guards, executor hands back after two actions that change nothing (queued) | Vivian | `experiments/main/matrix_stall.json`, `results/vivian-4090/main_stall/` |
+| ✅ | Run the change-timing study | Vivian | `results/vivian-4090/timing/`, `timing_report.md`, `contrasts_report.md`, `recovery_report.md` |
+| ❌ | Run the stall-return ablation: main scenarios, three guards, executor hands back after two actions that change nothing (running) | Vivian | `experiments/main/matrix_stall.json`, `results/vivian-4090/main_stall/` |
 | ❌ | Run the delegated architecture with four guards (queued) | Vivian | `results/vivian-4090/delegated/` |
 | ❌ | Run the three-guard comparison on files, tickets, calendar and chat (queued) | Vivian | `results/vivian-4090/domains_lab/` |
 | ❌ | Run the flat reference in bf16 (queued) | Vivian | `results/vivian-4090/flat/` |
@@ -145,8 +145,8 @@ matrices in `experiments/ada/`, which fit the card as it is.
 
 | # | Vivian | Guru |
 |---|---|---|
-| 1 | ❌ Run the change-timing study (running) | ❌ InternVL3.5 flat run and action-format gate |
-| 2 | ❌ Run the stall-return ablation (queued) | ❌ fp8 precision control (UI-TARS flat in fp8) |
+| 1 | ✅ Run the change-timing study | ❌ InternVL3.5 flat run and action-format gate |
+| 2 | ❌ Run the stall-return ablation (running) | ❌ fp8 precision control (UI-TARS flat in fp8) |
 | 3 | ❌ Run the delegated architecture (queued) | ❌ Small-planner arm in fp8 |
 | 4 | ❌ Run the four-guard comparison on the new domains (queued) | ❌ Load tonight's results into the explorer |
 | 5 | ❌ Run the flat reference in bf16 (queued) | ❌ Second-family hierarchical runs (blocked on memory) |
