@@ -63,3 +63,41 @@ the planner never sees the new screen. Re-planning at every step asks the planne
 episodes were click loops 5% of the time, against 19% with
 no guard. Part of its lead over the cheaper guards may therefore come from breaking loops rather than from catching
 stale subtasks. `docs/progress.md` has the details.
+
+## When the change lands mid-step, only a check right before the click helps
+
+The timing study (1025 episodes) reruns the main scenarios with the change landing between the
+executor's screenshot and its click, the time-of-check to time-of-use window. The executor then clicks a position
+taken from a screen that no longer exists.
+
+The click usually lands on the wrong item, whether or not the change mattered to the task. On harmless changes,
+the first item the agent opened was the wrong one in 72% of episodes with no guard,
+against 10% when the same change landed at the handoff
+(`results/vivian-4090/recovery_report.md`). That matches the model-free click-hazard audit in
+`results/vivian-4090/checks_report.md`.
+
+What a guard can do about it depends on when it looks:
+
+- **A DOM check just before the action** (`dom_step_replan`) sees the change before the click and re-plans. Its
+  first-open misses stayed at 10%, and it reached
+  56% on relevant changes (+51 pts over no
+  guard, [+34, +68]) and 68% on harmless ones.
+- **A guard that checks only before the executor's next thought** comes in after the wrong click. Paired against
+  the same guard under the handoff timing, `dom_subtask_replan` changed by -27 pts
+  ([-43, -12]) on relevant changes and -19 pts
+  ([-29, -10]) on harmless ones, and `rebind_step` by
+  -27 pts and -19 pts. No guard changed by only
+  -8 pts on harmless changes, so on those these guards did worse than having none. The miss
+  itself is the same: the first opened item was wrong in 72% of
+  harmless episodes with `dom_subtask_replan`, as with no guard. The difference is recovery. After a missed first
+  click, no guard went on to succeed in 53% of episodes and committed to a wrong item in
+  14%; `dom_subtask_replan` succeeded in 35% and
+  committed to a wrong item in 42%. In one trace we read in full, the
+  re-plan starts from the wrong email's screen, and the new subtask ('Click the "Back to Inbox" button to return
+  to the inbox and locate the email from Amara Okafor') has dropped the subject line that told the two emails
+  apart. We have not checked how often that is the cause.
+- **Aborting on any DOM change** (`dom_step_abort`) is a clean negative. It never acts on a stale target, but it
+  succeeded on 0% of relevant changes and
+  16% of harmless ones, because nearly every episode sees some change.
+
+Paired tables: `results/vivian-4090/contrasts_report.md` and `results/vivian-4090/timing_report.md`.

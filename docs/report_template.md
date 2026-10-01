@@ -63,3 +63,41 @@ the planner never sees the new screen. Re-planning at every step asks the planne
 episodes were click loops {{main.replan_every_step.click_loop}} of the time, against {{main.none.click_loop}} with
 no guard. Part of its lead over the cheaper guards may therefore come from breaking loops rather than from catching
 stale subtasks. `docs/progress.md` has the details.
+
+## When the change lands mid-step, only a check right before the click helps
+
+The timing study ({{timing.episodes}} episodes) reruns the main scenarios with the change landing between the
+executor's screenshot and its click, the time-of-check to time-of-use window. The executor then clicks a position
+taken from a screen that no longer exists.
+
+The click usually lands on the wrong item, whether or not the change mattered to the task. On harmless changes,
+the first item the agent opened was the wrong one in {{timing.none.first_open_missed}} of episodes with no guard,
+against {{main.none.first_open_missed}} when the same change landed at the handoff
+(`results/vivian-4090/recovery_report.md`). That matches the model-free click-hazard audit in
+`results/vivian-4090/checks_report.md`.
+
+What a guard can do about it depends on when it looks:
+
+- **A DOM check just before the action** (`dom_step_replan`) sees the change before the click and re-plans. Its
+  first-open misses stayed at {{timing.dom_step_replan.first_open_missed}}, and it reached
+  {{timing.dom_step_replan.relevant_success}} on relevant changes ({{timing.dom_step_replan.vs_none.diff}} over no
+  guard, {{timing.dom_step_replan.vs_none.ci}}) and {{timing.dom_step_replan.harmless_success}} on harmless ones.
+- **A guard that checks only before the executor's next thought** comes in after the wrong click. Paired against
+  the same guard under the handoff timing, `dom_subtask_replan` changed by {{timing.dom_subtask_replan.relevant.diff}}
+  ({{timing.dom_subtask_replan.relevant.ci}}) on relevant changes and {{timing.dom_subtask_replan.harmless.diff}}
+  ({{timing.dom_subtask_replan.harmless.ci}}) on harmless ones, and `rebind_step` by
+  {{timing.rebind_step.relevant.diff}} and {{timing.rebind_step.harmless.diff}}. No guard changed by only
+  {{timing.none.harmless.diff}} on harmless changes, so on those these guards did worse than having none. The miss
+  itself is the same: the first opened item was wrong in {{timing.dom_subtask_replan.first_open_missed}} of
+  harmless episodes with `dom_subtask_replan`, as with no guard. The difference is recovery. After a missed first
+  click, no guard went on to succeed in {{timing.none.recovered}} of episodes and committed to a wrong item in
+  {{timing.none.wrong_after_miss}}; `dom_subtask_replan` succeeded in {{timing.dom_subtask_replan.recovered}} and
+  committed to a wrong item in {{timing.dom_subtask_replan.wrong_after_miss}}. In one trace we read in full, the
+  re-plan starts from the wrong email's screen, and the new subtask ('Click the "Back to Inbox" button to return
+  to the inbox and locate the email from Amara Okafor') has dropped the subject line that told the two emails
+  apart. We have not checked how often that is the cause.
+- **Aborting on any DOM change** (`dom_step_abort`) is a clean negative. It never acts on a stale target, but it
+  succeeded on {{timing.dom_step_abort.relevant_success}} of relevant changes and
+  {{timing.dom_step_abort.harmless_success}} of harmless ones, because nearly every episode sees some change.
+
+Paired tables: `results/vivian-4090/contrasts_report.md` and `results/vivian-4090/timing_report.md`.
