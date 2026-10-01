@@ -19,7 +19,7 @@ from .trajectory import Trajectory
 class Hierarchical:
     architecture = "hierarchical"
 
-    def __init__(self, planner, executor, guard: Guard, max_steps: int = 12, max_replans: int = 6,
+    def __init__(self, planner, executor, guard: Guard, max_steps: int = 12, max_replans: int = 3,
                  executor_coords: str = "abs", planner_tokens: int = 160, executor_tokens: int = 256):
         self.planner, self.executor, self.guard = planner, executor, guard
         self.max_steps, self.max_replans, self.coords = max_steps, max_replans, executor_coords
@@ -45,7 +45,7 @@ class Hierarchical:
     def run(self, env, scenario) -> Trajectory:
         traj = Trajectory(scenario.id, self.architecture, self.guard.name)
         obs = env.reset(scenario)
-        finished, replans = [], 0
+        finished, replans = [], {}  # replans per env step; only repeated re-planning without acting is bounded
 
         def new_subtask(o) -> Optional[Context]:
             text = self._plan(scenario.task, finished, o.png, o.step, traj)
@@ -68,8 +68,8 @@ class Hierarchical:
             if decision == ABORT:
                 return self._end(traj, env, "guard_abort")
             if decision == REPLAN:
-                replans += 1
-                if replans > self.max_replans:
+                replans[obs.step] = replans.get(obs.step, 0) + 1
+                if replans[obs.step] > self.max_replans:
                     return self._end(traj, env, "max_replans")
                 ctx, history = new_subtask(obs), []
                 continue
@@ -90,8 +90,8 @@ class Hierarchical:
             if decision == ABORT:
                 return self._end(traj, env, "guard_abort")
             if decision == REPLAN:
-                replans += 1
-                if replans > self.max_replans:
+                replans[obs.step] = replans.get(obs.step, 0) + 1
+                if replans[obs.step] > self.max_replans:
                     return self._end(traj, env, "max_replans")
                 obs = env.observe()
                 ctx, history = new_subtask(obs), []

@@ -108,3 +108,11 @@ def test_replans_are_bounded():
     env = FakeEnv()
     t = Hierarchical(planner(*["again"] * 50), executor(), AlwaysReplan(), max_steps=5, max_replans=3).run(env, SCEN)
     assert t.end_reason == "max_replans"
+
+
+def test_replanning_each_step_is_not_cut_short():
+    from stalehand.guards.replan import ReplanEveryStep
+    env = FakeEnv()
+    t = Hierarchical(planner(*["click"] * 50), executor(*[CLICK] * 50), ReplanEveryStep(), max_steps=10,
+                     max_replans=3).run(env, SCEN)
+    assert t.end_reason == "max_steps" and len(env.actions) == 10
