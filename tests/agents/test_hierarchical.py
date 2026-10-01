@@ -197,3 +197,19 @@ def test_replan_to_a_new_subtask_clears_executor_history():
     e = executor(CLICK, "Action: finished(content='')", "Action: finished(content='')")
     Hierarchical(p, e, ReplanEveryStep(), max_steps=6).run(FakeEnv(), SCEN)
     assert "forward it" in e.calls[1].prompt and "1. Action" not in e.calls[1].prompt
+
+
+def test_executor_sees_the_page_changed_at_handoff():
+    p = planner("open the mail")
+    e = executor("Action: finished(content='')")
+    Hierarchical(p, e, Guard(), max_steps=5).run(FakeEnv(handoff_changes_at={0}), SCEN)
+    assert p.calls[0].image_png == b"screen-0" and e.calls[0].image_png == b"screen-0-changed"
+
+
+def test_replan_guard_reacts_to_a_handoff_change():
+    from stalehand.guards.replan import ReplanEveryStep
+    p = planner("open the mail", "open the newer mail")
+    e = executor("Action: finished(content='')", "Action: finished(content='')")
+    t = Hierarchical(p, e, ReplanEveryStep(), max_steps=5).run(FakeEnv(handoff_changes_at={0}), SCEN)
+    assert p.calls[1].image_png == b"screen-0-changed"
+    assert [x["text"] for x in t.entries if x["kind"] == "subtask"][:2] == ["open the mail", "open the newer mail"]

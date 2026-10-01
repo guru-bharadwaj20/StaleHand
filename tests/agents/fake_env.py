@@ -4,18 +4,29 @@ from stalehand.env.browser import Observation
 
 
 class FakeEnv:
-    def __init__(self, commit_on_click=None, external_at=()):
+    def __init__(self, commit_on_click=None, external_at=(), handoff_changes_at=()):
         self.step, self.actions, self.began = 0, [], 0
         self.commit_on_click = commit_on_click  # item id to log as committed on the first click
         self.external_at = set(external_at)     # steps at which a scheduled change "lands"
         self._external, self._events = 0, []
+        self.handoff_changes_at = set(handoff_changes_at)  # steps whose handoff changes the screen
+        self.changed = set()
 
     def reset(self, scenario):
         self.scenario, self.step, self.actions, self._events = scenario, 0, [], []
+        self.changed = set()
         return self.observe()
 
     def observe(self):
-        return Observation(self.step, f"screen-{self.step}".encode())
+        suffix = "-changed" if self.step in self.changed else ""
+        return Observation(self.step, f"screen-{self.step}{suffix}".encode())
+
+    def handoff(self):
+        if self.step in self.handoff_changes_at and self.step not in self.changed:
+            self.changed.add(self.step)
+            self._external += 1
+            return True
+        return False
 
     def begin_action(self):
         self.began += 1

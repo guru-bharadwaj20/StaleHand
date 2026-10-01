@@ -59,6 +59,7 @@ class Hierarchical:
         finished, replans = [], {}  # replans per env step; only repeated re-planning without acting is bounded
 
         def new_subtask(o) -> Optional[Context]:
+            nonlocal obs
             planned = self._plan(scenario.task, finished, o.png, o.step, traj)
             if planned is None:
                 return None
@@ -67,6 +68,8 @@ class Hierarchical:
             c = Context(env=env, task=scenario.task, subtask=text, subtask_step=o.step, subtask_png=o.png,
                         step=o.step, png=o.png, trajectory=traj, extra=extra)
             self.guard.on_subtask(c)
+            if env.handoff():  # after_handoff timing: the page changed while the subtask was handed over
+                obs = env.observe()
             return c
 
         def replan(old: Context, o, history):
