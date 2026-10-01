@@ -12,6 +12,7 @@ from typing import Dict, List
 from ..metrics.stats import compare, holm, pair
 from .build import _p, _pct
 from .contrasts import SUBSETS, load_runs
+from .loops import loop_rows
 from .tables import guard_summary
 
 SUMMARY = ("relevant_n", "relevant_success", "relevant_stale", "harmless_n", "harmless_success", "false_alarm")
@@ -28,6 +29,12 @@ def values(root, run_sets: List[str], n_boot: int = 10000, seed: int = 0) -> Dic
                 x = g[m]
                 out[f"{name}.{g['guard']}.{m}"] = str(x) if m.endswith("_n") else _pct(x)
             out[f"{name}.{g['guard']}.calls"] = f"{g['calls']:.1f}"
+        loops = loop_rows(Path(root) / name)
+        for guard in dict.fromkeys(r["guard"] for r in loops):
+            rs = [r for r in loops if r["guard"] == guard]
+            nc = [r for r in rs if r["outcome"] == "no_commit"]
+            out[f"{name}.{guard}.click_loop"] = _pct(sum(r["loop"] for r in rs) / len(rs))
+            out[f"{name}.{guard}.loop_among_no_commit"] = _pct(sum(r["loop"] for r in nc) / len(nc)) if nc else "n/a"
     base = run_sets[0]
     found = []
     for name, rs in rows.items():

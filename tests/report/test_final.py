@@ -49,3 +49,13 @@ def test_values_pair_each_guard_against_none_inside_a_run_set(tmp_path):
     v = values(tmp_path, ["main", "domains_lab"], n_boot=20)
     assert v["domains_lab.rebind_dom.vs_none.diff"] == "+100 pts"
     assert v["domains_lab.rebind_dom.vs_none.pairs"] == "6"
+
+
+def test_values_include_click_loop_shares(tmp_path):
+    write(tmp_path, "main", [row("inbox-a-000-L1", "none", "no_commit"), row("inbox-a-001-L1", "none", "success")])
+    traj = {"end_reason": "max_steps",
+            "entries": [{"kind": "action", "action": {"type": "click", "x": 5, "y": 5}}] * 4}
+    (tmp_path / "main" / "job1" / "trajectories").mkdir()
+    (tmp_path / "main" / "job1" / "trajectories" / "inbox-a-000-L1.json").write_text(json.dumps(traj))
+    v = values(tmp_path, ["main"], n_boot=20)
+    assert v["main.none.click_loop"] == "50%" and v["main.none.loop_among_no_commit"] == "100%"
