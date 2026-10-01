@@ -10,7 +10,7 @@ booking for the offsite". A newer email from Samuel Lee arrives. The executor op
 
 ## Status
 
-Early development. See [docs/design.md](docs/design.md) for the design and [docs/roadmap.md](docs/roadmap.md)
+Early development. See [docs/design.md](docs/design.md) for the design and [CONTRIBUTING.md](CONTRIBUTING.md)
 for the plan.
 
 ## Setup

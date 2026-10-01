@@ -1,11 +1,147 @@
 # Contributing
 
-## Task split
+Two people work on this repository: Vivian and Guru. This file holds the plan, the task split and the working
+rules. ✅ means done and merged; ❌ means still to do.
 
-Two people work on this repository: Vivian and Guru. The split follows directories, so each person can work and
-merge without waiting on the other. ✅ means done and merged; ❌ means still to do.
+## Progress at a glance
 
-### Hardware
+| Phase | Name | Roadmap milestones | Commit budget | Done | Left | Status |
+|---|---|---|---|---|---|---|
+| 1 | Shared schemas | M0 | 15 | 2 | 0 | ✅ |
+| 2 | Scenario core | M1 | 45 | 2 | 0 | ✅ |
+| 3 | Web apps and environment | M2, M3 | 90 | 4 | 1 | ❌ |
+| 4 | Models and agents | M4, M5 | 85 | 8 | 0 | ✅ |
+| 5 | Guards | M6 | 55 | 4 | 0 | ✅ |
+| 6 | Metrics and statistics | M7 | 40 | 3 | 1 | ❌ |
+| 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
+| 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
+| 9 | Experiments | M10 | 40 | 4 | 5 | ❌ |
+| 10 | Reports, docs and release | M11 | 30 | 2 | 7 | ❌ |
+| | **Total** | | **495** | **36** | **14** | **72% done** |
+
+Remaining work: **14 tasks**, split 7 to Vivian and 7 to Guru (see [Who does what next](#who-does-what-next)).
+
+Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
+every commit is one real change (see [Commits](#commits)).
+
+## Phase 1: Shared schemas (M0)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Scenario, episode and result JSON Schemas | Vivian | `schema/` |
+| ✅ | Shared fixtures checked from every language | Vivian | `schema/fixtures/` |
+
+## Phase 2: Scenario core (M1)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Items, criteria, resolver, change events, relevance | Vivian | `src/stalehand/scenarios/` |
+| ✅ | Inbox and shop generators, JSONL export, `stalehand scenarios` command | Vivian | `src/stalehand/scenarios/domains/`, `src/stalehand/cli.py` |
+
+## Phase 3: Web apps and environment (M2, M3)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Inbox and shop web apps, page harness, bundler | Vivian | `apps/src/{core,inbox,shop}/`, `apps/build.mjs` |
+| ✅ | Playwright environment: actions, change timing, DOM mutation tracking, event steps | Vivian | `src/stalehand/env/` |
+| ✅ | Handoff change timing: the change lands after the planner writes a subtask and before the executor's next screenshot | Vivian | `src/stalehand/env/`, `src/stalehand/agents/` |
+| ✅ | **Gate:** a scripted agent finishes forward-the-email in the live inbox, and a change at step 2 shows in the screenshot and DOM log | Vivian | `tests/env/` |
+| ❌ | Static render mode (render a scenario state to a screenshot without a live episode) | Vivian | `src/stalehand/env/` |
+
+## Phase 4: Models and agents (M4, M5)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Model backends (scripted, OpenAI-compatible, transformers) and output parsers | Vivian | `src/stalehand/models/` |
+| ✅ | Hierarchical planner-executor agent and trajectory log | Vivian | `src/stalehand/agents/` |
+| ✅ | Delegated agent (orchestrator and GUI operator, CoAct-1 style) | Vivian | `src/stalehand/agents/delegated.py` |
+| ✅ | Flat agent (one policy per step, Agent S3 style), as a reference | Vivian | `src/stalehand/agents/flat.py` |
+| ✅ | Model serving scripts for the lab boxes | Vivian | `scripts/lab/` |
+| ✅ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | Guru | `scripts/ada/` |
+| ✅ | Second executor family (InternVL3.5) in the model registry | Guru | `src/stalehand/models/registry.py` |
+| ✅ | **Gate:** pilot reproduces in the live environment (stale subtask well below fresh on relative tasks) | Vivian | `results/vivian-4090/` |
+
+## Phase 5: Guards (M6)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Guards: none, re-plan every step, self-check, rule subtask, DOM change, pixel change | Vivian | `src/stalehand/guards/` |
+| ✅ | Rebind guard: re-resolve the rule each step, re-plan only if the target moved | Vivian | `src/stalehand/guards/rebind.py` |
+| ✅ | `screendiff` crate: pixel difference and SSIM | Vivian | `crates/screendiff/` |
+| ✅ | Pixel guard threshold calibration at handoff, all six domains | Vivian | `experiments/calibration/`, `results/vivian-4090/calibration/` |
+
+## Phase 6: Metrics and statistics (M7)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Episode outcome scoring | Vivian | `src/stalehand/metrics/outcome.py` |
+| ✅ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | Vivian | `src/stalehand/metrics/stats.py` |
+| ✅ | `stalestats` crate, checked against the Python statistics on the same files | Guru | `crates/stalestats/` |
+| ❌ | Full cost accounting: tokens, wall-clock time and planner calls per episode, in the report tables | Vivian | `src/stalehand/metrics/`, `src/stalehand/report/` |
+
+**Gate:** every number in a summary table can be traced to a JSONL row.
+
+## Phase 7: Runner (M8)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Go runner: matrix, SQLite job store, ssh dispatch, resume, `stalerun` command | Vivian | `runner/` |
+| ✅ | `stalehand run-job` command, the entry point the Go runner calls | Vivian | `src/stalehand/cli.py`, `src/stalehand/run/` |
+| ✅ | Provenance (git commit, model revisions, library versions) and result collection | Vivian | `runner/`, `src/stalehand/run/` |
+
+## Phase 8: More domains (M9)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Files domain ("share the newest report"; uploads, renames) | Guru | `.../domains/files.py`, `apps/src/files/` |
+| ✅ | Tickets domain ("assign the oldest high-priority ticket"; new tickets, priority changes) | Guru | `.../domains/tickets.py`, `apps/src/tickets/` |
+| ✅ | Calendar domain ("join the next meeting with Kenji"; reschedules, cancellations) | Guru | `.../domains/calendar.py`, `apps/src/calendar/` |
+| ✅ | Chat domain ("reply to the latest message from Grace"; new and edited messages) | Guru | `.../domains/chat.py`, `apps/src/chat/` |
+
+## Phase 9: Experiments (M10)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Pilot replication on inbox and shop | Vivian | `results/vivian-4090/pilot/` |
+| ✅ | Shop relative-task rerun | Vivian | `results/vivian-4090/pilot_shop_rerun/` |
+| ✅ | Main guard comparison matrix and scenarios | Vivian | `experiments/main/matrix.json` |
+| ✅ | Change-timing study matrix | Vivian | `experiments/main/matrix_timing.json` |
+| ❌ | Run the main guard comparison on inbox and shop | Vivian | `results/vivian-4090/` |
+| ❌ | Run the change-timing study (before screenshot vs. between screenshot and action) | Vivian | `results/vivian-4090/` |
+| ❌ | Change-kind and task-kind breakdowns of the main results | Vivian | `results/vivian-4090/` |
+| ❌ | Second-family experiments: main matrices rerun with InternVL3.5 as executor | Guru | `results/guru-4500/` |
+| ❌ | Guard comparison on the files, tickets, calendar and chat domains | Guru | `results/guru-4500/` |
+
+## Phase 10: Reports, docs and release (M11)
+
+| Status | Task | Owner | Where |
+|---|---|---|---|
+| ✅ | Report builder that reads result files | Vivian | `src/stalehand/report/` |
+| ✅ | Results explorer: static site that reads and validates result JSONL | Guru | `site/` |
+| ❌ | Combined final report across both machines' results | Vivian | `src/stalehand/report/` |
+| ❌ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
+| ❌ | Results section in `README.md`, generated from result files | Guru | `README.md` |
+| ❌ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
+| ❌ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
+| ❌ | Choose a license before the repository is made public | Vivian | `LICENSE` |
+| ❌ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
+
+## Who does what next
+
+| # | Vivian | Guru |
+|---|---|---|
+| 1 | ❌ Static render mode | ❌ Second-family experiments |
+| 2 | ❌ Full cost accounting | ❌ Guard comparison on the four new domains |
+| 3 | ❌ Run the main guard comparison | ❌ Charts for the main results |
+| 4 | ❌ Run the change-timing study | ❌ README results section |
+| 5 | ❌ Change-kind and task-kind breakdowns | ❌ Usage guide |
+| 6 | ❌ Combined final report | ❌ Worked examples |
+| 7 | ❌ Choose a license | ❌ Real-application decision |
+
+Guru's second-family runs depend on Vivian's main guard comparison config; Guru's charts and README section
+depend on the main results landing.
+
+## Hardware
 
 | Person | Machines | Used for |
 |---|---|---|
@@ -15,49 +151,7 @@ merge without waiting on the other. ✅ means done and merged; ❌ means still t
 Runs stay on their owner's machines and write to separate result directories (`results/vivian-4090/`,
 `results/guru-4500/`), so no two runs ever write the same file.
 
-### Vivian: core pipeline, runner, inbox and shop experiments
-
-| Status | Task | Where |
-|---|---|---|
-| ✅ | Scenario core: items, criteria, resolver, change events, relevance | `src/stalehand/scenarios/` |
-| ✅ | Inbox and shop scenario generators, JSONL export, `stalehand scenarios` command | `src/stalehand/scenarios/domains/`, `src/stalehand/cli.py` |
-| ✅ | Scenario and result JSON schemas, shared fixtures | `schema/` |
-| ✅ | Inbox and shop web apps, page harness, bundler | `apps/src/{core,inbox,shop}/`, `apps/build.mjs` |
-| ✅ | Playwright environment: actions, change timing, DOM mutation tracking, event steps | `src/stalehand/env/` |
-| ✅ | Model backends (scripted, OpenAI-compatible, transformers) and output parsers | `src/stalehand/models/` |
-| ✅ | Hierarchical planner-executor agent and trajectory log | `src/stalehand/agents/` |
-| ✅ | Guards: re-plan every step, self-check, rule subtask, DOM change, pixel change | `src/stalehand/guards/` |
-| ✅ | Episode outcome scoring | `src/stalehand/metrics/outcome.py` |
-| ✅ | `screendiff` crate: pixel difference and SSIM | `crates/screendiff/` |
-| ✅ | Go runner: matrix, SQLite job store, ssh dispatch, `stalerun` command | `runner/` |
-| ✅ | `stalehand run-job` command, the entry point the Go runner calls | `src/stalehand/cli.py`, `src/stalehand/run/` |
-| ✅ | Delegated agent (orchestrator and GUI operator, CoAct-1 style) | `src/stalehand/agents/delegated.py` |
-| ✅ | Flat agent (one policy per step, Agent S3 style), as a reference | `src/stalehand/agents/flat.py` |
-| ✅ | Rebind guard: re-resolve the rule each step, re-plan only if the target moved | `src/stalehand/guards/rebind.py` |
-| ✅ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | `src/stalehand/metrics/stats.py` |
-| ✅ | Runner provenance (git commit, model revisions, library versions) and result collection | `runner/`, `src/stalehand/run/` |
-| ✅ | Model serving scripts for the lab boxes | `scripts/lab/` |
-| ✅ | Pilot replication in the live environment (gate: stale subtask well below fresh on relative tasks) | `results/vivian-4090/` |
-| ❌ | Handoff change timing: the change lands after the planner writes a subtask and before the executor's next screenshot, so the executor sees it and the subtask does not | `src/stalehand/env/`, `src/stalehand/agents/` |
-| ❌ | Main guard comparison on inbox and shop | `results/vivian-4090/` |
-| ❌ | Change-timing study: changes before the screenshot against changes between screenshot and action | `results/vivian-4090/` |
-| ✅ | Report builder that reads result files | `src/stalehand/report/` |
-
-### Guru: new domains, statistics crate, second model family, results site
-
-| Status | Task | Where |
-|---|---|---|
-| ✅ | Files domain: generator, app and browser tests ("share the newest report"; uploads, renames) | `src/stalehand/scenarios/domains/files.py`, `apps/src/files/`, `tests/` |
-| ✅ | Tickets domain ("assign the oldest high-priority ticket"; new tickets, priority changes) | `.../domains/tickets.py`, `apps/src/tickets/` |
-| ✅ | Calendar domain ("join the next meeting with Kenji"; reschedules, cancellations) | `.../domains/calendar.py`, `apps/src/calendar/` |
-| ✅ | Chat domain ("reply to the latest message from Grace"; new and edited messages) | `.../domains/chat.py`, `apps/src/chat/` |
-| ✅ | `stalestats` crate: cluster bootstrap and exact McNemar over result JSONL, checked against the Python version on the same files | `crates/stalestats/` |
-| ✅ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | `scripts/ada/` |
-| ✅ | Second executor family (a different open GUI model) wired into the model registry | `src/stalehand/models/registry.py` (new entries only) |
-| ❌ | Second-family experiments: the main matrices rerun with the other executor family | `results/guru-4500/` |
-| ✅ | Results explorer: static TypeScript site that reads result JSONL and validates it against `schema/result.schema.json` | `site/` |
-
-### Keeping the two halves independent
+## Keeping the two halves independent
 
 - **Contracts.** The halves meet only at `schema/*.schema.json`, the `window.stalehand` page API
   (`apps/src/core/harness.ts`), the model interface (`src/stalehand/models/base.py`) and the guard interface
