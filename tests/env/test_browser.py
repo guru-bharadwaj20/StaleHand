@@ -125,3 +125,34 @@ def test_shop_shows_no_dead_controls(env):
     env.reset(shop.build(seed=0, kind="cheapest", index=0, variant="none"))
     text = env._page.inner_text("body")
     assert "sort" not in text.lower() and "Filters" not in text
+
+
+def test_after_handoff_change_lands_when_the_subtask_is_handed_over():
+    from stalehand.env.browser import BrowserEnv
+    e = BrowserEnv(change_timing="after_handoff")
+    try:
+        s = inbox.build(seed=0, kind="relative", index=0, variant="L1", change_step=0)
+        e.reset(s)  # the planner's screen: no change yet
+        assert s.target_at(1) not in e.item_boxes()
+        assert e.handoff() is True  # the subtask is written; the page changes before the executor looks
+        assert s.target_at(1) in e.item_boxes() and e.external_since_mark() > 0
+        assert e.handoff() is False  # each step's changes land once
+    finally:
+        e.close()
+
+
+def test_after_handoff_change_still_lands_without_a_handoff():
+    from stalehand.env.browser import BrowserEnv
+    e = BrowserEnv(change_timing="after_handoff")
+    try:
+        s = inbox.build(seed=0, kind="relative", index=0, variant="L1", change_step=0)
+        e.reset(s)
+        e.act(Click(5, 5))  # an agent with no planner never hands off; the change lands before its first action
+        assert s.target_at(1) in e.item_boxes()
+    finally:
+        e.close()
+
+
+def test_handoff_is_a_no_op_for_other_timings(env):
+    env.reset(inbox.build(seed=0, kind="relative", index=0, variant="L1", change_step=0))
+    assert env.handoff() is False

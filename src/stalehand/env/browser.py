@@ -5,6 +5,9 @@ advances the step by one. Changes scheduled for step k land at one of two moment
   before_observation  before the step-k screenshot, so the executor sees them (stale subtask setting)
   mid_step            after the step-k screenshot, just before the action (time-of-check/time-of-use setting);
                       begin_action() applies them, and act() calls it if the agent did not
+  after_handoff       after the planner has written a subtask at step k, before the executor's next screenshot:
+                      the executor sees the change and the subtask does not (stale handoff setting). handoff()
+                      applies them; begin_action() does if no subtask was handed over at that step
 """
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
@@ -63,7 +66,7 @@ class Observation:
 
 
 class BrowserEnv:
-    TIMINGS = ("before_observation", "mid_step")
+    TIMINGS = ("before_observation", "mid_step", "after_handoff")
 
     def __init__(self, headless: bool = True, channel: Optional[str] = "chrome", change_timing: str = "before_observation"):
         if change_timing not in self.TIMINGS:
@@ -81,7 +84,7 @@ class BrowserEnv:
         self._page.goto(app_url(scenario.domain))
         self._page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
         self._page.evaluate(_MUTATIONS_JS)
-        self.scenario, self.step, self._external, self._begun = scenario, 0, 0, False
+        self.scenario, self.step, self._external, self._begun, self._landed = scenario, 0, 0, False, -1
         self._event_steps = []
         if self.change_timing == "before_observation":
             self._apply_due_changes()
@@ -89,18 +92,29 @@ class BrowserEnv:
 
     def begin_action(self) -> None:
         """Mark the moment between the executor's screenshot and its action (mid_step changes land here)."""
-        if self.change_timing == "mid_step" and not self._begun:
+        if self.change_timing in ("mid_step", "after_handoff") and not self._begun:
             self._apply_due_changes()
         self._begun = True
 
-    def _apply_due_changes(self) -> None:
+    def handoff(self) -> bool:
+        """The planner has just handed over a subtask. Under after_handoff, this step's changes land now; returns
+        whether the page changed, so the agent knows to take a fresh screenshot for the executor."""
+        if self.change_timing != "after_handoff" or self._landed == self.step:
+            return False
+        return self._apply_due_changes()
+
+    def _apply_due_changes(self) -> bool:
+        if self._landed == self.step:
+            return False
+        self._landed = self.step
         due = [sc for sc in self.scenario.changes if sc.step == self.step]
         if not due:
-            return
+            return False
         before = self.mutations_since_mark()
         for sc in due:
             self._page.evaluate("c => window.stalehand.apply(c)", change_to_dict(sc.change))
         self._external += self.mutations_since_mark() - before
+        return True
 
     def observe(self) -> Observation:
         return Observation(self.step, self._page.screenshot(type="png"))
