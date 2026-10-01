@@ -46,3 +46,36 @@ def test_pairs_only_shared_scenarios_and_counts_missing():
 def test_duplicate_scenario_in_one_arm_is_an_error():
     with pytest.raises(ValueError):
         stats.pair([row("x-k-000-L1", "success")] * 2, [row("x-k-000-L1", "success")])
+
+
+def mean(xs):
+    return sum(xs) / len(xs)
+
+
+def test_bootstrap_is_deterministic_for_a_seed():
+    units = [(f"t{i // 3}", i % 2) for i in range(60)]
+    f = lambda us: mean([u[1] for u in us])
+    assert stats.cluster_bootstrap(units, f, lambda u: u[0], n_boot=300, seed=1) == \
+        stats.cluster_bootstrap(units, f, lambda u: u[0], n_boot=300, seed=1)
+
+
+def test_constant_data_gives_point_interval():
+    units = [(f"t{i}", 1) for i in range(20)]
+    lo, hi = stats.cluster_bootstrap(units, lambda us: mean([u[1] for u in us]), lambda u: u[0], n_boot=200)
+    assert lo == hi == 1
+
+
+def test_interval_contains_estimate():
+    units = [(f"t{i // 4}", 1 if i % 3 else 0) for i in range(120)]
+    f = lambda us: mean([u[1] for u in us])
+    lo, hi = stats.cluster_bootstrap(units, f, lambda u: u[0], n_boot=500)
+    assert lo <= f(units) <= hi and lo < hi
+
+
+def test_correlated_clusters_widen_the_interval():
+    # every template is all-success or all-failure: 10 independent clusters, not 100 independent units
+    units = [(f"t{i // 10}", (i // 10) % 2) for i in range(100)]
+    f = lambda us: mean([u[1] for u in us])
+    clustered = stats.cluster_bootstrap(units, f, lambda u: u[0], n_boot=1000)
+    iid = stats.cluster_bootstrap(units, f, lambda u: id(u), n_boot=1000)
+    assert clustered[1] - clustered[0] > 1.5 * (iid[1] - iid[0])

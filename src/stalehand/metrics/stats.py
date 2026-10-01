@@ -1,5 +1,6 @@
 """Paired statistics for guard comparisons. Stdlib only, so every machine and CI job can run them."""
 import math
+import random
 
 
 def mcnemar_exact(b: int, c: int) -> float:
@@ -37,3 +38,24 @@ def pair(rows_a, rows_b, success=_ok):
     shared = sorted(a.keys() & b.keys())
     return ([(k, success(a[k]), success(b[k])) for k in shared],
             {"only_a": len(a.keys() - b.keys()), "only_b": len(b.keys() - a.keys())})
+
+
+def cluster_bootstrap(units, stat, cluster_of, n_boot: int = 10000, seed: int = 0, alpha: float = 0.05):
+    """Percentile interval for stat(units), resampling whole clusters with replacement.
+
+    Scenarios from one template are not independent, so templates are the resampling unit."""
+    clusters = {}
+    for u in units:
+        clusters.setdefault(cluster_of(u), []).append(u)
+    groups = [clusters[k] for k in sorted(clusters, key=str)]
+    rng = random.Random(seed)
+    values = []
+    for _ in range(n_boot):
+        sample = []
+        for _ in range(len(groups)):
+            sample.extend(groups[rng.randrange(len(groups))])
+        values.append(stat(sample))
+    values.sort()
+    lo = values[int(math.floor(alpha / 2 * (n_boot - 1)))]
+    hi = values[int(math.ceil((1 - alpha / 2) * (n_boot - 1)))]
+    return lo, hi
