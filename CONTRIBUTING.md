@@ -16,10 +16,10 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 4 | 5 | ❌ |
-| 10 | Reports, docs and release | M11 | 30 | 2 | 7 | ❌ |
-| | **Total** | | **495** | **36** | **14** | **72% done** |
+| 10 | Reports, docs and release | M11 | 30 | 3 | 6 | ❌ |
+| | **Total** | | **495** | **37** | **13** | **74% done** |
 
-Remaining work: **14 tasks**, split 7 to Vivian and 7 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **13 tasks**, split 7 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -121,7 +121,7 @@ every commit is one real change (see [Commits](#commits)).
 | ❌ | Combined final report across both machines' results | Vivian | `src/stalehand/report/` |
 | ❌ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
 | ❌ | Results section in `README.md`, generated from result files | Guru | `README.md` |
-| ❌ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
+| ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
 | ❌ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
 | ❌ | Choose a license before the repository is made public | Vivian | `LICENSE` |
 | ❌ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
@@ -134,7 +134,7 @@ every commit is one real change (see [Commits](#commits)).
 | 2 | ❌ Full cost accounting | ❌ Guard comparison on the four new domains |
 | 3 | ❌ Run the main guard comparison | ❌ Charts for the main results |
 | 4 | ❌ Run the change-timing study | ❌ README results section |
-| 5 | ❌ Change-kind and task-kind breakdowns | ❌ Usage guide |
+| 5 | ❌ Change-kind and task-kind breakdowns | ✅ Usage guide |
 | 6 | ❌ Combined final report | ❌ Worked examples |
 | 7 | ❌ Choose a license | ❌ Real-application decision |
 
