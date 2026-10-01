@@ -4,6 +4,7 @@
 //	stalerun run     -db runs.db -hosts hosts.json [-logs logs]
 //	stalerun status  -db runs.db
 //	stalerun release -db runs.db -host gpu1
+//	stalerun collect -db runs.db -hosts hosts.json -dest results/vivian-4090
 package main
 
 import (
@@ -16,6 +17,7 @@ import (
 	"sort"
 	"syscall"
 
+	"github.com/VivianSobers/StaleHand/runner/collect"
 	"github.com/VivianSobers/StaleHand/runner/dispatch"
 	"github.com/VivianSobers/StaleHand/runner/hosts"
 	"github.com/VivianSobers/StaleHand/runner/launch"
@@ -32,7 +34,7 @@ func main() {
 
 func run(args []string, out io.Writer) error {
 	if len(args) == 0 {
-		return fmt.Errorf("usage: stalerun plan|run|status|release [flags]")
+		return fmt.Errorf("usage: stalerun plan|run|status|release|collect [flags]")
 	}
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	db := fs.String("db", "runs.db", "job database")
@@ -40,6 +42,7 @@ func run(args []string, out io.Writer) error {
 	hostsPath := fs.String("hosts", "runner/hosts.json", "host definitions (run)")
 	logs := fs.String("logs", "logs", "job log directory (run)")
 	host := fs.String("host", "", "host name (release)")
+	dest := fs.String("dest", "results", "directory to copy finished runs into (collect)")
 	if err := fs.Parse(args[1:]); err != nil {
 		return err
 	}
@@ -66,12 +69,7 @@ func run(args []string, out io.Writer) error {
 		fmt.Fprintf(out, "planned %d jobs for %s\n", len(jobs), m.Name)
 		return printStatus(st, out)
 	case "run":
-		f, err := os.Open(*hostsPath)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		hs, err := hosts.Parse(f)
+		hs, err := readHosts(*hostsPath)
 		if err != nil {
 			return err
 		}
@@ -85,6 +83,24 @@ func run(args []string, out io.Writer) error {
 		return err
 	case "status":
 		return printStatus(st, out)
+	case "collect":
+		hs, err := readHosts(*hostsPath)
+		if err != nil {
+			return err
+		}
+		placed, err := st.Finished()
+		if err != nil {
+			return err
+		}
+		sum := collect.All(placed, hs, *dest, collect.RunCommand)
+		for _, p := range sum.Problems {
+			fmt.Fprintln(out, "problem:", p)
+		}
+		fmt.Fprintf(out, "copied %d of %d finished jobs into %s\n", sum.Copied, len(placed), *dest)
+		if len(sum.Problems) > 0 {
+			return fmt.Errorf("%d jobs not collected", len(sum.Problems))
+		}
+		return nil
 	case "release":
 		n, err := st.Release(*host)
 		if err != nil {
@@ -94,6 +110,15 @@ func run(args []string, out io.Writer) error {
 		return nil
 	}
 	return fmt.Errorf("unknown command %q", args[0])
+}
+
+func readHosts(path string) ([]hosts.Host, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return hosts.Parse(f)
 }
 
 func printStatus(st *store.Store, out io.Writer) error {

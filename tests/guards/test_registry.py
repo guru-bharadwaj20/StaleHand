@@ -19,3 +19,10 @@ def test_self_check_needs_a_checker():
 def test_unknown_guard():
     with pytest.raises(KeyError):
         registry.make("prayer")
+
+
+@pytest.mark.parametrize("name", ["rebind_step", "rebind_dom"])
+def test_rebind_guards_need_a_resolver(name):
+    with pytest.raises(ValueError):
+        registry.make(name)
+    assert registry.make(name, checker=ScriptedVLM([])).name == name

@@ -14,6 +14,16 @@ class OpenAICompatVLM:
         self.name, self.model, self.base_url = model, model, base_url.rstrip("/")
         self.workers, self.timeout, self.api_key = workers, timeout, api_key
 
+    @property
+    def revision(self):
+        """Weights revision as the server reports it under /v1/models (stalehand serve does; vLLM does not)."""
+        try:
+            with urllib.request.urlopen(f"{self.base_url}/models", timeout=30) as resp:
+                listed = json.loads(resp.read()).get("data", [])
+        except (OSError, ValueError):
+            return None
+        return next((m.get("revision") for m in listed if m.get("id") == self.model), None)
+
     def _body(self, r: Request) -> dict:
         content = []
         if r.image_png is not None:
