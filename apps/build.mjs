@@ -1,8 +1,9 @@
 // Bundles each app into one self-contained HTML file: dist/<app>.html (no network needed at run time).
 import { build } from "esbuild";
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 
-const APPS = ["inbox", "shop"].filter((a) => existsSync(`src/${a}/main.ts`));
+// every directory under src/ with a main.ts is an app, so adding a domain needs no change here
+const APPS = readdirSync("src").filter((a) => existsSync(`src/${a}/main.ts`));
 mkdirSync("dist", { recursive: true });
 for (const app of APPS) {
   const out = await build({ entryPoints: [`src/${app}/main.ts`], bundle: true, format: "iife", target: "es2020",
