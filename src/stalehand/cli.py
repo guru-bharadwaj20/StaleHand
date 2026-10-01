@@ -41,8 +41,8 @@ def _run_job(args) -> int:
 
 def _serve(args) -> int:
     from .models import hf, serve
-    model = hf.HFVLM(MODELS[args.model].hf_id, batch=1)
-    httpd = serve.make_server(model, args.host, args.port)
+    model = hf.HFVLM(MODELS[args.model].hf_id, batch=args.max_batch)
+    httpd = serve.make_server(model, args.host, args.port, max_batch=args.max_batch)
     print(f"serving {MODELS[args.model].hf_id} on {args.host}:{args.port}", flush=True)
     httpd.serve_forever()
     return 0
@@ -69,6 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--model", required=True, choices=sorted(MODELS), help="short name from the model registry")
     v.add_argument("--host", default="127.0.0.1", help="interface to listen on; reachable from other boxes only if set")
     v.add_argument("--port", type=int, default=8000)
+    v.add_argument("--max-batch", type=int, default=8, help="requests run together on the GPU")
     v.set_defaults(func=_serve)
     return p
 

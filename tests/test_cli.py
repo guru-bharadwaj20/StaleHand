@@ -69,7 +69,8 @@ def test_serve_loads_the_named_model_and_listens(monkeypatch):
             seen["served"] = True
 
     monkeypatch.setattr(hf, "HFVLM", Fake)
-    monkeypatch.setattr(serve, "make_server", lambda m, host, port: seen.update(host=host, port=port) or Server())
+    monkeypatch.setattr(serve, "make_server",
+                        lambda m, host, port, max_batch: seen.update(host=host, port=port) or Server())
     assert main(["serve", "--model", "ui-tars-1.5-7b", "--port", "8002"]) == 0
-    assert seen == {"model_id": "ByteDance-Seed/UI-TARS-1.5-7B", "batch": 1, "host": "127.0.0.1", "port": 8002,
+    assert seen == {"model_id": "ByteDance-Seed/UI-TARS-1.5-7B", "batch": 8, "host": "127.0.0.1", "port": 8002,
                     "served": True}
