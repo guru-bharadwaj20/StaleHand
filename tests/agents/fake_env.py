@@ -37,3 +37,6 @@ class FakeEnv:
 
     def external_since_mark(self):
         return self._external
+
+    def close(self):
+        pass
