@@ -29,7 +29,6 @@
   "guards": [
     "none",
     "replan_every_step",
-    "self_check",
     "dom_subtask_replan",
     "rebind_dom"
   ],

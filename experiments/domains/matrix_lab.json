@@ -32,7 +32,6 @@
   "guards": [
     "none",
     "replan_every_step",
-    "dom_subtask_replan",
     "rebind_dom"
   ],
   "planners": [
