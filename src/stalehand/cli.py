@@ -67,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.set_defaults(func=_run_job)
     v = sub.add_parser("serve", help="serve one model over an OpenAI-compatible HTTP API (transformers, no vLLM)")
     v.add_argument("--model", required=True, choices=sorted(MODELS), help="short name from the model registry")
-    v.add_argument("--host", default="0.0.0.0")
+    v.add_argument("--host", default="127.0.0.1", help="interface to listen on; reachable from other boxes only if set")
     v.add_argument("--port", type=int, default=8000)
     v.set_defaults(func=_serve)
     return p
