@@ -7,5 +7,5 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["src/core", "test"]
+  "include": ["src", "test"]
 }
