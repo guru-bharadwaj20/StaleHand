@@ -14,3 +14,11 @@ th { background: var(--head); font-weight: 600; }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .problems { margin: 8px 0; color: #cf222e; }
 .problems ul { color: var(--fg); max-height: 240px; overflow: auto; }
+.charts { display: flex; flex-wrap: wrap; gap: 16px 32px; margin: 12px 0; }
+.chart { max-width: 100%; height: auto; font: 12px system-ui, sans-serif; }
+.chart .ttl { fill: var(--fg); font-weight: 600; font-size: 13px; }
+.chart .lbl { fill: var(--fg); }
+.chart .val { fill: var(--muted); font-variant-numeric: tabular-nums; }
+.chart .bar { fill: #0969da; }
+.chart .axis { stroke: var(--line); }
+@media (prefers-color-scheme: dark) { .chart .bar { fill: #4493f8; } }

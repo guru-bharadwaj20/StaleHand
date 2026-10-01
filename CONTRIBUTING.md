@@ -16,10 +16,10 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 4 | 5 | ❌ |
-| 10 | Reports, docs and release | M11 | 30 | 4 | 5 | ❌ |
-| | **Total** | | **495** | **38** | **12** | **76% done** |
+| 10 | Reports, docs and release | M11 | 30 | 5 | 4 | ❌ |
+| | **Total** | | **495** | **39** | **11** | **78% done** |
 
-Remaining work: **12 tasks**, split 7 to Vivian and 5 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **11 tasks**, split 7 to Vivian and 4 to Guru (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -119,7 +119,7 @@ every commit is one real change (see [Commits](#commits)).
 | ✅ | Report builder that reads result files | Vivian | `src/stalehand/report/` |
 | ✅ | Results explorer: static site that reads and validates result JSONL | Guru | `site/` |
 | ❌ | Combined final report across both machines' results | Vivian | `src/stalehand/report/` |
-| ❌ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
+| ✅ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
 | ❌ | Results section in `README.md`, generated from result files | Guru | `README.md` |
 | ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
 | ❌ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
@@ -132,7 +132,7 @@ every commit is one real change (see [Commits](#commits)).
 |---|---|---|
 | 1 | ❌ Static render mode | ❌ Second-family experiments |
 | 2 | ❌ Full cost accounting | ❌ Guard comparison on the four new domains |
-| 3 | ❌ Run the main guard comparison | ❌ Charts for the main results |
+| 3 | ❌ Run the main guard comparison | ✅ Charts for the main results |
 | 4 | ❌ Run the change-timing study | ❌ README results section |
 | 5 | ❌ Change-kind and task-kind breakdowns | ✅ Usage guide |
 | 6 | ❌ Combined final report | ❌ Worked examples |

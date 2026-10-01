@@ -1,6 +1,7 @@
 // Results explorer: load result JSONL (file picker, drag and drop, or ?src=<url> when hosted), validate every
 // row against schema/result.schema.json, then group and filter. Nothing on the page is typed in by hand.
 import { FIELDS, loadJsonl, makeValidator, type Problem, type Result } from "./rows.js";
+import { mainCharts } from "./charts.js";
 import { OUTCOMES, distinct, filterRows, group, pct } from "./summary.js";
 
 declare const RESULT_SCHEMA: object; // injected by build.mjs from schema/result.schema.json
@@ -78,6 +79,12 @@ function table(rows: Result[]): HTMLElement {
   return wrap;
 }
 
+function charts(rows: Result[]): HTMLElement {
+  const box = el("section", { class: "charts", "aria-label": "Main results per guard" });
+  box.innerHTML = mainCharts(rows).join(""); // markup built from escaped text only, see charts.ts
+  return box;
+}
+
 function problems(): HTMLElement {
   const box = el("details", { class: "problems" });
   box.append(el("summary", {}, `${state.problems.length} rows rejected by the schema`));
@@ -95,7 +102,7 @@ function draw() {
   if (state.problems.length) main.append(problems());
   if (!state.rows.length) return;
   const rows = filterRows(state.rows, FIELDS, state.filters);
-  main.append(controls(), el("p", { class: "count" }, `${rows.length} of ${state.rows.length} episodes`), table(rows));
+  main.append(controls(), el("p", { class: "count" }, `${rows.length} of ${state.rows.length} episodes`), charts(rows), table(rows));
 }
 
 function setup() {
