@@ -66,10 +66,8 @@ export function mount(root: HTMLElement, store: Store<ShopState, ShopAction>): v
     const top = el("header", { class: "top" });
     top.append(el("div", { class: "logo" }, "ShopMart"), el("div", { class: "search" }, category(store.state)),
       el("div", { class: "cart", "data-role": "cart" }, `Cart (${store.state.cart.length})`));
-    const side = el("nav", { class: "side" });
-    side.append(el("b", {}, "Filters"), el("div", {}, "Price"), el("div", {}, "Customer rating"), el("div", {}, "Brand"),
-      el("b", {}, "Sort"), el("div", {}, "Relevance"));
-    root.append(top, side, mainView(store.state, (a) => store.dispatch(a)));
+    // no filter or sort sidebar: controls that do nothing send agents into click loops
+    root.append(top, mainView(store.state, (a) => store.dispatch(a)));
   };
   store.subscribe(draw);
   draw();

@@ -119,3 +119,9 @@ def test_events_carry_the_step_of_the_action(env):
     env.act(centre(env.item_boxes()[s.stale_target]))
     opens = [e for e in env.events() if e["kind"] == "open"]
     assert opens[0]["step"] == 1
+
+
+def test_shop_shows_no_dead_controls(env):
+    env.reset(shop.build(seed=0, kind="cheapest", index=0, variant="none"))
+    text = env._page.inner_text("body")
+    assert "Sort" not in text and "Filters" not in text
