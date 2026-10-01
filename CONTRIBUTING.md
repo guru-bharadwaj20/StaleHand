@@ -51,7 +51,7 @@ Runs stay on their owner's machines and write to separate result directories (`r
 | ✅ | Calendar domain ("join the next meeting with Kenji"; reschedules, cancellations) | `.../domains/calendar.py`, `apps/src/calendar/` |
 | ✅ | Chat domain ("reply to the latest message from Grace"; new and edited messages) | `.../domains/chat.py`, `apps/src/chat/` |
 | ✅ | `stalestats` crate: cluster bootstrap and exact McNemar over result JSONL, checked against the Python version on the same files | `crates/stalestats/` |
-| ❌ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | `scripts/ada/` |
+| ✅ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | `scripts/ada/` |
 | ❌ | Second executor family (a different open GUI model) wired into the model registry | `src/stalehand/models/registry.py` (new entries only) |
 | ❌ | Second-family experiments: the main matrices rerun with the other executor family | `results/guru-4500/` |
 | ❌ | Results explorer: static TypeScript site that reads result JSONL and validates it against `schema/result.schema.json` | `site/` |
