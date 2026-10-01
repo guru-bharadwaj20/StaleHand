@@ -18,6 +18,12 @@ from .trajectory import Trajectory
 
 class Hierarchical:
     architecture = "hierarchical"
+    plain_prompt = prompts.PLANNER   # planner template when the guard does not ask for rule or bound subtasks
+    subtask_budget = None            # executor actions allowed per subtask before control returns to the planner
+
+    def _report(self, subtask: str, message: Optional[str]) -> str:
+        """What the planner sees about a finished subtask; message is None when the step budget ran out."""
+        return subtask
 
     def __init__(self, planner, executor, guard: Guard, max_steps: int = 12, max_replans: int = 3,
                  executor_coords: str = "abs", planner_tokens: int = 160, executor_tokens: int = 256):
@@ -35,7 +41,7 @@ class Hierarchical:
         """(subtask, extra fields for the guard), or None when the planner says the task is done."""
         history = "; ".join(finished) if finished else "none"
         mode = self.guard.planner_mode
-        template = {"rule": prompts.RULE_PLANNER, "bound": prompts.BOUND_PLANNER}.get(mode, prompts.PLANNER)
+        template = {"rule": prompts.RULE_PLANNER, "bound": prompts.BOUND_PLANNER}.get(mode, self.plain_prompt)
         out = self._call(self.planner, "planner", Request(template.format(task=task, history=history), png,
                                                           self.planner_tokens), step, traj)
         if mode == "rule":
@@ -88,7 +94,7 @@ class Hierarchical:
             action = parse_action(raw, VIEWPORT, self.coords)
             if isinstance(action, Done):
                 traj.action(step=obs.step, action=action, raw=raw)
-                finished.append(ctx.subtask)
+                finished.append(self._report(ctx.subtask, action.message))
                 ctx, history = new_subtask(obs), []
                 continue
             env.begin_action()
@@ -107,6 +113,9 @@ class Hierarchical:
             traj.action(step=obs.step, action=action, raw=raw)
             obs = env.act(action if action is not None else Wait())
             history.append(f"{len(history) + 1}. {raw.strip().splitlines()[-1] if raw.strip() else 'none'}")
+            if self.subtask_budget is not None and len(history) >= self.subtask_budget:
+                finished.append(self._report(ctx.subtask, None))
+                ctx, history = new_subtask(obs), []
         return self._end(traj, env, "planner_done")
 
     @staticmethod

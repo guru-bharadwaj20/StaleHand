@@ -6,7 +6,7 @@ from stalehand.models import prompts
 
 FIELDS = {"PLANNER": {"task", "history"}, "RULE_PLANNER": {"task", "history"},
           "SELF_CHECK": {"task", "subtask"}, "EXECUTOR": {"instruction", "history"},
-          "BOUND_PLANNER": {"task", "history"}, "RESOLVE": {"rule"}}
+          "BOUND_PLANNER": {"task", "history"}, "RESOLVE": {"rule"}, "ORCHESTRATOR": {"task", "history"}}
 
 
 @pytest.mark.parametrize("name", sorted(FIELDS))

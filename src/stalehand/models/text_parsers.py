@@ -4,7 +4,9 @@ from typing import Optional, Tuple
 
 
 def parse_subtask(text: str) -> Optional[str]:
-    """The planner's next subtask, or None when it says the task is done."""
+    """The planner's next subtask, or None when it says the task is done (or says nothing at all)."""
+    if not text.strip():
+        return None
     m = re.search(r"Subtask:\s*(.+)", text)
     line = (m.group(1) if m else text).strip().splitlines()[0].strip()
     return None if line.upper().rstrip(".") == "DONE" else line
@@ -12,6 +14,8 @@ def parse_subtask(text: str) -> Optional[str]:
 
 def parse_rule(text: str) -> Optional[Tuple[str, str]]:
     """(subtask for the executor, the bare rule) from a rule-subtask planner reply; None when done."""
+    if not text.strip():
+        return None
     r = re.search(r"Target rule:\s*(.+)", text)
     a = re.search(r"Action:\s*(.+)", text)
     rule = r.group(1).strip() if r else text.strip().splitlines()[0]

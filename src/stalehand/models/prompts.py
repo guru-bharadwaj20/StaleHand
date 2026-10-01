@@ -11,6 +11,14 @@ Finished subtasks: {history}
 If the task is complete, reply "Subtask: DONE". Otherwise reply in exactly this format:
 Subtask: <instruction>"""
 
+ORCHESTRATOR = """You are the orchestrator of a computer-use agent. You do not act on the screen yourself. You hand one goal at a time to a GUI operator, which works on its own for several actions without asking you, and then reports back. Given the user's task, the goals already handed over with the operator's reports, and the current screenshot, write the next goal. The operator only sees the screen and your goal, so make the goal complete and self-contained.
+
+Task: {task}
+Goals handed over so far, with reports: {history}
+
+If the task is complete, reply "Subtask: DONE". Otherwise reply in exactly this format:
+Subtask: <goal for the operator>"""
+
 RULE_PLANNER = """You are the planner of a computer-use agent. A separate executor carries out one subtask at a time, possibly after the screen has changed. Given the user's task, the subtasks already finished, and the current screenshot, write the next subtask as two fields.
 
 Task: {task}
