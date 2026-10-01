@@ -4,14 +4,14 @@ works through it, one action per step, until it reports finished(); then the pla
 Guards hook in before the executor thinks and before it acts (see guards/base.py).
 """
 import time
-from typing import Optional
+from typing import Optional, Tuple
 
 from ..env.actions import Done, Wait
 from ..env.browser import VIEWPORT
 from ..guards.base import ABORT, REPLAN, Context, Guard
 from ..models import prompts
 from ..models.base import Request
-from ..models.text_parsers import parse_rule, parse_subtask
+from ..models.text_parsers import parse_bound, parse_rule, parse_subtask
 from ..models.uitars import parse_action
 from .trajectory import Trajectory
 
@@ -31,16 +31,21 @@ class Hierarchical:
         traj.model_call(step=step, role=role, model=model.name, output=out, seconds=time.perf_counter() - t0)
         return out
 
-    def _plan(self, task: str, finished, png: bytes, step: int, traj: Trajectory) -> Optional[str]:
+    def _plan(self, task: str, finished, png: bytes, step: int, traj: Trajectory) -> Optional[Tuple[str, dict]]:
+        """(subtask, extra fields for the guard), or None when the planner says the task is done."""
         history = "; ".join(finished) if finished else "none"
-        if self.guard.planner_mode == "rule":
-            out = self._call(self.planner, "planner", Request(prompts.RULE_PLANNER.format(task=task, history=history),
-                                                              png, self.planner_tokens), step, traj)
+        mode = self.guard.planner_mode
+        template = {"rule": prompts.RULE_PLANNER, "bound": prompts.BOUND_PLANNER}.get(mode, prompts.PLANNER)
+        out = self._call(self.planner, "planner", Request(template.format(task=task, history=history), png,
+                                                          self.planner_tokens), step, traj)
+        if mode == "rule":
             parsed = parse_rule(out)
-            return None if parsed is None else parsed[0]
-        out = self._call(self.planner, "planner", Request(prompts.PLANNER.format(task=task, history=history),
-                                                          png, self.planner_tokens), step, traj)
-        return parse_subtask(out)
+            return None if parsed is None else (parsed[0], {"rule": parsed[1]})
+        if mode == "bound":
+            parsed = parse_bound(out)
+            return None if parsed is None else (parsed[0], dict(zip(("rule", "target", "action"), parsed[1:])))
+        text = parse_subtask(out)
+        return None if text is None else (text, {})
 
     def run(self, env, scenario) -> Trajectory:
         traj = Trajectory(scenario.id, self.architecture, self.guard.name)
@@ -48,12 +53,13 @@ class Hierarchical:
         finished, replans = [], {}  # replans per env step; only repeated re-planning without acting is bounded
 
         def new_subtask(o) -> Optional[Context]:
-            text = self._plan(scenario.task, finished, o.png, o.step, traj)
-            if text is None:
+            planned = self._plan(scenario.task, finished, o.png, o.step, traj)
+            if planned is None:
                 return None
-            traj.subtask(step=o.step, text=text)
+            text, extra = planned
+            traj.subtask(step=o.step, text=text, **extra)
             c = Context(env=env, task=scenario.task, subtask=text, subtask_step=o.step, subtask_png=o.png,
-                        step=o.step, png=o.png, trajectory=traj)
+                        step=o.step, png=o.png, trajectory=traj, extra=extra)
             self.guard.on_subtask(c)
             return c
 

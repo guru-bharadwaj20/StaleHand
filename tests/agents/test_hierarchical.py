@@ -116,3 +116,32 @@ def test_replanning_each_step_is_not_cut_short():
     t = Hierarchical(planner(*["click"] * 50), executor(*[CLICK] * 50), ReplanEveryStep(), max_steps=10,
                      max_replans=3).run(env, SCEN)
     assert t.end_reason == "max_steps" and len(env.actions) == 10
+
+
+class _Mode(Guard):
+    def __init__(self, mode):
+        self.planner_mode, self.seen = mode, []
+
+    def on_subtask(self, ctx):
+        self.seen.append(dict(ctx.extra))
+
+
+def test_bound_planner_gives_executor_the_target_and_guard_the_rule():
+    replies = ["Target rule: newest mail from Samuel Lee\nTarget: Q3 budget review\nAction: open it",
+               "Target rule: DONE"]
+    p = ScriptedVLM([], name="planner")
+    p.generate = lambda reqs: [replies.pop(0) for _ in reqs]
+    guard = _Mode("bound")
+    t = Hierarchical(p, executor("Action: finished(content='')"), guard, max_steps=5).run(FakeEnv(), SCEN)
+    sub = [e for e in t.entries if e["kind"] == "subtask"]
+    assert sub[0]["text"] == "open it - Q3 budget review" and sub[0]["rule"] == "newest mail from Samuel Lee"
+    assert guard.seen == [{"rule": "newest mail from Samuel Lee", "target": "Q3 budget review", "action": "open it"}]
+
+
+def test_rule_planner_passes_the_rule_to_the_guard():
+    replies = ["Target rule: newest mail from Samuel Lee\nAction: open it", "Target rule: DONE"]
+    p = ScriptedVLM([], name="planner")
+    p.generate = lambda reqs: [replies.pop(0) for _ in reqs]
+    guard = _Mode("rule")
+    Hierarchical(p, executor("Action: finished(content='')"), guard, max_steps=5).run(FakeEnv(), SCEN)
+    assert guard.seen == [{"rule": "newest mail from Samuel Lee"}]
