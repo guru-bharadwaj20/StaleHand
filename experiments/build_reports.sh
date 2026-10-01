@@ -24,3 +24,5 @@ done
 python3 -m stalehand.report.loops "${runs[@]}" > results/vivian-4090/loops_report.md
 python3 experiments/audit/summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 python3 -m stalehand readme
+python3 -m stalehand final --results results/vivian-4090 --sets main timing main_stall delegated flat domains_lab \
+  --template docs/report_template.md --out results/REPORT.md
