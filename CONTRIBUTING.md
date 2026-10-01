@@ -15,9 +15,9 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 6 | Metrics and statistics | M7 | 40 | 3 | 1 | ❌ |
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
-| 9 | Experiments | M10 | 40 | 7 | 11 | ❌ |
+| 9 | Experiments | M10 | 40 | 8 | 10 | ❌ |
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
-| | **Total** | | **495** | **45** | **16** | **74% done** |
+| | **Total** | | **495** | **46** | **15** | **75% done** |
 
 Remaining work: **16 tasks**, split 10 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
 
@@ -118,7 +118,7 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | ❌ | Run the delegated architecture with four guards (queued) | Vivian | `results/vivian-4090/delegated/` |
 | ❌ | Run the three-guard comparison on files, tickets, calendar and chat (queued) | Vivian | `results/vivian-4090/domains_lab/` |
 | ❌ | Run the flat reference in bf16 (queued) | Vivian | `results/vivian-4090/flat/` |
-| ❌ | Change-kind and task-kind breakdowns of the main results | Vivian | `results/vivian-4090/` |
+| ✅ | Change-kind and task-kind breakdowns in every guard report | Vivian | `results/vivian-4090/*_report.md` |
 | ❌ | InternVL3.5 flat run: the action-format gate (parse failures, success with no change) before any hierarchical second-family run | Guru | `experiments/ada/flat_internvl.json`, `results/guru-4500/` |
 | ❌ | fp8 precision control: UI-TARS flat in fp8, paired with the lab's bf16 flat run | Guru | `experiments/ada/flat_uitars_fp8.json`, `results/guru-4500/` |
 | ❌ | Small-planner arm: Qwen3-VL-4B planner and UI-TARS executor, both fp8, four guards | Guru | `experiments/ada/small_planner_fp8.json`, `results/guru-4500/` |
@@ -150,7 +150,7 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | 3 | ❌ Run the delegated architecture (queued) | ❌ Small-planner arm in fp8 |
 | 4 | ❌ Run the four-guard comparison on the new domains (queued) | ❌ Load tonight's results into the explorer |
 | 5 | ❌ Run the flat reference in bf16 (queued) | ❌ Second-family hierarchical runs (blocked on memory) |
-| 6 | ❌ Change-kind and task-kind breakdowns | ❌ Eight-guard comparison on the new domains (blocked on memory) |
+| 6 | ✅ Change-kind and task-kind breakdowns | ❌ Eight-guard comparison on the new domains (blocked on memory) |
 | 7 | ❌ Combined final report | |
 | 8 | ❌ Full cost accounting | |
 | 9 | ❌ Static render mode | |
