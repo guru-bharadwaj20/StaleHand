@@ -1,5 +1,18 @@
 Built from 410 scored episodes.
 
+![Success against false alarms (hierarchical)](pilot_report_hierarchical_tradeoff.svg)
+
+![Episodes with a relevant change (hierarchical)](pilot_report_hierarchical_outcomes.svg)
+
+## Summary by guard
+
+Relevant: the change moved or removed the target the planner saw. Harmless: no change, or one that leaves the target where it was. Calls: planner plus checker calls per episode.
+
+| architecture | guard | relevant n | success | stale | harmless n | success | false alarms | calls |
+|---|---|---|---|---|---|---|---|---|
+| hierarchical | replan_every_step | 55 | 33% | 16% | 145 | 64% | 100% | 7.8 |
+| hierarchical | none | 55 | 5% | 25% | 145 | 59% | 0% | 1.9 |
+
 ## Outcomes
 
 | architecture | guard | domain | kind | change | n | success | stale | wrong_item | wrong_detail | aborted | no_commit | planner calls |
