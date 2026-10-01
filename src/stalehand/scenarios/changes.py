@@ -35,3 +35,16 @@ def _insert(change: Insert, items: List[Item]) -> List[Item]:
     if clash:
         raise ValueError(f"insert would duplicate ids {clash}")
     return items[:change.position] + list(change.items) + items[change.position:]
+
+
+@dataclass(frozen=True)
+class Remove:
+    ids: Tuple[str, ...]
+
+
+@_applies(Remove)
+def _remove(change: Remove, items: List[Item]) -> List[Item]:
+    missing = set(change.ids) - {it.id for it in items}
+    if missing:
+        raise ValueError(f"cannot remove missing ids {sorted(missing)}")
+    return [it for it in items if it.id not in change.ids]

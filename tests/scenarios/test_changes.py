@@ -28,3 +28,14 @@ def test_insert_duplicate_id_is_rejected():
 def test_apply_does_not_mutate_input():
     apply(BASE, Insert((Item("n", {}),)))
     assert ids(BASE) == ["a", "b", "c"]
+
+
+def test_remove_drops_ids():
+    from stalehand.scenarios.changes import Remove
+    assert ids(apply(BASE, Remove(("b",)))) == ["a", "c"]
+
+
+def test_remove_missing_id_is_rejected():
+    from stalehand.scenarios.changes import Remove
+    with pytest.raises(ValueError):
+        apply(BASE, Remove(("zz",)))
