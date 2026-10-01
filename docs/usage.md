@@ -90,3 +90,5 @@ interval over scenario templates and an exact McNemar test.
 
 To browse the same rows, build the results explorer (`cd site && npm ci && npm run build`) and open
 `site/dist/index.html`; see [`site/README.md`](../site/README.md).
+
+See [Worked examples](examples.md) for one scenario end to end and for adding a new domain.
