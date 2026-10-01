@@ -19,7 +19,12 @@ type Matrix struct {
 	Executors     []string `json:"executors"`
 	Seeds         []int    `json:"seeds"`
 	MaxSteps      int      `json:"max_steps"`
+	// Timings is optional; when absent every job uses before_observation.
+	Timings []string `json:"timings,omitempty"`
 }
+
+// ChangeTimings are the moments a scheduled change can land (see stalehand/env/browser.py).
+var ChangeTimings = map[string]bool{"before_observation": true, "mid_step": true}
 
 // Job is one run of one scenario file under one configuration.
 type Job struct {
@@ -32,6 +37,7 @@ type Job struct {
 	Executor     string `json:"executor"`
 	Seed         int    `json:"seed"`
 	MaxSteps     int    `json:"max_steps"`
+	ChangeTiming string `json:"change_timing"`
 }
 
 // Parse reads a matrix and rejects unknown fields and empty axes.
@@ -49,13 +55,21 @@ func Parse(r io.Reader) (*Matrix, error) {
 			return nil, fmt.Errorf("matrix: axis %q is empty", name)
 		}
 	}
+	if len(m.Timings) == 0 {
+		m.Timings = []string{"before_observation"}
+	}
+	for _, t := range m.Timings {
+		if !ChangeTimings[t] {
+			return nil, fmt.Errorf("matrix: unknown change timing %q", t)
+		}
+	}
 	if m.MaxSteps <= 0 {
 		return nil, fmt.Errorf("matrix: max_steps must be positive")
 	}
 	return &m, nil
 }
 
-// Expand returns jobs in a fixed order: scenarios, architectures, guards, planners, executors, seeds.
+// Expand returns jobs in a fixed order: scenarios, architectures, guards, planners, executors, seeds, timings.
 func (m *Matrix) Expand() []Job {
 	var jobs []Job
 	for _, sc := range m.Scenarios {
@@ -64,10 +78,12 @@ func (m *Matrix) Expand() []Job {
 				for _, p := range m.Planners {
 					for _, e := range m.Executors {
 						for _, seed := range m.Seeds {
-							j := Job{Matrix: m.Name, Scenarios: sc, Architecture: arch, Guard: g, Planner: p,
-								Executor: e, Seed: seed, MaxSteps: m.MaxSteps}
-							j.ID = jobID(j)
-							jobs = append(jobs, j)
+							for _, timing := range m.Timings {
+								j := Job{Matrix: m.Name, Scenarios: sc, Architecture: arch, Guard: g, Planner: p,
+									Executor: e, Seed: seed, MaxSteps: m.MaxSteps, ChangeTiming: timing}
+								j.ID = jobID(j)
+								jobs = append(jobs, j)
+							}
 						}
 					}
 				}
@@ -79,7 +95,8 @@ func (m *Matrix) Expand() []Job {
 
 // jobID hashes everything that changes a job's result, and nothing else (not the matrix name).
 func jobID(j Job) string {
-	key := fmt.Sprintf("%s|%s|%s|%s|%s|%d|%d", j.Scenarios, j.Architecture, j.Guard, j.Planner, j.Executor, j.Seed, j.MaxSteps)
+	key := fmt.Sprintf("%s|%s|%s|%s|%s|%d|%d|%s", j.Scenarios, j.Architecture, j.Guard, j.Planner, j.Executor, j.Seed,
+		j.MaxSteps, j.ChangeTiming)
 	sum := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(sum[:])[:12]
 }

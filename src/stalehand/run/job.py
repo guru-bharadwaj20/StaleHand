@@ -16,11 +16,13 @@ class Job:
     executor: str
     seed: int
     max_steps: int
+    change_timing: str
 
 
 def job_id(j: Job) -> str:
     """Same hash as runner/matrix.jobID: every field that changes the result, not the matrix name."""
-    key = f"{j.scenarios}|{j.architecture}|{j.guard}|{j.planner}|{j.executor}|{j.seed}|{j.max_steps}"
+    key = (f"{j.scenarios}|{j.architecture}|{j.guard}|{j.planner}|{j.executor}|{j.seed}|{j.max_steps}"
+           f"|{j.change_timing}")
     return hashlib.sha256(key.encode()).hexdigest()[:12]
 
 

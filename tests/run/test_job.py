@@ -12,7 +12,7 @@ FIXTURE = json.loads((Path(__file__).parents[2] / "schema" / "fixtures" / "job.j
 def test_decodes_go_encoded_job():
     job = decode(FIXTURE["base64"])
     assert job == Job(**FIXTURE["job"])
-    assert job.guard == "dom_step_abort" and job.seed == 7 and job.max_steps == 12
+    assert job.guard == "dom_step_abort" and job.seed == 7 and job.change_timing == "mid_step"
 
 
 def test_id_matches_go():

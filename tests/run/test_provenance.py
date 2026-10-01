@@ -3,8 +3,8 @@ import subprocess
 from stalehand.run.job import Job
 from stalehand.run.provenance import config, git_state, model_info, versions
 
-JOB = Job("35eb0fb0bcee", "pilot", "scenarios/inbox_pilot.jsonl", "hierarchical", "dom_step_abort",
-          "qwen3-vl-8b", "ui-tars-1.5-7b", 7, 12)
+JOB = Job("83d285fd1485", "pilot", "scenarios/inbox_pilot.jsonl", "hierarchical", "dom_step_abort",
+          "qwen3-vl-8b", "ui-tars-1.5-7b", 7, 12, "before_observation")
 
 
 def test_git_state_reports_commit_and_dirty(tmp_path):
@@ -46,6 +46,6 @@ def test_model_info_without_revision():
 
 def test_config_holds_job_seed_and_environment(tmp_path):
     cfg = config(JOB, models={"planner": {"name": "p"}}, root=tmp_path)
-    assert cfg["job"]["id"] == "35eb0fb0bcee" and cfg["seed"] == 7
+    assert cfg["job"]["id"] == "83d285fd1485" and cfg["seed"] == 7
     assert cfg["models"]["planner"]["name"] == "p"
     assert cfg["git"] is None and "python" in cfg and "host" in cfg and "versions" in cfg

@@ -9,7 +9,7 @@ from stalehand.run.job import Job
 from stalehand.scenarios.domains import shop
 
 SCHEMA = json.loads((Path(__file__).parents[2] / "schema" / "result.schema.json").read_text())
-JOB = Job("35eb0fb0bcee", "pilot", "s.jsonl", "hierarchical", "none", "p", "e", 7, 12)
+JOB = Job("83d285fd1485", "pilot", "s.jsonl", "hierarchical", "none", "p", "e", 7, 12, "before_observation")
 SCEN = [shop.build(seed=0, kind="cheapest", index=i, variant="L1") for i in range(3)]
 
 
@@ -40,7 +40,7 @@ def test_writes_one_scored_row_and_trajectory_per_scenario(tmp_path):
     assert {x["outcome"] for x in r} == {"stale"}
     for x in r:
         jsonschema.validate(x, SCHEMA)
-    assert r[0]["run"] == {"job": "35eb0fb0bcee", "seed": 7, "planner": "p", "executor": "e"}
+    assert r[0]["run"] == {"job": "83d285fd1485", "seed": 7, "planner": "p", "executor": "e"}
     saved = json.loads((tmp_path / "trajectories" / f"{SCEN[0].id}.json").read_text())
     assert saved["end_reason"] == "planner_done"
 

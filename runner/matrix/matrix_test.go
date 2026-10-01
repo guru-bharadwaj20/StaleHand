@@ -66,3 +66,26 @@ func TestUnknownFieldIsAnError(t *testing.T) {
 		t.Fatal("expected an error for a misspelt field")
 	}
 }
+
+func TestTimingsDefaultAndExpand(t *testing.T) {
+	m, _ := Parse(strings.NewReader(sample))
+	if got := m.Expand()[0].ChangeTiming; got != "before_observation" {
+		t.Fatalf("default timing %q", got)
+	}
+	both := strings.Replace(sample, `"max_steps": 8`, `"max_steps": 8, "timings": ["before_observation", "mid_step"]`, 1)
+	m2, err := Parse(strings.NewReader(both))
+	if err != nil {
+		t.Fatal(err)
+	}
+	jobs := m2.Expand()
+	if len(jobs) != 2*len(m.Expand()) || jobs[0].ID == jobs[1].ID {
+		t.Fatalf("timing must be an axis that changes the id: %d jobs", len(jobs))
+	}
+}
+
+func TestUnknownTimingIsAnError(t *testing.T) {
+	bad := strings.Replace(sample, `"max_steps": 8`, `"max_steps": 8, "timings": ["after_lunch"]`, 1)
+	if _, err := Parse(strings.NewReader(bad)); err == nil {
+		t.Fatal("expected an error for an unknown timing")
+	}
+}
