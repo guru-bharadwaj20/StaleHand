@@ -106,3 +106,18 @@ func mustCounts(t *testing.T, s *Store) map[string]int {
 	}
 	return c
 }
+
+func TestFinishedListsDoneJobsWithTheirHost(t *testing.T) {
+	s := open(t)
+	s.Add(jobs(3))
+	got, _ := s.Claim("gpu1", 2)
+	s.Finish(got[0].ID, 0, "")
+	s.Finish(got[1].ID, 1, "boom")
+	done, err := s.Finished()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(done) != 1 || done[0].Job.ID != got[0].ID || done[0].Host != "gpu1" || done[0].Job.Guard != "none" {
+		t.Fatalf("finished = %+v", done)
+	}
+}
