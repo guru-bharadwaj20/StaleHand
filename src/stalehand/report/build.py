@@ -15,6 +15,10 @@ def _pct(x) -> str:
     return "n/a" if x is None else f"{100 * x:.0f}%"
 
 
+def _p(p: float) -> str:
+    return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
+
+
 def _table(header: List[str], lines: List[List[str]]) -> List[str]:
     out = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
     return out + ["| " + " | ".join(line) + " |" for line in lines]
@@ -31,15 +35,17 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
                     _pct(g["relevant_stale"]), str(g["harmless_n"]), _pct(g["harmless_success"]),
                     _pct(g["false_alarm"]), f"{g['calls']:.1f}"] for g in guard_summary(rows)])
     out += ["", "## Outcomes", ""]
-    groups = rates(rows, by=("architecture", "guard", "domain", "kind", "change_kind"))
+    groups = sorted(rates(rows, by=("architecture", "guard", "domain", "kind", "change_kind")),
+                    key=lambda g: (g["architecture"], g["guard"] != baseline, g["guard"], g["domain"],
+                                   str(g["kind"]), g["change_kind"]))
     out += _table(["architecture", "guard", "domain", "kind", "change", "n", *COLUMNS, "planner calls"],
                   [[g["architecture"], g["guard"], g["domain"], str(g["kind"]), g["change_kind"], str(g["n"]),
                     *[_pct(g[f"{c}_rate"]) for c in COLUMNS], f"{g['planner_calls']:.1f}"] for g in groups])
 
     out += ["", "## False alarms on harmless changes", ""]
     fa = rates(rows, by=("architecture", "guard"))
-    out += _table(["architecture", "guard", "episodes", "false alarm rate", "planner calls"],
-                  [[g["architecture"], g["guard"], str(g["n"]), _pct(g["false_alarm_rate"]),
+    out += _table(["architecture", "guard", "harmless episodes", "false alarm rate", "planner calls"],
+                  [[g["architecture"], g["guard"], str(g["harmless_n"]), _pct(g["false_alarm_rate"]),
                     f"{g['planner_calls']:.1f}"] for g in fa])
 
     out += ["", f"## Paired against `{baseline}` on relevant changes", "",
@@ -64,7 +70,7 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
                 lo, hi = c["diff_ci"]
                 lines.append([arch, guard, dom, str(c["n"]), _pct(c["b_rate"]), _pct(c["a_rate"]),
                               f"{100 * c['diff']:+.0f} pts", f"[{100 * lo:+.0f}, {100 * hi:+.0f}]",
-                              f"{c['a_only']} vs {c['b_only']}", f"p = {c['p']:.3f}"])
+                              f"{c['a_only']} vs {c['b_only']}", _p(c["p"])])
     out += _table(["architecture", "guard", "domain", "pairs", baseline, "guard", "difference", "95% CI",
                    "only guard vs only baseline succeeded", "McNemar"], lines)
     return "\n".join(out) + "\n"

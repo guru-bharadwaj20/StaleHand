@@ -39,3 +39,24 @@ def test_markdown_opens_with_guard_summary():
     md = markdown(ROWS, n_boot=50)
     assert md.index("## Summary by guard") < md.index("## Outcomes")
     assert "| hierarchical | none | 6 | 0% | 100% | 1 | 100% | 0% | 1.0 |" in md
+
+
+def test_outcome_rows_are_ordered_baseline_first_then_by_name():
+    rows = [row("shop-cheapest-000-L1", "rebind_dom", "success"), row("inbox-fixed-000-none", "none", "success"),
+            row("shop-cheapest-000-L1", "none", "stale"), row("inbox-fixed-000-none", "rebind_dom", "success")]
+    md = markdown(rows, n_boot=50)
+    outcomes = md.split("## Outcomes")[1].split("##")[0]
+    order = [line.split(" | ")[1:3] for line in outcomes.splitlines() if line.startswith("| hierarchical")]
+    assert order == [["none", "inbox"], ["none", "shop"], ["rebind_dom", "inbox"], ["rebind_dom", "shop"]]
+
+
+def test_tiny_p_values_are_not_printed_as_zero():
+    rows = ([row(f"shop-cheapest-{i:03d}-L1", "none", "stale") for i in range(12)]
+            + [row(f"shop-cheapest-{i:03d}-L1", "rebind_dom", "success") for i in range(12)])
+    md = markdown(rows, n_boot=50)
+    assert "p < 0.001" in md and "p = 0.000" not in md
+
+
+def test_false_alarm_table_counts_harmless_episodes():
+    md = markdown(ROWS, n_boot=50)
+    assert "| hierarchical | none | 1 | 0% |" in md.split("## False alarms")[1]

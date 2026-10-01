@@ -32,6 +32,7 @@ def rates(rows: Iterable[dict], by: Sequence[str]) -> List[Dict]:
             g[o] = sum(r["outcome"] == o for r in rs)
             g[f"{o}_rate"] = g[o] / n
         harmless = [r for r in rs if r["change_kind"] in HARMLESS]
+        g["harmless_n"] = len(harmless)
         g["false_alarm_rate"] = sum(r["false_alarm"] for r in harmless) / len(harmless) if harmless else None
         g["planner_calls"] = sum(r["planner_calls"] for r in rs) / n
         out.append(g)
