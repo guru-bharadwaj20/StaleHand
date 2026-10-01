@@ -41,3 +41,9 @@ def test_price_rise_on_other_item_is_irrelevant():
 
 def test_reordering_alone_is_irrelevant():
     assert classify(INBOX, list(reversed(INBOX)), LATEST_SAM) == "irrelevant"
+
+
+def test_change_without_initial_target_is_rejected():
+    import pytest
+    with pytest.raises(ValueError):
+        classify(SHOP, after(SHOP, Remove(("p1",))), Criterion({"sender": "Nobody"}))

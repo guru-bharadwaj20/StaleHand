@@ -12,6 +12,8 @@ def classify(before: Sequence[Item], after: Sequence[Item], criterion: Criterion
     if list(before) == list(after):
         return "none"
     old, new = resolve(before, criterion), resolve(after, criterion)
+    if old.status != "unique":
+        raise ValueError(f"no unique target before the change ({old.status})")
     if new.status != "unique":
         return "target_removed"
     return "irrelevant" if new.target == old.target else "relevant"
