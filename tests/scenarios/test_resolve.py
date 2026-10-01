@@ -52,3 +52,20 @@ def test_tie_below_the_top_does_not_matter():
     shop = [Item("p1", {"price": 199}), Item("p2", {"price": 299}), Item("p3", {"price": 299})]
     r = resolve(shop, Criterion(order=Order("price", descending=False)))
     assert (r.target, r.status) == ("p1", "unique")
+
+
+def test_item_missing_order_field_never_wins():
+    items = [Item("x", {"sender": "A"}), Item("y", {"sender": "A", "received": 5})]
+    r = resolve(items, Criterion({"sender": "A"}, Order("received")))
+    assert r.target == "y"
+
+
+def test_only_items_missing_order_field_give_none():
+    items = [Item("x", {"sender": "A"})]
+    r = resolve(items, Criterion({"sender": "A"}, Order("received")))
+    assert (r.target, r.status) == (None, "none")
+
+
+def test_item_missing_filter_field_never_matches():
+    items = [Item("x", {}), Item("y", {"sender": "A"})]
+    assert resolve(items, Criterion({"sender": "A"})).target == "y"
