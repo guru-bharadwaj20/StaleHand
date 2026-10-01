@@ -58,3 +58,17 @@ Share of landed changes on which a pixel guard with each threshold would fire. H
 | tickets | 67% / 50% | 67% / 2% | 33% / 0% | 32% / 0% |
 | all | 85% / 78% | 78% / 55% | 55% / 41% | 31% / 8% |
 
+## Stall return on correct runs
+
+The oracle performs each scenario's correct flow; the stall return (`hierarchical_stall`) would interrupt it wherever two actions in a row leave the screenshot unchanged.
+
+| domain | scenarios | any unchanged action | two in a row (would be interrupted) |
+|---|---|---|---|
+| calendar | 110 | 0% | 0% |
+| chat | 110 | 0% | 0% |
+| files | 110 | 0% | 0% |
+| inbox | 100 | 0% | 0% |
+| shop | 200 | 0% | 0% |
+| tickets | 110 | 0% | 0% |
+| all | 740 | 0% | 0% |
+
