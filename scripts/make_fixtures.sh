@@ -6,3 +6,4 @@ out=schema/fixtures
 mkdir -p "$out"
 stalehand scenarios --domain inbox --n 2 --seed 0 --out "$out/inbox.jsonl"
 stalehand scenarios --domain shop --n 2 --seed 0 --out "$out/shop.jsonl"
+stalehand scenarios --domain files --n 2 --seed 0 --out "$out/files.jsonl"
