@@ -10,11 +10,13 @@ def parse_subtask(text: str) -> Optional[str]:
     return None if line.upper().rstrip(".") == "DONE" else line
 
 
-def parse_rule(text: str) -> Tuple[str, str]:
-    """(subtask for the executor, the bare rule) from a rule-subtask planner reply."""
+def parse_rule(text: str) -> Optional[Tuple[str, str]]:
+    """(subtask for the executor, the bare rule) from a rule-subtask planner reply; None when done."""
     r = re.search(r"Target rule:\s*(.+)", text)
     a = re.search(r"Action:\s*(.+)", text)
     rule = r.group(1).strip() if r else text.strip().splitlines()[0]
+    if rule.upper().rstrip(".") == "DONE":
+        return None
     act = a.group(1).strip() if a else "click it"
     return f"{act} - the element that matches this rule: {rule}", rule
 

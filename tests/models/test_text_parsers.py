@@ -33,3 +33,7 @@ def test_verdicts():
 def test_description_from_click_call():
     assert parse_description('Thought: x\nAction: click("the email from Sam titled Budget")') == "the email from Sam titled Budget"
     assert parse_description("Action: the Send button") == "the Send button"
+
+
+def test_rule_done_marker():
+    assert parse_rule("Target rule: DONE") is None
