@@ -17,5 +17,10 @@ done
 if [ "${#sets[@]}" -gt 1 ]; then
   python3 -m stalehand contrasts --runs "${sets[@]}" --out results/vivian-4090/contrasts_report.md
 fi
+runs=()
+for dir in results/vivian-4090/*/; do
+  if [ -f "$(find "$dir" -name results.jsonl -print -quit)" ]; then runs+=("${dir%/}"); fi
+done
+python3 -m stalehand.report.loops "${runs[@]}" > results/vivian-4090/loops_report.md
 python3 experiments/audit/summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 python3 -m stalehand readme
