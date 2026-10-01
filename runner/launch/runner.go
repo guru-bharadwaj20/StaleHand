@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall"
 
 	"github.com/VivianSobers/StaleHand/runner/hosts"
 	"github.com/VivianSobers/StaleHand/runner/matrix"
@@ -39,8 +38,7 @@ func (r ExecRunner) Run(ctx context.Context, h hosts.Host, j matrix.Job) (int, e
 	argv := Argv(h, build(h, j))
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
 	cmd.Stdout, cmd.Stderr = logf, logf
-	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM) }
+	setGroup(cmd)
 	err = cmd.Run()
 	var exit *exec.ExitError
 	switch {
