@@ -39,7 +39,9 @@ Paired on the same relevant-change scenarios, every guard beat no guard (`result
 - **Re-binding on a DOM change** (`rebind_dom`) reached {{main.rebind_dom.relevant_success}}
   ({{main.rebind_dom.vs_none.diff}}, {{main.rebind_dom.vs_none.ci}}) with {{main.rebind_dom.calls}} calls per
   episode. It fired on {{main.rebind_dom.false_alarm}} of harmless changes, the lowest of the guards that watch the
-  page, and kept success on harmless episodes at {{main.rebind_dom.harmless_success}}.
+  page, and kept success on harmless episodes at {{main.rebind_dom.harmless_success}}. It fired on
+  {{main.rebind_dom.relevant_fired}} of the relevant changes, so detection is not what holds it back; the next
+  section is.
 - **Re-planning on a DOM change** (`dom_subtask_replan`) did about as well on relevant changes,
   {{main.dom_subtask_replan.relevant_success}}, but fired on {{main.dom_subtask_replan.false_alarm}} of harmless
   changes, because any DOM change triggers it.

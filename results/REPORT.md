@@ -39,7 +39,9 @@ Paired on the same relevant-change scenarios, every guard beat no guard (`result
 - **Re-binding on a DOM change** (`rebind_dom`) reached 55%
   (+51 pts, [+33, +68]) with 2.8 calls per
   episode. It fired on 15% of harmless changes, the lowest of the guards that watch the
-  page, and kept success on harmless episodes at 68%.
+  page, and kept success on harmless episodes at 68%. It fired on
+  91% of the relevant changes, so detection is not what holds it back; the next
+  section is.
 - **Re-planning on a DOM change** (`dom_subtask_replan`) did about as well on relevant changes,
   58%, but fired on 76% of harmless
   changes, because any DOM change triggers it.
