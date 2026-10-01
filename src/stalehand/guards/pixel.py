@@ -12,7 +12,7 @@ class PixelChange(Guard):
         self.name = f"pixel_{threshold:g}_{on_change}"
 
     def before_think(self, ctx: Context) -> str:
-        if ctx.step == ctx.subtask_step:
+        if ctx.on_planning_screen():
             return PROCEED
         report = screendiff.compare(ctx.subtask_png, ctx.png)
         if ctx.trajectory is not None:

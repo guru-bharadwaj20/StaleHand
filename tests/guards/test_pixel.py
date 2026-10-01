@@ -54,3 +54,8 @@ def test_pixel_guard_skips_the_planner_screen(monkeypatch):
 
 def test_pixel_guard_name():
     assert PixelChange(threshold=0.05, on_change="replan").name == "pixel_0.05_replan"
+
+
+def test_pixel_guard_checks_a_changed_screen_at_the_handoff_step(monkeypatch):
+    monkeypatch.setattr(screendiff, "compare", lambda a, b, region=None: {"ssim": 0.5, "changed_fraction": 0.5})
+    assert PixelChange(threshold=0.1, on_change="replan").before_think(ctx(b"a", b"b", step=0)) == REPLAN

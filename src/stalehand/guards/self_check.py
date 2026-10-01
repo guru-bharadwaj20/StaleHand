@@ -15,7 +15,7 @@ class SelfCheck(Guard):
         self.checker, self.max_new_tokens = checker, max_new_tokens
 
     def before_think(self, ctx: Context) -> str:
-        if ctx.step == ctx.subtask_step:
+        if ctx.on_planning_screen():
             return PROCEED
         req = Request(prompts.SELF_CHECK.format(task=ctx.task, subtask=ctx.subtask), ctx.png, self.max_new_tokens)
         t0 = time.perf_counter()

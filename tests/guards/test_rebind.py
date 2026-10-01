@@ -20,9 +20,9 @@ class Env:
         return self.external
 
 
-def ctx(step=2, env=None):
+def ctx(step=2, env=None, png=b"new"):
     return Context(env=env or Env(), task="Open the latest email from Samuel Lee", subtask="open it - Q3 budget review",
-                   subtask_step=0, subtask_png=b"old", step=step, png=b"new", extra=dict(EXTRA),
+                   subtask_step=0, subtask_png=b"old", step=step, png=png, extra=dict(EXTRA),
                    trajectory=Trajectory("s", "hierarchical", "rebind_step"))
 
 
@@ -56,7 +56,11 @@ def test_unparsed_reply_proceeds():
 
 def test_no_check_on_the_planning_screen():
     m = resolver("Target: other")
-    assert Rebind(m).before_think(ctx(step=0)) == PROCEED and m.calls == []
+    assert Rebind(m).before_think(ctx(step=0, png=b"old")) == PROCEED and m.calls == []
+
+
+def test_checks_a_changed_screen_at_the_handoff_step():
+    assert Rebind(resolver("Target: Vendor contract renewal")).before_think(ctx(step=0)) == REBIND
 
 
 def test_dom_trigger_checks_only_after_external_changes():

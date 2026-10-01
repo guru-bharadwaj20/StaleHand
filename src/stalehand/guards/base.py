@@ -25,6 +25,11 @@ class Context:
     trajectory: Optional[Any] = None  # guards that call models record those calls here
     extra: dict = field(default_factory=dict)
 
+    def on_planning_screen(self) -> bool:
+        """True while the executor looks at the very screen the subtask was written from. A change that lands
+        after the handoff (after_handoff timing) leaves the step number alone but changes the screenshot."""
+        return self.step == self.subtask_step and self.png == self.subtask_png
+
 
 class Guard:
     name = "none"

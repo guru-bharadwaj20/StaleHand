@@ -7,4 +7,4 @@ class ReplanEveryStep(Guard):
     name = "replan_every_step"
 
     def before_think(self, ctx: Context) -> str:
-        return REPLAN if ctx.step > ctx.subtask_step else PROCEED
+        return PROCEED if ctx.on_planning_screen() else REPLAN

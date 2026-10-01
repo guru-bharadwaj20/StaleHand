@@ -4,9 +4,9 @@ from stalehand.guards.self_check import SelfCheck
 from stalehand.models.base import ScriptedVLM
 
 
-def ctx(step=2, subtask_step=0):
+def ctx(step=2, subtask_step=0, png=b"new"):
     return Context(env=None, task="Forward the latest email from Sam", subtask="open the Budget email",
-                   subtask_step=subtask_step, subtask_png=b"old", step=step, png=b"new",
+                   subtask_step=subtask_step, subtask_png=b"old", step=step, png=png,
                    trajectory=Trajectory("s", "hierarchical", "self_check"))
 
 
@@ -25,4 +25,9 @@ def test_valid_or_unparsed_verdict_proceeds():
 
 def test_no_check_on_the_screen_the_subtask_was_written_on():
     m = ScriptedVLM([("", "Verdict: STALE")])
-    assert SelfCheck(m).before_think(ctx(step=0, subtask_step=0)) == PROCEED and m.calls == []
+    assert SelfCheck(m).before_think(ctx(step=0, subtask_step=0, png=b"old")) == PROCEED and m.calls == []
+
+
+def test_checks_a_changed_screen_at_the_handoff_step():
+    m = ScriptedVLM([("", "Verdict: STALE")])
+    assert SelfCheck(m).before_think(ctx(step=0, subtask_step=0, png=b"changed")) == REPLAN

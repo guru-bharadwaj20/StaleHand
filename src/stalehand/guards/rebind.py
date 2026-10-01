@@ -37,7 +37,7 @@ class Rebind(Guard):
         return out, target
 
     def before_think(self, ctx: Context) -> str:
-        if ctx.step == ctx.subtask_step or "rule" not in ctx.extra:
+        if ctx.on_planning_screen() or "rule" not in ctx.extra:
             return PROCEED
         if self.trigger == "dom":
             if ctx.env.external_since_mark() == 0:
