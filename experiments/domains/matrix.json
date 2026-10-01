@@ -32,11 +32,7 @@
   "guards": [
     "none",
     "replan_every_step",
-    "self_check",
-    "rule_subtask",
     "dom_subtask_replan",
-    "pixel_0.02_replan",
-    "rebind_step",
     "rebind_dom"
   ],
   "planners": [
