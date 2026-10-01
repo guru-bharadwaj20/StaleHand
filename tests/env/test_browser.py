@@ -90,3 +90,23 @@ def test_scheduled_change_counts_as_external(env):
     assert env.external_since_mark() == 0
     env.act(Click(5, 5))
     assert env.external_since_mark() > 0
+
+
+def test_mid_step_change_lands_after_the_screenshot():
+    from stalehand.env.browser import BrowserEnv
+    e = BrowserEnv(change_timing="mid_step")
+    try:
+        s = inbox.build(seed=0, kind="relative", index=0, variant="L1", change_step=1)
+        e.reset(s)
+        obs = e.act(Click(5, 5))  # step 1 begins; the change has not landed yet
+        assert obs.step == 1 and s.target_at(1) not in e.item_boxes()
+        e.begin_action()  # the executor is about to act: the page changes under it
+        assert s.target_at(1) in e.item_boxes()
+    finally:
+        e.close()
+
+
+def test_unknown_change_timing_is_rejected():
+    from stalehand.env.browser import BrowserEnv
+    with pytest.raises(ValueError):
+        BrowserEnv(change_timing="whenever")

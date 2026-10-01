@@ -1,8 +1,10 @@
 """Playwright environment around a StaleHand web app.
 
 Step semantics: reset() loads the scenario and returns the step-0 screen (what the planner sees). Each act()
-advances the step by one; changes scheduled for the new step are applied before the screenshot is taken, so the
-executor's observation at step k already includes them.
+advances the step by one. Changes scheduled for step k land at one of two moments:
+  before_observation  before the step-k screenshot, so the executor sees them (stale subtask setting)
+  mid_step            after the step-k screenshot, just before the action (time-of-check/time-of-use setting);
+                      begin_action() applies them, and act() calls it if the agent did not
 """
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
@@ -43,7 +45,12 @@ class Observation:
 
 
 class BrowserEnv:
-    def __init__(self, headless: bool = True, channel: Optional[str] = "chrome"):
+    TIMINGS = ("before_observation", "mid_step")
+
+    def __init__(self, headless: bool = True, channel: Optional[str] = "chrome", change_timing: str = "before_observation"):
+        if change_timing not in self.TIMINGS:
+            raise ValueError(f"change_timing must be one of {self.TIMINGS}")
+        self.change_timing = change_timing
         from playwright.sync_api import sync_playwright
         self._pw = sync_playwright().start()
         self._browser = self._pw.chromium.launch(headless=headless, channel=channel)
@@ -58,9 +65,16 @@ class BrowserEnv:
         self._page.goto(app_url(scenario.domain))
         self._page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
         self._page.evaluate(_MUTATIONS_JS)
-        self.scenario, self.step, self._external = scenario, 0, 0
-        self._apply_due_changes()
+        self.scenario, self.step, self._external, self._begun = scenario, 0, 0, False
+        if self.change_timing == "before_observation":
+            self._apply_due_changes()
         return self.observe()
+
+    def begin_action(self) -> None:
+        """Mark the moment between the executor's screenshot and its action (mid_step changes land here)."""
+        if self.change_timing == "mid_step" and not self._begun:
+            self._apply_due_changes()
+        self._begun = True
 
     def _apply_due_changes(self) -> None:
         due = [sc for sc in self.scenario.changes if sc.step == self.step]
@@ -75,6 +89,7 @@ class BrowserEnv:
         return Observation(self.step, self._page.screenshot(type="png"))
 
     def act(self, action) -> Observation:
+        self.begin_action()
         page = self._page
         if isinstance(action, Click):
             page.mouse.click(action.x, action.y)
@@ -87,7 +102,9 @@ class BrowserEnv:
         elif not isinstance(action, (Done, Wait)):
             raise TypeError(f"unsupported action {action!r}")
         self.step += 1
-        self._apply_due_changes()
+        self._begun = False
+        if self.change_timing == "before_observation":
+            self._apply_due_changes()
         return self.observe()
 
     def mark_mutations(self) -> None:
