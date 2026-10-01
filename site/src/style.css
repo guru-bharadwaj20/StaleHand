@@ -1,0 +1,16 @@
+:root { color-scheme: light dark; --fg: #1f2328; --bg: #ffffff; --muted: #656d76; --line: #d0d7de; --head: #f6f8fa; }
+@media (prefers-color-scheme: dark) { :root { --fg: #e6edf3; --bg: #0d1117; --muted: #8d96a0; --line: #30363d; --head: #161b22; } }
+body { margin: 0; padding: 16px; font: 14px system-ui, sans-serif; color: var(--fg); background: var(--bg); }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 8px; }
+h1 { font-size: 20px; margin: 0; }
+h2 { font-size: 13px; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; width: 100%; }
+.sources, .count { color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0; }
+.pick select { margin-left: 4px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; min-width: 640px; }
+th, td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; white-space: nowrap; }
+th { background: var(--head); font-weight: 600; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.problems { margin: 8px 0; color: #cf222e; }
+.problems ul { color: var(--fg); max-height: 240px; overflow: auto; }

@@ -54,7 +54,7 @@ Runs stay on their owner's machines and write to separate result directories (`r
 | ✅ | Model serving on the RTX 4500 Ada (vLLM, OpenAI-compatible endpoint) | `scripts/ada/` |
 | ✅ | Second executor family (a different open GUI model) wired into the model registry | `src/stalehand/models/registry.py` (new entries only) |
 | ❌ | Second-family experiments: the main matrices rerun with the other executor family | `results/guru-4500/` |
-| ❌ | Results explorer: static TypeScript site that reads result JSONL and validates it against `schema/result.schema.json` | `site/` |
+| ✅ | Results explorer: static TypeScript site that reads result JSONL and validates it against `schema/result.schema.json` | `site/` |
 
 ### Keeping the two halves independent
 
