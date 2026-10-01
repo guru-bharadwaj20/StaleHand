@@ -110,3 +110,12 @@ def test_unknown_change_timing_is_rejected():
     from stalehand.env.browser import BrowserEnv
     with pytest.raises(ValueError):
         BrowserEnv(change_timing="whenever")
+
+
+def test_events_carry_the_step_of_the_action(env):
+    s = inbox.build(seed=0, kind="fixed", index=0, variant="none")
+    env.reset(s)
+    env.act(Click(5, 5))
+    env.act(centre(env.item_boxes()[s.stale_target]))
+    opens = [e for e in env.events() if e["kind"] == "open"]
+    assert opens[0]["step"] == 1

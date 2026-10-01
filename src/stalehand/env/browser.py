@@ -82,6 +82,7 @@ class BrowserEnv:
         self._page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
         self._page.evaluate(_MUTATIONS_JS)
         self.scenario, self.step, self._external, self._begun = scenario, 0, 0, False
+        self._event_steps = []
         if self.change_timing == "before_observation":
             self._apply_due_changes()
         return self.observe()
@@ -117,6 +118,7 @@ class BrowserEnv:
             page.mouse.wheel(action.dx, action.dy)
         elif not isinstance(action, (Done, Wait)):
             raise TypeError(f"unsupported action {action!r}")
+        self._tag_events()
         self.step += 1
         self._begun = False
         if self.change_timing == "before_observation":
@@ -145,8 +147,16 @@ class BrowserEnv:
         box = self._page.locator(f'[data-role="{role}"]').first.bounding_box()
         return None if box is None else (box["x"], box["y"], box["width"], box["height"])
 
+    def _tag_events(self) -> None:
+        n = len(self._page.evaluate("window.stalehand.events()"))
+        self._event_steps += [self.step] * (n - len(self._event_steps))
+
     def events(self):
-        return self._page.evaluate("window.stalehand.events()")
+        """App events, each with the env step whose action caused it (None for scheduled page changes)."""
+        out = self._page.evaluate("window.stalehand.events()")
+        for i, e in enumerate(out):
+            e["step"] = self._event_steps[i] if i < len(self._event_steps) and e.get("kind") != "page_change" else None
+        return out
 
     def commits(self):
         return [e for e in self.events() if e.get("commit")]
