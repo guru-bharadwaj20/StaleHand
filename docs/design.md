@@ -100,6 +100,30 @@ from the data too.
 - Negative results are reported as they are.
 - Comparisons between guards use the same scenarios, models and decoding settings.
 
+## Real applications
+
+Decision: no real application in this release. The suite keeps its own synthetic apps.
+
+What a real app (for example a Roundcube or SOGo mail client, or a self-hosted shop) would add: real layouts,
+real widgets and real clutter, so results say more about agents outside the suite.
+
+What it would cost:
+
+- No `window.stalehand` hook. Changes could not be applied at a set step, so handoff timing would be lost.
+- No computed ground truth. The resolver needs the items on screen as data; a real app would need a scraper
+  per app and per version.
+- Less determinism. Seeding data, clocks, caches and background jobs would all have to be controlled.
+- No `data-item-id` or item boxes. Scoring and the rebind and DOM guards would need per-app selectors.
+- Licensing. Each app's license would need checking before it ships with the suite or its screenshots.
+- Setup. Each lab machine would need the app and its services (database, mail server) installed and reset per
+  episode.
+- Time. The remaining plan items come first.
+
+What would make it worth doing later: the main results are in, and a reviewer or a result asks whether they hold
+outside synthetic apps. The minimal path is a small validation subset: one real app (a mail client fits the
+inbox domain), a seeded mailbox, changes injected from outside the page (for example new mail delivered over
+SMTP or IMAP), ground truth read back from the mail store, and only the guards that do not need `data-item-id`.
+
 ## Out of scope for now
 
 Real third-party websites, training models, and human studies. These can follow once the suite is stable.

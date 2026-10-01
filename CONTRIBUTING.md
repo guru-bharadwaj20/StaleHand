@@ -16,10 +16,10 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 4 | 5 | ❌ |
-| 10 | Reports, docs and release | M11 | 30 | 3 | 6 | ❌ |
-| | **Total** | | **495** | **37** | **13** | **74% done** |
+| 10 | Reports, docs and release | M11 | 30 | 4 | 5 | ❌ |
+| | **Total** | | **495** | **38** | **12** | **76% done** |
 
-Remaining work: **13 tasks**, split 7 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **12 tasks**, split 7 to Vivian and 5 to Guru (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -124,7 +124,7 @@ every commit is one real change (see [Commits](#commits)).
 | ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
 | ❌ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
 | ❌ | Choose a license before the repository is made public | Vivian | `LICENSE` |
-| ❌ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
+| ✅ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
 
 ## Who does what next
 
@@ -136,7 +136,7 @@ every commit is one real change (see [Commits](#commits)).
 | 4 | ❌ Run the change-timing study | ❌ README results section |
 | 5 | ❌ Change-kind and task-kind breakdowns | ✅ Usage guide |
 | 6 | ❌ Combined final report | ❌ Worked examples |
-| 7 | ❌ Choose a license | ❌ Real-application decision |
+| 7 | ❌ Choose a license | ✅ Real-application decision |
 
 Guru's second-family runs depend on Vivian's main guard comparison config; Guru's charts and README section
 depend on the main results landing.
