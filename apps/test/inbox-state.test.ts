@@ -53,3 +53,16 @@ test("back returns to the list", () => {
   const { state } = run(initial(items), { type: "open", id: "m01" }, { type: "back" });
   assert.equal(state.view.name, "list");
 });
+
+import { withChange } from "../src/inbox/state.js";
+
+test("arrivals change the list but keep the open mail", () => {
+  const s = run(initial(items), { type: "open", id: "m01" }).state;
+  const next = withChange(s, { type: "insert", items: [{ id: "n0", attrs: { sender: "Sam" } }], position: 0 });
+  assert.deepEqual(next.items.map((i) => i.id), ["n0", "m00", "m01"]);
+  assert.deepEqual(next.view, { name: "open", id: "m01" });
+});
+
+test("cosmetic change shows a banner", () => {
+  assert.equal(withChange(initial(items), { type: "cosmetic", label: "storage_banner" }).banner, "storage_banner");
+});

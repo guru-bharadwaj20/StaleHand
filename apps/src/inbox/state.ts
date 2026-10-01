@@ -1,7 +1,8 @@
 // Inbox app as a pure state machine: list -> open mail -> compose (forward or reply) -> sent.
 // Rendering lives in render.ts; this file has no DOM access so it can be tested in Node.
 import type { ActionEvent } from "../core/log.js";
-import type { Item } from "../core/types.js";
+import { applyChange } from "../core/changes.js";
+import type { Change, Item } from "../core/types.js";
 
 export type View =
   | { name: "list" }
@@ -67,4 +68,9 @@ export function reduce(state: InboxState, action: InboxAction): Step {
       };
     }
   }
+}
+
+export function withChange(state: InboxState, change: Change): InboxState {
+  if (change.type === "cosmetic") return { ...state, banner: change.label };
+  return { ...state, items: applyChange(state.items, change) };
 }
