@@ -21,6 +21,7 @@ class Context:
     step: int                  # current env step
     png: bytes                 # current screenshot
     action: Optional[Any] = None   # set at before_act
+    trajectory: Optional[Any] = None  # guards that call models record those calls here
     extra: dict = field(default_factory=dict)
 
 

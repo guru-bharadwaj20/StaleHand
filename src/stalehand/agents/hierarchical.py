@@ -53,7 +53,7 @@ class Hierarchical:
                 return None
             traj.subtask(step=o.step, text=text)
             c = Context(env=env, task=scenario.task, subtask=text, subtask_step=o.step, subtask_png=o.png,
-                        step=o.step, png=o.png)
+                        step=o.step, png=o.png, trajectory=traj)
             self.guard.on_subtask(c)
             return c
 
