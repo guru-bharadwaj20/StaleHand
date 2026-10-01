@@ -9,3 +9,6 @@ runs/
 renders/
 *.png
 !docs/img/*.png
+node_modules/
+apps/dist/
+apps/dist-test/
