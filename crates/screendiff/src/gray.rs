@@ -24,7 +24,9 @@ impl Gray {
     /// ITU-R BT.601 luma from 8-bit RGB.
     pub fn from_rgb(width: usize, height: usize, rgb: &[u8]) -> Self {
         let px = rgb
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .map(|p| 0.299 * p[0] as f32 + 0.587 * p[1] as f32 + 0.114 * p[2] as f32)
             .collect();
         Gray::new(width, height, px)
