@@ -17,6 +17,15 @@ target, and acted on the stale target in 44% of them. On the 145
 episodes where nothing relevant changed, the same agent succeeded 69% of the time. That
 gap is the cost of a stale handoff.
 
+| What the planner saw | What the executor saw |
+|---|---|
+| ![Inbox before the change](figures/inbox-relative-000-L1-planner.png) | ![Inbox after the change](figures/inbox-relative-000-L1-changed.png) |
+| ![Shop before the change](figures/shop-cheapest-000-L1-planner.png) | ![Shop after the change](figures/shop-cheapest-000-L1-changed.png) |
+
+Two of the main scenarios, drawn with `stalehand render`. Task: reply to the most recent email from Rohan Gupta. A
+newer one arrives after the planner has picked the older one. Task: add the cheapest USB-C cable to the cart. The
+listing changes and a cheaper cable appears.
+
 ## Every guard helps; they differ in what they cost
 
 Paired on the same relevant-change scenarios, every guard beat no guard (`results/vivian-4090/main_report.md`,
