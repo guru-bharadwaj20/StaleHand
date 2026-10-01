@@ -60,3 +60,22 @@ def test_tiny_p_values_are_not_printed_as_zero():
 def test_false_alarm_table_counts_harmless_episodes():
     md = markdown(ROWS, n_boot=50)
     assert "| hierarchical | none | 1 | 0% |" in md.split("## False alarms")[1]
+
+
+def test_change_kind_table_reports_holding_off_when_the_target_is_gone():
+    rows = [row("shop-fixed-000-none", "none", "success", change_kind="none"),
+            row("shop-fixed-000-L1", "none", "stale"),
+            row("shop-fixed-000-sold_out", "none", "no_commit", change_kind="target_removed"),
+            row("shop-fixed-001-sold_out", "none", "wrong_item", change_kind="target_removed")]
+    md = markdown(rows, n_boot=20)
+    section = md.split("## By change kind")[1].split("##")[0]
+    assert "| hierarchical | none | 100% of 1 | n/a | 0% of 1 | 50% of 2 |" in section
+
+
+def test_task_table_pivots_relevant_success_by_domain_and_kind():
+    rows = [row("shop-cheapest-000-L1", "none", "stale", kind="cheapest"),
+            row("inbox-relative-000-L1", "none", "success", kind="relative"),
+            row("inbox-fixed-000-none", "none", "success", change_kind="none", kind="fixed")]
+    section = markdown(rows, n_boot=20).split("## Relevant changes by task")[1].split("##")[0]
+    assert "| architecture | guard | inbox relative | shop cheapest |" in section
+    assert "| hierarchical | none | 100% of 1 | 0% of 1 |" in section

@@ -19,6 +19,18 @@ def _p(p: float) -> str:
     return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
 
 
+def _by_guard(rows: List[dict]) -> dict:
+    groups = {}
+    for r in rows:
+        groups.setdefault((r["architecture"], r["guard"]), []).append(r)
+    return groups
+
+
+def _share(rows: List[dict], change_kind: str, ok) -> str:
+    rs = [r for r in rows if r["change_kind"] == change_kind]
+    return f"{_pct(sum(map(ok, rs)) / len(rs))} of {len(rs)}" if rs else "n/a"
+
+
 def _table(header: List[str], lines: List[List[str]]) -> List[str]:
     out = ["| " + " | ".join(header) + " |", "|" + "---|" * len(header)]
     return out + ["| " + " | ".join(line) + " |" for line in lines]
@@ -34,6 +46,22 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
                   [[g["architecture"], g["guard"], str(g["relevant_n"]), _pct(g["relevant_success"]),
                     _pct(g["relevant_stale"]), str(g["harmless_n"]), _pct(g["harmless_success"]),
                     _pct(g["false_alarm"]), f"{g['calls']:.1f}"] for g in guard_summary(rows)])
+    out += ["", "## By change kind", "",
+            "Success on each kind of change. When the change removed the target there is no correct item, so the "
+            "column counts episodes that held off: no commit, or a guard abort.", ""]
+    out += _table(["architecture", "guard", "no change", "irrelevant", "relevant", "target removed: held off"],
+                  [[arch, guard, *[_share(rs, k, lambda r: r["outcome"] == "success")
+                                   for k in ("none", "irrelevant", "relevant")],
+                    _share(rs, "target_removed", lambda r: r["outcome"] in ("no_commit", "aborted"))]
+                   for (arch, guard), rs in _by_guard(rows).items()])
+    relevant = [r for r in rows if r["change_kind"] == "relevant"]
+    tasks = sorted({(r["domain"], str(r["kind"])) for r in relevant})
+    if tasks:
+        out += ["", "## Relevant changes by task", "", "Success on episodes whose change moved the target, per task.", ""]
+        out += _table(["architecture", "guard", *[f"{d} {k}" for d, k in tasks]],
+                      [[arch, guard, *[_share([r for r in rs if (r["domain"], str(r["kind"])) == t], "relevant",
+                                              lambda r: r["outcome"] == "success") for t in tasks]]
+                       for (arch, guard), rs in _by_guard(rows).items()])
     out += ["", "## Outcomes", ""]
     groups = sorted(rates(rows, by=("architecture", "guard", "domain", "kind", "change_kind")),
                     key=lambda g: (g["architecture"], g["guard"] != baseline, g["guard"], g["domain"],
