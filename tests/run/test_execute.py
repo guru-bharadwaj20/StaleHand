@@ -87,3 +87,21 @@ def test_env_is_closed_even_when_an_episode_fails(root):
     with pytest.raises(RuntimeError):
         execute(JOB, root / "w", root=root, load_model=models([]), make_env=lambda t: Boom(), backend="scripted")
     assert Boom.closed
+
+
+def test_delegated_architecture(root):
+    out = root / "runs" / "d"
+    execute(replace(JOB, architecture="delegated"), out, root=root, load_model=models([]),
+            make_env=lambda t: FakeEnv(), backend="scripted")
+    row = json.loads((out / "results.jsonl").read_text().splitlines()[0])
+    assert row["architecture"] == "delegated"
+
+
+def test_flat_architecture_loads_no_planner(root):
+    loaded = []
+    out = root / "runs" / "f"
+    execute(replace(JOB, architecture="flat", planner="none"), out, root=root, load_model=models(loaded),
+            make_env=lambda t: FakeEnv(), backend="scripted")
+    assert loaded == [("executor-m", "executor")]
+    assert json.loads((out / "config.json").read_text())["models"]["planner"] is None
+    assert json.loads((out / "results.jsonl").read_text().splitlines()[0])["planner_calls"] == 0

@@ -1,5 +1,5 @@
 from stalehand.agents.hierarchical import Hierarchical
-from stalehand.guards.base import ABORT, REPLAN, Guard
+from stalehand.guards.base import ABORT, PROCEED, REBIND, REPLAN, Guard
 from stalehand.models.base import ScriptedVLM
 from stalehand.scenarios.domains import inbox
 
@@ -116,3 +116,66 @@ def test_replanning_each_step_is_not_cut_short():
     t = Hierarchical(planner(*["click"] * 50), executor(*[CLICK] * 50), ReplanEveryStep(), max_steps=10,
                      max_replans=3).run(env, SCEN)
     assert t.end_reason == "max_steps" and len(env.actions) == 10
+
+
+class _Mode(Guard):
+    def __init__(self, mode):
+        self.planner_mode, self.seen = mode, []
+
+    def on_subtask(self, ctx):
+        self.seen.append(dict(ctx.extra))
+
+
+def test_bound_planner_gives_executor_the_target_and_guard_the_rule():
+    replies = ["Target rule: newest mail from Samuel Lee\nTarget: Q3 budget review\nAction: open it",
+               "Target rule: DONE"]
+    p = ScriptedVLM([], name="planner")
+    p.generate = lambda reqs: [replies.pop(0) for _ in reqs]
+    guard = _Mode("bound")
+    t = Hierarchical(p, executor("Action: finished(content='')"), guard, max_steps=5).run(FakeEnv(), SCEN)
+    sub = [e for e in t.entries if e["kind"] == "subtask"]
+    assert sub[0]["text"] == "open it - Q3 budget review" and sub[0]["rule"] == "newest mail from Samuel Lee"
+    assert guard.seen == [{"rule": "newest mail from Samuel Lee", "target": "Q3 budget review", "action": "open it"}]
+
+
+def test_rule_planner_passes_the_rule_to_the_guard():
+    replies = ["Target rule: newest mail from Samuel Lee\nAction: open it", "Target rule: DONE"]
+    p = ScriptedVLM([], name="planner")
+    p.generate = lambda reqs: [replies.pop(0) for _ in reqs]
+    guard = _Mode("rule")
+    Hierarchical(p, executor("Action: finished(content='')"), guard, max_steps=5).run(FakeEnv(), SCEN)
+    assert guard.seen == [{"rule": "newest mail from Samuel Lee"}]
+
+
+class _RebindAtStep1(Guard):
+    def before_think(self, ctx):
+        if ctx.step == 1 and ctx.subtask == "open the mail":
+            ctx.subtask = "open the other mail"
+            return REBIND
+        return PROCEED
+
+
+def test_rebind_switches_subtask_without_calling_the_planner():
+    p = planner("open the mail")
+    e = executor("Action: wait()", "Action: finished(content='')")
+    t = Hierarchical(p, e, _RebindAtStep1(), max_steps=5).run(FakeEnv(), SCEN)
+    subs = [x for x in t.entries if x["kind"] == "subtask"]
+    assert [s["text"] for s in subs] == ["open the mail", "open the other mail"]
+    assert subs[1]["rebound"] is True and subs[1]["step"] == 1
+    assert "open the other mail" in e.calls[1].prompt
+    assert t.calls_by_role()["planner"] == 2  # the first subtask, then DONE; no extra planner call
+
+
+def test_subtask_budget_returns_control_to_the_planner():
+    class Budget2(Hierarchical):
+        subtask_budget = 2
+
+        def _report(self, subtask, message):
+            return f"{subtask} [{'budget' if message is None else message}]"
+    p = planner("keep clicking", "then stop")
+    e = executor(CLICK, CLICK, CLICK, "Action: finished(content='ok')")
+    t = Budget2(p, e, Guard(), max_steps=10).run(FakeEnv(), SCEN)
+    subs = [(x["step"], x["text"]) for x in t.entries if x["kind"] == "subtask"]
+    assert subs == [(0, "keep clicking"), (2, "then stop")]
+    assert "keep clicking [budget]" in p.calls[1].prompt
+    assert "then stop [ok]" in p.calls[2].prompt

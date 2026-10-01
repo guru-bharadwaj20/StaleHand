@@ -14,7 +14,7 @@ is then judged against the final screen, which the agent never saw, so analyses 
 """
 from typing import Any, Dict, List, Optional
 
-FIRING = ("replan", "abort")
+FIRING = ("replan", "abort", "rebind")
 
 
 def _committing_event(scenario, events: List[dict]) -> Optional[dict]:

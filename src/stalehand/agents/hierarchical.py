@@ -4,20 +4,26 @@ works through it, one action per step, until it reports finished(); then the pla
 Guards hook in before the executor thinks and before it acts (see guards/base.py).
 """
 import time
-from typing import Optional
+from typing import Optional, Tuple
 
 from ..env.actions import Done, Wait
 from ..env.browser import VIEWPORT
-from ..guards.base import ABORT, REPLAN, Context, Guard
+from ..guards.base import ABORT, REBIND, REPLAN, Context, Guard
 from ..models import prompts
 from ..models.base import Request
-from ..models.text_parsers import parse_rule, parse_subtask
+from ..models.text_parsers import parse_bound, parse_rule, parse_subtask
 from ..models.uitars import parse_action
 from .trajectory import Trajectory
 
 
 class Hierarchical:
     architecture = "hierarchical"
+    plain_prompt = prompts.PLANNER   # planner template when the guard does not ask for rule or bound subtasks
+    subtask_budget = None            # executor actions allowed per subtask before control returns to the planner
+
+    def _report(self, subtask: str, message: Optional[str]) -> str:
+        """What the planner sees about a finished subtask; message is None when the step budget ran out."""
+        return subtask
 
     def __init__(self, planner, executor, guard: Guard, max_steps: int = 12, max_replans: int = 3,
                  executor_coords: str = "abs", planner_tokens: int = 160, executor_tokens: int = 256):
@@ -31,16 +37,21 @@ class Hierarchical:
         traj.model_call(step=step, role=role, model=model.name, output=out, seconds=time.perf_counter() - t0)
         return out
 
-    def _plan(self, task: str, finished, png: bytes, step: int, traj: Trajectory) -> Optional[str]:
+    def _plan(self, task: str, finished, png: bytes, step: int, traj: Trajectory) -> Optional[Tuple[str, dict]]:
+        """(subtask, extra fields for the guard), or None when the planner says the task is done."""
         history = "; ".join(finished) if finished else "none"
-        if self.guard.planner_mode == "rule":
-            out = self._call(self.planner, "planner", Request(prompts.RULE_PLANNER.format(task=task, history=history),
-                                                              png, self.planner_tokens), step, traj)
+        mode = self.guard.planner_mode
+        template = {"rule": prompts.RULE_PLANNER, "bound": prompts.BOUND_PLANNER}.get(mode, self.plain_prompt)
+        out = self._call(self.planner, "planner", Request(template.format(task=task, history=history), png,
+                                                          self.planner_tokens), step, traj)
+        if mode == "rule":
             parsed = parse_rule(out)
-            return None if parsed is None else parsed[0]
-        out = self._call(self.planner, "planner", Request(prompts.PLANNER.format(task=task, history=history),
-                                                          png, self.planner_tokens), step, traj)
-        return parse_subtask(out)
+            return None if parsed is None else (parsed[0], {"rule": parsed[1]})
+        if mode == "bound":
+            parsed = parse_bound(out)
+            return None if parsed is None else (parsed[0], dict(zip(("rule", "target", "action"), parsed[1:])))
+        text = parse_subtask(out)
+        return None if text is None else (text, {})
 
     def run(self, env, scenario) -> Trajectory:
         traj = Trajectory(scenario.id, self.architecture, self.guard.name)
@@ -48,12 +59,13 @@ class Hierarchical:
         finished, replans = [], {}  # replans per env step; only repeated re-planning without acting is bounded
 
         def new_subtask(o) -> Optional[Context]:
-            text = self._plan(scenario.task, finished, o.png, o.step, traj)
-            if text is None:
+            planned = self._plan(scenario.task, finished, o.png, o.step, traj)
+            if planned is None:
                 return None
-            traj.subtask(step=o.step, text=text)
+            text, extra = planned
+            traj.subtask(step=o.step, text=text, **extra)
             c = Context(env=env, task=scenario.task, subtask=text, subtask_step=o.step, subtask_png=o.png,
-                        step=o.step, png=o.png, trajectory=traj)
+                        step=o.step, png=o.png, trajectory=traj, extra=extra)
             self.guard.on_subtask(c)
             return c
 
@@ -73,6 +85,8 @@ class Hierarchical:
                     return self._end(traj, env, "max_replans")
                 ctx, history = new_subtask(obs), []
                 continue
+            if decision == REBIND:
+                traj.subtask(step=obs.step, text=ctx.subtask, rebound=True, **ctx.extra)
             req = Request(prompts.EXECUTOR.format(instruction=ctx.subtask,
                                                   history="\n".join(history) if history else "none"),
                           obs.png, self.executor_tokens)
@@ -80,7 +94,7 @@ class Hierarchical:
             action = parse_action(raw, VIEWPORT, self.coords)
             if isinstance(action, Done):
                 traj.action(step=obs.step, action=action, raw=raw)
-                finished.append(ctx.subtask)
+                finished.append(self._report(ctx.subtask, action.message))
                 ctx, history = new_subtask(obs), []
                 continue
             env.begin_action()
@@ -99,6 +113,9 @@ class Hierarchical:
             traj.action(step=obs.step, action=action, raw=raw)
             obs = env.act(action if action is not None else Wait())
             history.append(f"{len(history) + 1}. {raw.strip().splitlines()[-1] if raw.strip() else 'none'}")
+            if self.subtask_budget is not None and len(history) >= self.subtask_budget:
+                finished.append(self._report(ctx.subtask, None))
+                ctx, history = new_subtask(obs), []
         return self._end(traj, env, "planner_done")
 
     @staticmethod

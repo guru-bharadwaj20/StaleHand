@@ -4,6 +4,7 @@ import re
 from .base import Guard
 from .dom import DomChange
 from .pixel import PixelChange
+from .rebind import Rebind
 from .replan import ReplanEveryStep
 from .rule import RuleSubtask
 from .self_check import SelfCheck
@@ -20,6 +21,11 @@ def make(name: str, checker=None) -> Guard:
         if checker is None:
             raise ValueError("self_check needs a checker model")
         return SelfCheck(checker)
+    m = re.fullmatch(r"rebind_(step|dom)", name)
+    if m:
+        if checker is None:
+            raise ValueError(f"{name} needs a resolver model")
+        return Rebind(checker, trigger=m.group(1))
     m = re.fullmatch(r"dom_(step|subtask)_(abort|replan)", name)
     if m:
         return DomChange(scope=m.group(1), on_change=m.group(2))

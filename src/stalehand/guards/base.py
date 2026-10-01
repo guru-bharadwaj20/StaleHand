@@ -3,12 +3,13 @@
 A guard sees two moments per executor step:
   before_think  the executor has a fresh screenshot but has not been called yet (cheap place to re-plan)
   before_act    the executor chose an action; the page may have changed since its screenshot (mid_step timing)
-Each returns "proceed", "replan" or "abort".
+Each returns "proceed", "replan" or "abort". A guard that rewrote ctx.subtask itself, without the planner, returns
+"rebind"; the agent then carries on with the new subtask.
 """
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-PROCEED, REPLAN, ABORT = "proceed", "replan", "abort"
+PROCEED, REPLAN, ABORT, REBIND = "proceed", "replan", "abort", "rebind"
 
 
 @dataclass
