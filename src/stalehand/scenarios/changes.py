@@ -48,3 +48,16 @@ def _remove(change: Remove, items: List[Item]) -> List[Item]:
     if missing:
         raise ValueError(f"cannot remove missing ids {sorted(missing)}")
     return [it for it in items if it.id not in change.ids]
+
+
+@dataclass(frozen=True)
+class Update:
+    id: str
+    attrs: Dict[str, object]
+
+
+@_applies(Update)
+def _update(change: Update, items: List[Item]) -> List[Item]:
+    if change.id not in {it.id for it in items}:
+        raise ValueError(f"cannot update missing id {change.id}")
+    return [Item(it.id, {**it.attrs, **change.attrs}) if it.id == change.id else it for it in items]

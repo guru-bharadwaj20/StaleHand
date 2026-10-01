@@ -39,3 +39,16 @@ def test_remove_missing_id_is_rejected():
     from stalehand.scenarios.changes import Remove
     with pytest.raises(ValueError):
         apply(BASE, Remove(("zz",)))
+
+
+def test_update_merges_attributes():
+    from stalehand.scenarios.changes import Update
+    out = apply(BASE, Update("b", {"v": 20, "sale": True}))
+    assert dict(out[1].attrs) == {"v": 20, "sale": True}
+    assert out[0] is BASE[0] and out[2] is BASE[2]
+
+
+def test_update_missing_id_is_rejected():
+    from stalehand.scenarios.changes import Update
+    with pytest.raises(ValueError):
+        apply(BASE, Update("zz", {"v": 1}))
