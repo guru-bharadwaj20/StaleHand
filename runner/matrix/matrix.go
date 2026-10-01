@@ -24,7 +24,7 @@ type Matrix struct {
 }
 
 // ChangeTimings are the moments a scheduled change can land (see stalehand/env/browser.py).
-var ChangeTimings = map[string]bool{"before_observation": true, "mid_step": true}
+var ChangeTimings = map[string]bool{"before_observation": true, "mid_step": true, "after_handoff": true}
 
 // Job is one run of one scenario file under one configuration.
 type Job struct {

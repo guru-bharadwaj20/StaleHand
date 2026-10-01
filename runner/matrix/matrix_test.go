@@ -89,3 +89,10 @@ func TestUnknownTimingIsAnError(t *testing.T) {
 		t.Fatal("expected an error for an unknown timing")
 	}
 }
+
+func TestAfterHandoffIsAKnownTiming(t *testing.T) {
+	m := strings.Replace(sample, `"max_steps": 8`, `"max_steps": 8, "timings": ["after_handoff"]`, 1)
+	if _, err := Parse(strings.NewReader(m)); err != nil {
+		t.Fatal(err)
+	}
+}
