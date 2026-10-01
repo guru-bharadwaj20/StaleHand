@@ -8,6 +8,7 @@ dist/
 runs/
 renders/
 *.png
+!results/figures/*.png
 !docs/img/*.png
 node_modules/
 apps/dist/
