@@ -1,0 +1,29 @@
+{
+  "name": "pilot_shop_rerun",
+  "scenarios": [
+    "experiments/pilot/shards_shop_rerun/shop-relative-00.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-01.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-02.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-03.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-04.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-05.jsonl",
+    "experiments/pilot/shards_shop_rerun/shop-relative-06.jsonl"
+  ],
+  "architectures": [
+    "hierarchical"
+  ],
+  "guards": [
+    "none",
+    "replan_every_step"
+  ],
+  "planners": [
+    "qwen3-vl-8b"
+  ],
+  "executors": [
+    "ui-tars-1.5-7b"
+  ],
+  "seeds": [
+    0
+  ],
+  "max_steps": 12
+}
