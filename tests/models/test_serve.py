@@ -61,3 +61,30 @@ def test_malformed_body_is_a_400(served):
     with pytest.raises(urllib.error.HTTPError) as e:
         urllib.request.urlopen(req)
     assert e.value.code == 400
+
+
+def test_openai_client_reads_revision_from_server(served):
+    url, _ = served
+    assert OpenAICompatVLM("Qwen/Qwen3-VL-8B-Instruct", base_url=url).revision == "abc123"
+
+
+def test_revision_is_none_when_server_does_not_say(server_without_revision):
+    assert OpenAICompatVLM("m", base_url=server_without_revision).revision is None
+
+
+
+class Plain:
+    """Like vLLM: no revision to report."""
+    name = "m"
+
+    def generate(self, requests):
+        return ["ok" for _ in requests]
+
+
+@pytest.fixture
+def server_without_revision():
+    httpd = make_server(Plain(), "127.0.0.1", 0)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    yield f"http://127.0.0.1:{httpd.server_port}/v1"
+    httpd.shutdown()
+    httpd.server_close()
