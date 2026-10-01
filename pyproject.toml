@@ -14,7 +14,7 @@ dependencies = []
 render = ["playwright>=1.45", "pillow>=10"]
 stats = ["numpy>=1.26", "scipy>=1.11"]
 models = ["torch>=2.3", "transformers>=4.57"]
-dev = ["pytest>=8", "jsonschema>=4.20"]
+dev = ["pytest>=8", "jsonschema>=4.20", "pillow>=10"]
 
 [project.scripts]
 stalehand = "stalehand.cli:main"
