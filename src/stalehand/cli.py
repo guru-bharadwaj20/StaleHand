@@ -88,6 +88,16 @@ def _contrasts(args) -> int:
     return 0
 
 
+def _final(args) -> int:
+    from pathlib import Path
+
+    from .report.final import render, values
+    text = render(Path(args.template).read_text(), values(args.results, args.sets, n_boot=args.n_boot, seed=args.seed))
+    Path(args.out).write_text(text)
+    print(f"wrote {args.out}")
+    return 0
+
+
 def _readme(args) -> int:
     from .report.readme import section, splice
     with open(args.readme, encoding="utf-8") as f:
@@ -141,6 +151,14 @@ def build_parser() -> argparse.ArgumentParser:
     cp.add_argument("--n-boot", type=int, default=10000)
     cp.add_argument("--seed", type=int, default=0)
     cp.set_defaults(func=_contrasts)
+    fp = sub.add_parser("final", help="render the final report template with numbers from result files")
+    fp.add_argument("--results", required=True, help="directory holding the run-set directories")
+    fp.add_argument("--sets", nargs="+", required=True, help="run sets; the first is the reference for pairing")
+    fp.add_argument("--template", required=True)
+    fp.add_argument("--out", required=True)
+    fp.add_argument("--n-boot", type=int, default=10000)
+    fp.add_argument("--seed", type=int, default=0)
+    fp.set_defaults(func=_final)
     rd = sub.add_parser("readme", help="rebuild the results section of README.md from result files")
     rd.add_argument("--results", default="results")
     rd.add_argument("--readme", default="README.md")

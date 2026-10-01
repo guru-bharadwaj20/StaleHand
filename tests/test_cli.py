@@ -115,3 +115,17 @@ def test_contrasts_command_reads_several_run_sets(tmp_path):
     assert main(["contrasts", "--runs", str(tmp_path / "main"), str(tmp_path / "delegated"), "--out", str(out),
                  "--n-boot", "20"]) == 0
     assert "## Architecture: `delegated` against `hierarchical`" in out.read_text()
+
+
+def test_final_command_renders_template_from_results(tmp_path):
+    run = tmp_path / "res" / "main" / "job1"
+    run.mkdir(parents=True)
+    (run / "config.json").write_text(json.dumps({"job": {"change_timing": "after_handoff"}}))
+    row = {"scenario_id": "shop-cheapest-000-L1", "guard": "none", "outcome": "stale", "change_kind": "relevant",
+           "kind": "cheapest", "false_alarm": False, "planner_calls": 1, "architecture": "hierarchical"}
+    (run / "results.jsonl").write_text(json.dumps(row) + "\n")
+    (tmp_path / "t.md").write_text("Stale {{main.none.relevant_stale}} of the time.\n")
+    out = tmp_path / "REPORT.md"
+    assert main(["final", "--results", str(tmp_path / "res"), "--sets", "main", "--template", str(tmp_path / "t.md"),
+                 "--out", str(out), "--n-boot", "20"]) == 0
+    assert out.read_text() == "Stale 100% of the time.\n"
