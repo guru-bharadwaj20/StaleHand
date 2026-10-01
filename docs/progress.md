@@ -4,14 +4,16 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
 
 ## Blocked
 
-- **Second-family experiments (`results/guru-4500/`)**, 2026-10-01. Not run: the main matrices they rerun do not
-  exist yet, and `stalehand run-job` (the entry point the runner calls) is still open. Ready on Guru's side:
-  `internvl3.5-8b` in the model registry and `scripts/ada/` to serve it next to the planner. Unblocks once
-  `run-job` lands and the main inbox and shop comparison has a config to rerun.
-  Checked on the Ada on 2026-10-01: `scripts/ada/setup.sh` installs vLLM 0.30.0 with CUDA available, and
-  `scripts/ada/download.sh` fetched Qwen/Qwen3-VL-8B-Instruct at 0c351dd01ed87e9c1b53cbc748cba10e6187ff3b and
-  OpenGVLab/InternVL3_5-8B at 9bb6a56ad9cc69db95e2d4eeb15a52bbcac4ef79. Serving was not started: another
-  project's vLLM server held 22.9 of 24.5 GB on the card and was left running.
+- **Second-family experiments and new-domain guard comparison (`results/guru-4500/`)**, 2026-10-01. Not run.
+  The configs are ready: `experiments/second_family/matrix.json` and `matrix_timing.json` (the main and timing
+  matrices with `internvl3.5-8b` as executor) and `experiments/domains/` (60 scenarios each for files, tickets,
+  calendar and chat, change at step 0, the main matrix's eight guards, UI-TARS executor). `stalerun` now builds
+  on Windows, so jobs can run on the Ada next to Chrome. What blocks them is memory: in fp8 with an 8192-token
+  context, vLLM 0.30.0 could not fit Qwen3-VL-8B in 0.45, 0.48 or 0.5 of the card ("Available KV cache memory:
+  -1.04 GiB" at 0.48, after 9.9 GiB of weights), so a planner and an executor cannot share the 24 GB card as
+  `scripts/ada/pair.sh` assumes. Options: serve the planner from another machine (a lab 4090 through
+  `scripts/lab/tunnel.sh`), or use a smaller planner, which would change the comparison with the main results.
+  Port 8000 on the Ada was also held by another project's vLLM server; it was left running.
 
 ## Discarded or partial runs
 
