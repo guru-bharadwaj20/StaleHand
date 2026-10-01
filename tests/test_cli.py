@@ -54,3 +54,22 @@ def test_module_entry_point_runs_the_cli():
     r = subprocess.run([sys.executable, "-m", "stalehand", "--help"], capture_output=True, text=True,
                        env={**os.environ, "PYTHONPATH": src})
     assert r.returncode == 0 and "run-job" in r.stdout
+
+
+def test_serve_loads_the_named_model_and_listens(monkeypatch):
+    from stalehand.models import hf, serve
+    seen = {}
+
+    class Fake:
+        def __init__(self, model_id, batch):
+            seen.update(model_id=model_id, batch=batch)
+
+    class Server:
+        def serve_forever(self):
+            seen["served"] = True
+
+    monkeypatch.setattr(hf, "HFVLM", Fake)
+    monkeypatch.setattr(serve, "make_server", lambda m, host, port: seen.update(host=host, port=port) or Server())
+    assert main(["serve", "--model", "ui-tars-1.5-7b", "--port", "8002"]) == 0
+    assert seen == {"model_id": "ByteDance-Seed/UI-TARS-1.5-7B", "batch": 1, "host": "0.0.0.0", "port": 8002,
+                    "served": True}

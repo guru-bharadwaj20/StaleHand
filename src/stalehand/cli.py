@@ -4,6 +4,7 @@ import os
 import sys
 from typing import List, Optional
 
+from .models.registry import MODELS
 from .scenarios import registry
 from .scenarios.export import write_jsonl
 
@@ -38,6 +39,15 @@ def _run_job(args) -> int:
     return 0
 
 
+def _serve(args) -> int:
+    from .models import hf, serve
+    model = hf.HFVLM(MODELS[args.model].hf_id, batch=1)
+    httpd = serve.make_server(model, args.host, args.port)
+    print(f"serving {MODELS[args.model].hf_id} on {args.host}:{args.port}", flush=True)
+    httpd.serve_forever()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="stalehand")
     sub = p.add_subparsers(dest="command", required=True)
@@ -55,6 +65,11 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--out", required=True, help="run directory; a rerun resumes it")
     r.add_argument("--root", default=".", help="directory that scenario paths are relative to")
     r.set_defaults(func=_run_job)
+    v = sub.add_parser("serve", help="serve one model over an OpenAI-compatible HTTP API (transformers, no vLLM)")
+    v.add_argument("--model", required=True, choices=sorted(MODELS), help="short name from the model registry")
+    v.add_argument("--host", default="0.0.0.0")
+    v.add_argument("--port", type=int, default=8000)
+    v.set_defaults(func=_serve)
     return p
 
 
