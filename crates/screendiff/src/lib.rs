@@ -2,3 +2,4 @@
 //! subtask was written and the moment the executor acts?
 pub mod gray;
 pub mod diff;
+pub mod ssim;
