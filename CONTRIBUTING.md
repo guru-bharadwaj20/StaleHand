@@ -34,7 +34,7 @@ Runs stay on their owner's machines and write to separate result directories (`r
 | ❌ | Delegated agent (orchestrator and GUI operator, CoAct-1 style) | `src/stalehand/agents/delegated.py` |
 | ❌ | Flat agent (one policy per step, Agent S3 style), as a reference | `src/stalehand/agents/flat.py` |
 | ❌ | Rebind guard: re-resolve the rule each step, re-plan only if the target moved | `src/stalehand/guards/rebind.py` |
-| ❌ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | `src/stalehand/metrics/stats.py` |
+| ✅ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | `src/stalehand/metrics/stats.py` |
 | ❌ | Runner provenance (git commit, model revisions, library versions) and result collection | `runner/`, `src/stalehand/run/` |
 | ❌ | Model serving scripts for the lab boxes | `scripts/lab/` |
 | ❌ | Pilot replication in the live environment (gate: stale subtask well below fresh on relative tasks) | `results/vivian-4090/` |
