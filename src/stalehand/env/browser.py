@@ -16,6 +16,12 @@ VIEWPORT = (1288, 728)  # multiples of 28, so Qwen2.5-VL style encoders see the 
 
 Box = Tuple[float, float, float, float]
 
+_MUTATIONS_JS = """() => {
+  window.__stalehandMutations = 0;
+  new MutationObserver((records) => { window.__stalehandMutations += records.length; })
+    .observe(document.body, {subtree: true, childList: true, attributes: true, characterData: true});
+}"""
+
 _BOXES_JS = """() => {
   const out = {};
   for (const el of document.querySelectorAll('[data-item-id][data-role]')) {
@@ -51,6 +57,7 @@ class BrowserEnv:
         self._page = self._browser.new_page(viewport={"width": VIEWPORT[0], "height": VIEWPORT[1]})
         self._page.goto(app_url(scenario.domain))
         self._page.evaluate("s => window.stalehand.load(s)", scenario_to_dict(scenario))
+        self._page.evaluate(_MUTATIONS_JS)
         self.scenario, self.step = scenario, 0
         self._apply_due_changes()
         return self.observe()
@@ -78,6 +85,13 @@ class BrowserEnv:
         self.step += 1
         self._apply_due_changes()
         return self.observe()
+
+    def mark_mutations(self) -> None:
+        """Start counting DOM mutations from now (used by guards that block on any page change)."""
+        self._page.evaluate("window.__stalehandMutations = 0")
+
+    def mutations_since_mark(self) -> int:
+        return self._page.evaluate("window.__stalehandMutations")
 
     def item_boxes(self) -> Dict[str, Box]:
         """Visible part of every item element, in screen pixels: {item_id: (x, y, w, h)}."""

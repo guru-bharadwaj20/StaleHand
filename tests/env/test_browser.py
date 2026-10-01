@@ -55,3 +55,20 @@ def test_shop_add_to_cart_is_a_commit(env):
     env.act(centre(env.item_boxes()[s.stale_target]))
     env.act(centre(env.role_box("add-to-cart")))
     assert env.commits()[-1]["itemId"] == s.stale_target
+
+
+def test_mutations_counted_since_mark(env):
+    s = inbox.build(seed=0, kind="relative", index=0, variant="L0", change_step=1)
+    env.reset(s)
+    env.mark_mutations()
+    assert env.mutations_since_mark() == 0
+    env.act(Click(5, 5))  # irrelevant arrivals land at step 1
+    assert env.mutations_since_mark() > 0
+
+
+def test_cosmetic_change_also_mutates_dom(env):
+    s = inbox.build(seed=0, kind="relative", index=0, variant="cosmetic", change_step=1)
+    env.reset(s)
+    env.mark_mutations()
+    env.act(Click(5, 5))
+    assert env.mutations_since_mark() > 0
