@@ -9,7 +9,7 @@ merge without waiting on the other. ✅ means done and merged; ❌ means still t
 
 | Person | Machines | Used for |
 |---|---|---|
-| Vivian | two lab RTX 4090 boxes (24 GB each), laptop | inbox and shop experiments, pilot replication |
+| Vivian | two lab RTX 4090 boxes (24 GB each), a lab box with 4x GTX 1080 (8 GB each, no bf16), laptop | inbox and shop experiments, pilot replication; the 1080s take models up to about 2B, quantized arms and CPU or browser work |
 | Guru | RTX 4500 Ada workstation | new domains, second model family, results site |
 
 Runs stay on their owner's machines and write to separate result directories (`results/vivian-4090/`,
