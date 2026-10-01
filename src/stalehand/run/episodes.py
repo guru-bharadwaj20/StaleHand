@@ -45,7 +45,8 @@ def run_episodes(job, scenarios: Sequence, agent, env, out_dir, log=print) -> in
             continue
         traj = agent.run(env, s)
         row = score(s, traj)
-        row["run"] = {"job": job.id, "seed": job.seed, "planner": job.planner, "executor": job.executor}
+        row["run"] = {"job": job.id, "seed": job.seed, "planner": job.planner, "executor": job.executor,
+                      "change_timing": job.change_timing}
         results.add(row, traj)
         ran += 1
         log(f"{len(results.done)}/{len(scenarios)} {s.id} {row['outcome']} ({row['end_reason']})")

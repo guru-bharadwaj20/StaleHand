@@ -40,7 +40,8 @@ def test_writes_one_scored_row_and_trajectory_per_scenario(tmp_path):
     assert {x["outcome"] for x in r} == {"stale"}
     for x in r:
         jsonschema.validate(x, SCHEMA)
-    assert r[0]["run"] == {"job": "83d285fd1485", "seed": 7, "planner": "p", "executor": "e"}
+    assert r[0]["run"] == {"job": "83d285fd1485", "seed": 7, "planner": "p", "executor": "e",
+                           "change_timing": "before_observation"}
     saved = json.loads((tmp_path / "trajectories" / f"{SCEN[0].id}.json").read_text())
     assert saved["end_reason"] == "planner_done"
 
