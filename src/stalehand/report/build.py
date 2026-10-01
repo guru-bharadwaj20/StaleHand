@@ -70,6 +70,16 @@ def markdown(rows: List[dict], baseline: str = "none", n_boot: int = 10000, seed
                   [[g["architecture"], g["guard"], g["domain"], str(g["kind"]), g["change_kind"], str(g["n"]),
                     *[_pct(g[f"{c}_rate"]) for c in COLUMNS], f"{g['planner_calls']:.1f}"] for g in groups])
 
+    out += ["", "## Cost per episode", "",
+            "Means per episode. Model seconds add up the latency of every model call, so they include time spent "
+            "waiting in a shared server's batch; compare them within one run set only.", ""]
+    mean = lambda rs, k: f"{sum(r.get(k, 0) for r in rs) / len(rs):.1f}"
+    out += _table(["architecture", "guard", "planner calls", "checker calls", "executor calls", "model seconds",
+                   "actions"],
+                  [[arch, guard, *[mean(rs, k) for k in ("planner_calls", "checker_calls", "executor_calls",
+                                                         "model_seconds", "env_steps")]]
+                   for (arch, guard), rs in _by_guard(rows).items()])
+
     out += ["", "## False alarms on harmless changes", ""]
     fa = rates(rows, by=("architecture", "guard"))
     out += _table(["architecture", "guard", "harmless episodes", "false alarm rate", "planner calls"],

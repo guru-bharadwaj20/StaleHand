@@ -12,12 +12,12 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 3 | Web apps and environment | M2, M3 | 90 | 4 | 1 | ❌ |
 | 4 | Models and agents | M4, M5 | 85 | 8 | 0 | ✅ |
 | 5 | Guards | M6 | 55 | 4 | 0 | ✅ |
-| 6 | Metrics and statistics | M7 | 40 | 3 | 1 | ❌ |
+| 6 | Metrics and statistics | M7 | 40 | 4 | 0 | ✅ |
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 8 | 10 | ❌ |
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
-| | **Total** | | **495** | **46** | **15** | **75% done** |
+| | **Total** | | **495** | **47** | **14** | **77% done** |
 
 Remaining work: **16 tasks**, split 10 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
 
@@ -77,7 +77,7 @@ every commit is one real change (see [Commits](#commits)).
 | ✅ | Episode outcome scoring | Vivian | `src/stalehand/metrics/outcome.py` |
 | ✅ | Paired statistics: exact McNemar, cluster bootstrap over scenario templates | Vivian | `src/stalehand/metrics/stats.py` |
 | ✅ | `stalestats` crate, checked against the Python statistics on the same files | Guru | `crates/stalestats/` |
-| ❌ | Full cost accounting: tokens, wall-clock time and planner calls per episode, in the report tables | Vivian | `src/stalehand/metrics/`, `src/stalehand/report/` |
+| ✅ | Full cost accounting: model calls, model seconds and actions per episode in every guard report; output and image tokens recounted from trajectories (prompt text was not logged) | Vivian | `src/stalehand/report/build.py`, `experiments/analysis/tokens.py`, `results/vivian-4090/tokens_report.md` |
 
 **Gate:** every number in a summary table can be traced to a JSONL row.
 
@@ -152,7 +152,7 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | 5 | ❌ Run the flat reference in bf16 (queued) | ❌ Second-family hierarchical runs (blocked on memory) |
 | 6 | ✅ Change-kind and task-kind breakdowns | ❌ Eight-guard comparison on the new domains (blocked on memory) |
 | 7 | ❌ Combined final report | |
-| 8 | ❌ Full cost accounting | |
+| 8 | ✅ Full cost accounting | |
 | 9 | ❌ Static render mode | |
 | 10 | ❌ Choose a license | |
 

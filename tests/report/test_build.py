@@ -79,3 +79,12 @@ def test_task_table_pivots_relevant_success_by_domain_and_kind():
     section = markdown(rows, n_boot=20).split("## Relevant changes by task")[1].split("##")[0]
     assert "| architecture | guard | inbox relative | shop cheapest |" in section
     assert "| hierarchical | none | 100% of 1 | 0% of 1 |" in section
+
+
+def test_cost_table_averages_calls_seconds_and_steps_per_episode():
+    rows = [dict(row("shop-cheapest-000-L1", "none", "stale"), executor_calls=4, checker_calls=0, model_seconds=10.0,
+                 env_steps=3),
+            dict(row("shop-cheapest-001-L1", "none", "stale"), executor_calls=6, checker_calls=2, model_seconds=20.0,
+                 env_steps=5)]
+    section = markdown(rows, n_boot=20).split("## Cost per episode")[1].split("##")[0]
+    assert "| hierarchical | none | 1.0 | 1.0 | 5.0 | 15.0 | 4.0 |" in section
