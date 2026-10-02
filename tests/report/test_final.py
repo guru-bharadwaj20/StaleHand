@@ -72,3 +72,26 @@ def test_values_include_recovery_after_a_missed_first_open(tmp_path):
     v = values(tmp_path, ["main", "timing"], n_boot=20)
     assert v["timing.none.first_open_missed"] == "100%"
     assert v["timing.none.recovered"] == "50%" and v["timing.none.wrong_after_miss"] == "50%"
+
+
+def test_values_include_success_per_domain_and_steps_ran_out(tmp_path):
+    rows = [row("files-a-000-none", "none", "no_commit", "none"), row("files-a-001-none", "none", "no_commit", "none"),
+            row("calendar-a-000-none", "none", "success", "none"), row("calendar-a-001-L1", "none", "stale")]
+    rows[0]["end_reason"] = rows[1]["end_reason"] = "max_steps"
+    write(tmp_path, "domains", rows)
+    v = values(tmp_path, ["domains"], n_boot=20)
+    assert v["domains.none.domain.files.success"] == "0%"
+    assert v["domains.none.domain.files.n"] == "2"
+    assert v["domains.none.domain.files.max_steps"] == "100%"
+    assert v["domains.none.domain.calendar.success"] == "50%"
+    assert v["domains.none.domain.calendar.max_steps"] == "0%"
+
+
+def test_values_include_share_of_executor_calls_that_did_not_parse(tmp_path):
+    rows = [row("inbox-a-000-none", "none", "success", "none"), row("inbox-a-001-none", "none", "no_commit", "none")]
+    rows[0].update(parse_failures=1, executor_calls=4)
+    rows[1].update(parse_failures=3, executor_calls=4)
+    write(tmp_path, "flat_x", rows)
+    v = values(tmp_path, ["flat_x"], n_boot=20)
+    assert v["flat_x.none.parse_failures"] == "50%"
+    assert v["flat_x.none.executor_calls"] == "8"

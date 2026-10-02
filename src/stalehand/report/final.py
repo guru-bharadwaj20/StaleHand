@@ -30,6 +30,22 @@ def values(root, run_sets: List[str], n_boot: int = 10000, seed: int = 0) -> Dic
                 x = g[m]
                 out[f"{name}.{g['guard']}.{m}"] = str(x) if m.endswith("_n") else _pct(x)
             out[f"{name}.{g['guard']}.calls"] = f"{g['calls']:.1f}"
+        # per domain (the scenario id's first part) and guard: success and episodes that ran out of steps
+        by_domain = {}
+        for r in rs:
+            by_domain.setdefault((r["guard"], r["scenario_id"].split("-")[0]), []).append(r)
+        for (guard, domain), ds in by_domain.items():
+            key = f"{name}.{guard}.domain.{domain}"
+            out[f"{key}.n"] = str(len(ds))
+            out[f"{key}.success"] = _pct(sum(r["outcome"] == "success" for r in ds) / len(ds))
+            out[f"{key}.max_steps"] = _pct(sum(r.get("end_reason") == "max_steps" for r in ds) / len(ds))
+        # share of executor replies the action parser could not read
+        for guard in dict.fromkeys(r["guard"] for r in rs):
+            calls = sum(r.get("executor_calls", 0) for r in rs if r["guard"] == guard)
+            if calls:
+                out[f"{name}.{guard}.executor_calls"] = str(calls)
+                out[f"{name}.{guard}.parse_failures"] = _pct(
+                    sum(r.get("parse_failures", 0) for r in rs if r["guard"] == guard) / calls)
         loops = loop_rows(Path(root) / name)
         for guard in dict.fromkeys(r["guard"] for r in loops):
             rs = [r for r in loops if r["guard"] == guard]
