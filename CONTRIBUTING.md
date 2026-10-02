@@ -133,7 +133,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | ✅ | Paired contrasts across run sets (architecture, change timing), Holm-adjusted | Vivian | `src/stalehand/report/contrasts.py` |
 | ✅ | Results explorer: static site that reads and validates result JSONL | Guru | `site/` |
 | ✅ | Load tonight's lab results (main, timing, delegated, flat, domains) into the explorer as they land (built in from `results/` on every build; later runs load on rebuild) | Guru | `site/` |
-| ❌ | Combined final report across both machines' results | Guru | `src/stalehand/report/` |
+| ✅ | Combined final report across both machines' results | Guru | `src/stalehand/report/` |
 | ✅ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
 | ✅ | Results section in `README.md`, generated from result files | Guru | `README.md` |
 | ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
@@ -146,7 +146,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | # | Vivian | Guru |
 |---|---|---|
 | 1 | ✅ Run the change-timing study | ✅ Load tonight's results into the explorer |
-| 2 | ✅ Run the stall-return ablation | ❌ Combined final report |
+| 2 | ✅ Run the stall-return ablation | ✅ Combined final report |
 | 3 | ✅ Run the delegated architecture | ❌ Choose a license |
 | 4 | ❌ Finish the three-guard comparison on the new domains (partial) | |
 | 5 | ✅ Run the flat reference in bf16 | |
