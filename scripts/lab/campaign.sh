@@ -37,17 +37,31 @@ ensure_executor() {
   TIMEOUT=1800 scripts/lab/wait.sh 8002
 }
 
-ensure_planner() {   # our planner server on the planner box, plus the tunnel that shows it here on :8001
-  local want="$1"
+served_id() {   # model id the server tunnelled to :PORT reports, or nothing
+  curl -sf "http://127.0.0.1:$1/v1/models" 2> /dev/null \
+    | python3 -c 'import json,sys;print(json.load(sys.stdin)["data"][0]["id"])' 2> /dev/null
+}
+
+ensure_planner() {   # the planner box serves WANT, tunnelled here on :8001
+  local want="$1" want_id waited=0
   [ "$want" = none ] && return 0
-  # shellcheck disable=SC2029
-  ssh -o BatchMode=yes "$planner_ssh" "cd ~/stalehand && export PYTHON='${PLANNER_PYTHON:-python3}' \
-    EXTRA_PYTHONPATH='${PLANNER_EXTRA:-}' MAX_BATCH='${MAX_BATCH:-16}' && \
-    have=\$(for f in ~/.stalehand/lab/*-8001.pid; do [ -f \"\$f\" ] && kill -0 \"\$(cat \"\$f\")\" 2>/dev/null && basename \"\$f\" -8001.pid; done) && \
-    if [ \"\$have\" != '$want' ]; then scripts/lab/stop.sh; scripts/lab/serve.sh '$want' 8001; fi && \
-    TIMEOUT=1800 scripts/lab/wait.sh 8001 && scripts/lab/tunnel.sh 8001 '${AGENT_SSH:?set AGENT_SSH to user@this-box}'" \
-    || return 1
-  TIMEOUT=600 scripts/lab/wait.sh 8001
+  want_id="$(python3 -c 'import sys;from stalehand.models.registry import MODELS;print(MODELS[sys.argv[1]].hf_id)' "$want")"
+  [ "$(served_id 8001)" = "$want_id" ] && return 0
+  if [ "$planner_ssh" != - ]; then
+    # shellcheck disable=SC2029
+    ssh -o BatchMode=yes "$planner_ssh" "cd ~/stalehand && export PYTHON='${PLANNER_PYTHON:-python3}' \
+      EXTRA_PYTHONPATH='${PLANNER_EXTRA:-}' MAX_BATCH='${MAX_BATCH:-16}' && \
+      have=\$(for f in ~/.stalehand/lab/*-8001.pid; do [ -f \"\$f\" ] && kill -0 \"\$(cat \"\$f\")\" 2>/dev/null && basename \"\$f\" -8001.pid; done) && \
+      if [ \"\$have\" != '$want' ]; then scripts/lab/stop.sh; scripts/lab/serve.sh '$want' 8001; fi && \
+      TIMEOUT=1800 scripts/lab/wait.sh 8001 && scripts/lab/tunnel.sh 8001 '${AGENT_SSH:?set AGENT_SSH to user@this-box}'" \
+      || log "could not reach the planner box; waiting for $want to appear on :8001 instead"
+  fi
+  # Without ssh to the planner box, planner_swap.sh there makes the swap; wait for it (PLANNER_WAIT seconds, default 2 h).
+  until [ "$(served_id 8001)" = "$want_id" ]; do
+    [ "$waited" -ge "${PLANNER_WAIT:-7200}" ] && return 1
+    [ "$waited" = 0 ] && log "waiting for $want_id on :8001"
+    sleep 30; waited=$((waited + 30))
+  done
 }
 
 failed_count() {
