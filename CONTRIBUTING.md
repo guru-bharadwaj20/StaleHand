@@ -15,11 +15,11 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 6 | Metrics and statistics | M7 | 40 | 4 | 0 | ✅ |
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
-| 9 | Experiments | M10 | 40 | 9 | 9 | ❌ |
+| 9 | Experiments | M10 | 40 | 11 | 7 | ❌ |
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
-| | **Total** | | **495** | **49** | **12** | **80% done** |
+| | **Total** | | **495** | **51** | **10** | **84% done** |
 
-Remaining work: **16 tasks**, split 9 to Vivian and 3 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **10 tasks**, split 7 to Vivian and 3 to Guru (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -115,10 +115,10 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | ✅ | Run the main guard comparison on inbox and shop | Vivian | `results/vivian-4090/main/`, `main_report.md` |
 | ✅ | Click-loop table: how many episodes end with the executor clicking one spot | Vivian | `results/vivian-4090/loops_report.md` |
 | ✅ | Run the change-timing study | Vivian | `results/vivian-4090/timing/`, `timing_report.md`, `contrasts_report.md`, `recovery_report.md` |
-| ❌ | Run the stall-return ablation: main scenarios, three guards, executor hands back after two actions that change nothing (running) | Vivian | `experiments/main/matrix_stall.json`, `results/vivian-4090/main_stall/` |
-| ❌ | Run the delegated architecture with four guards (queued) | Vivian | `results/vivian-4090/delegated/` |
-| ❌ | Run the three-guard comparison on files, tickets, calendar and chat (queued) | Vivian | `results/vivian-4090/domains_lab/` |
-| ❌ | Run the flat reference in bf16 (queued) | Vivian | `results/vivian-4090/flat/` |
+| ✅ | Run the stall-return ablation: main scenarios, three guards, executor hands back after two actions that change nothing | Vivian | `experiments/main/matrix_stall.json`, `results/vivian-4090/main_stall/` |
+| ✅ | Run the delegated architecture with four guards | Vivian | `results/vivian-4090/delegated/` |
+| ❌ | Run the three-guard comparison on files, tickets, calendar and chat (partial: stopped at 05:40 on 2 October when another team took the GPUs; resume from `runs/domains_lab.db`) | Vivian | `results/vivian-4090/domains_lab/` |
+| ❌ | Run the flat reference in bf16 (running) | Vivian | `results/vivian-4090/flat/` |
 | ✅ | Change-kind and task-kind breakdowns in every guard report | Vivian | `results/vivian-4090/*_report.md` |
 | ❌ | InternVL3.5 flat run: the action-format gate (parse failures, success with no change) before any hierarchical second-family run | Vivian | `experiments/ada/flat_internvl.json`, `results/vivian-4090/` |
 | ❌ | fp8 precision control: UI-TARS flat in fp8, paired with the lab's bf16 flat run | Vivian | `experiments/ada/flat_uitars_fp8.json`, `results/vivian-4090/` |
@@ -147,10 +147,10 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | # | Vivian | Guru |
 |---|---|---|
 | 1 | ✅ Run the change-timing study | ❌ Load tonight's results into the explorer |
-| 2 | ❌ Run the stall-return ablation (running) | ❌ Combined final report |
-| 3 | ❌ Run the delegated architecture (queued) | ❌ Choose a license |
-| 4 | ❌ Run the four-guard comparison on the new domains (queued) | |
-| 5 | ❌ Run the flat reference in bf16 (queued) | |
+| 2 | ✅ Run the stall-return ablation | ❌ Combined final report |
+| 3 | ✅ Run the delegated architecture | ❌ Choose a license |
+| 4 | ❌ Finish the three-guard comparison on the new domains (partial) | |
+| 5 | ❌ Run the flat reference in bf16 (running) | |
 | 6 | ❌ InternVL3.5 flat run and action-format gate | |
 | 7 | ❌ fp8 precision control (UI-TARS flat in fp8) | |
 | 8 | ❌ Small-planner arm in fp8 | |
