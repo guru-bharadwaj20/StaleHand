@@ -19,7 +19,7 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
 | | **Total** | | **495** | **49** | **12** | **80% done** |
 
-Remaining work: **16 tasks**, split 10 to Vivian and 6 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **16 tasks**, split 9 to Vivian and 3 to Guru (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -101,8 +101,9 @@ every commit is one real change (see [Commits](#commits)).
 ## Phase 9: Experiments (M10)
 
 The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, from a queue on worker-1
-(`scripts/lab/README.md`). The Ada cannot hold the 8B planner next to an executor, so Guru's runs use the
-matrices in `experiments/ada/`, which fit the card as it is.
+(`scripts/lab/README.md`). Guru's Ada is busy with other work, so from 2 October every GPU run is Vivian's
+(agreed by both): the lab boxes also take the matrices in `experiments/ada/`, `experiments/second_family/` and
+`experiments/domains/`, serving one model per box where a pair does not fit one card. Guru takes the CPU work.
 
 | Status | Task | Owner | Where |
 |---|---|---|---|
@@ -119,11 +120,11 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | ❌ | Run the three-guard comparison on files, tickets, calendar and chat (queued) | Vivian | `results/vivian-4090/domains_lab/` |
 | ❌ | Run the flat reference in bf16 (queued) | Vivian | `results/vivian-4090/flat/` |
 | ✅ | Change-kind and task-kind breakdowns in every guard report | Vivian | `results/vivian-4090/*_report.md` |
-| ❌ | InternVL3.5 flat run: the action-format gate (parse failures, success with no change) before any hierarchical second-family run | Guru | `experiments/ada/flat_internvl.json`, `results/guru-4500/` |
-| ❌ | fp8 precision control: UI-TARS flat in fp8, paired with the lab's bf16 flat run | Guru | `experiments/ada/flat_uitars_fp8.json`, `results/guru-4500/` |
-| ❌ | Small-planner arm: Qwen3-VL-4B planner and UI-TARS executor, both fp8, four guards | Guru | `experiments/ada/small_planner_fp8.json`, `results/guru-4500/` |
-| ❌ | Second-family hierarchical runs (blocked: the 8B planner and InternVL do not fit one card) | Guru | `experiments/second_family/` |
-| ❌ | Eight-guard comparison on the four new domains (blocked the same way; the lab runs a four-guard subset tonight) | Guru | `experiments/domains/matrix.json` |
+| ❌ | InternVL3.5 flat run: the action-format gate (parse failures, success with no change) before any hierarchical second-family run | Vivian | `experiments/ada/flat_internvl.json`, `results/vivian-4090/` |
+| ❌ | fp8 precision control: UI-TARS flat in fp8, paired with the lab's bf16 flat run | Vivian | `experiments/ada/flat_uitars_fp8.json`, `results/vivian-4090/` |
+| ❌ | Small-planner arm: Qwen3-VL-4B planner and UI-TARS executor, both fp8, four guards | Vivian | `experiments/ada/small_planner_fp8.json`, `results/vivian-4090/` |
+| ❌ | Second-family hierarchical runs (planner and InternVL on separate lab boxes) | Vivian | `experiments/second_family/` |
+| ❌ | Eight-guard comparison on the four new domains (planner and executor on separate lab boxes) | Vivian | `experiments/domains/matrix.json` |
 
 ## Phase 10: Reports, docs and release (M11)
 
@@ -133,38 +134,41 @@ matrices in `experiments/ada/`, which fit the card as it is.
 | ✅ | Paired contrasts across run sets (architecture, change timing), Holm-adjusted | Vivian | `src/stalehand/report/contrasts.py` |
 | ✅ | Results explorer: static site that reads and validates result JSONL | Guru | `site/` |
 | ❌ | Load tonight's lab results (main, timing, delegated, flat, domains) into the explorer as they land | Guru | `site/` |
-| ❌ | Combined final report across both machines' results | Vivian | `src/stalehand/report/` |
+| ❌ | Combined final report across both machines' results | Guru | `src/stalehand/report/` |
 | ✅ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
 | ✅ | Results section in `README.md`, generated from result files | Guru | `README.md` |
 | ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
 | ✅ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
-| ❌ | Choose a license before the repository is made public | Vivian | `LICENSE` |
+| ❌ | Choose a license before the repository is made public | Guru | `LICENSE` |
 | ✅ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
 
 ## Who does what next
 
 | # | Vivian | Guru |
 |---|---|---|
-| 1 | ✅ Run the change-timing study | ❌ InternVL3.5 flat run and action-format gate |
-| 2 | ❌ Run the stall-return ablation (running) | ❌ fp8 precision control (UI-TARS flat in fp8) |
-| 3 | ❌ Run the delegated architecture (queued) | ❌ Small-planner arm in fp8 |
-| 4 | ❌ Run the four-guard comparison on the new domains (queued) | ❌ Load tonight's results into the explorer |
-| 5 | ❌ Run the flat reference in bf16 (queued) | ❌ Second-family hierarchical runs (blocked on memory) |
-| 6 | ✅ Change-kind and task-kind breakdowns | ❌ Eight-guard comparison on the new domains (blocked on memory) |
-| 7 | ❌ Combined final report | |
-| 8 | ✅ Full cost accounting | |
-| 9 | ✅ Static render mode | |
-| 10 | ❌ Choose a license | |
+| 1 | ✅ Run the change-timing study | ❌ Load tonight's results into the explorer |
+| 2 | ❌ Run the stall-return ablation (running) | ❌ Combined final report |
+| 3 | ❌ Run the delegated architecture (queued) | ❌ Choose a license |
+| 4 | ❌ Run the four-guard comparison on the new domains (queued) | |
+| 5 | ❌ Run the flat reference in bf16 (queued) | |
+| 6 | ❌ InternVL3.5 flat run and action-format gate | |
+| 7 | ❌ fp8 precision control (UI-TARS flat in fp8) | |
+| 8 | ❌ Small-planner arm in fp8 | |
+| 9 | ❌ Second-family hierarchical runs | |
+| 10 | ❌ Eight-guard comparison on the new domains | |
+| 11 | ✅ Change-kind and task-kind breakdowns | |
+| 12 | ✅ Full cost accounting | |
+| 13 | ✅ Static render mode | |
 
-Guru's first three tasks need nothing from Vivian and fit the Ada today; together they are about 1,200 episodes.
-The two blocked tasks unblock if a planner can be served to the Ada from another machine.
+All GPU runs are Vivian's and all CPU work is Guru's, as agreed on 2 October because the Ada is busy. Guru's
+tasks read result files only, so they follow the lab runs as they land.
 
 ## Hardware
 
 | Person | Machines | Used for |
 |---|---|---|
-| Vivian | two lab RTX 4090 boxes (24 GB each), a lab box with 4x GTX 1080 (8 GB each, no bf16), laptop | inbox and shop experiments, pilot replication; the 1080s take models up to about 2B, quantized arms and CPU or browser work |
-| Guru | RTX 4500 Ada workstation (24 GB; one 8B model in bf16, or a 4B planner and a 7B executor in fp8) | second model family, fp8 control, small-planner arm, results site |
+| Vivian | two lab RTX 4090 boxes (24 GB each), a lab box with 4x GTX 1080 (8 GB each, no bf16), laptop | every GPU run, including the second family, fp8 control and small-planner arm; the 1080s take models up to about 2B, quantized arms and CPU or browser work |
+| Guru | RTX 4500 Ada workstation (24 GB; one 8B model in bf16, or a 4B planner and a 7B executor in fp8) | CPU work only (the card is busy): results site, final report, license |
 
 Runs stay on their owner's machines and write to separate result directories (`results/vivian-4090/`,
 `results/guru-4500/`), so no two runs ever write the same file.
