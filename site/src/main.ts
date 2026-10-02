@@ -1,10 +1,12 @@
 // Results explorer: load result JSONL (file picker, drag and drop, or ?src=<url> when hosted), validate every
-// row against schema/result.schema.json, then group and filter. Nothing on the page is typed in by hand.
+// row against schema/result.schema.json, then group and filter. Run sets found under results/ at build time are
+// built in and load from the header (or ?set=<machine>/<set>, repeatable). Nothing on the page is typed in by hand.
 import { FIELDS, loadJsonl, makeValidator, type Problem, type Result } from "./rows.js";
 import { mainCharts } from "./charts.js";
 import { OUTCOMES, distinct, filterRows, group, pct } from "./summary.js";
 
 declare const RESULT_SCHEMA: object; // injected by build.mjs from schema/result.schema.json
+declare const RESULT_SETS: Record<string, string>; // injected by build.mjs: "<machine>/<set>" -> JSONL
 
 const validate = makeValidator(RESULT_SCHEMA);
 const state = { rows: [] as Result[], problems: [] as Problem[], sources: [] as string[],
@@ -17,8 +19,9 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Record<string,
   return node;
 }
 
-function add(text: string, source: string) {
-  const got = loadJsonl(text, source, validate);
+function add(text: string, source: string, runSet = source) {
+  if (state.sources.some((s) => s.startsWith(`${source} (`))) return; // a set loads once
+  const got = loadJsonl(text, source, validate, runSet);
   state.rows.push(...got.rows);
   state.problems.push(...got.problems);
   state.sources.push(`${source} (${got.rows.length} rows${got.problems.length ? `, ${got.problems.length} rejected` : ""})`);
@@ -114,12 +117,33 @@ function setup() {
     input.value = "";
   });
   header.append(el("h1", {}, "StaleHand results"), input);
+  const names = Object.keys(RESULT_SETS);
+  if (names.length) {
+    const picker = el("nav", { class: "sets", "aria-label": "Built-in run sets" });
+    picker.append("Run sets: ");
+    for (const name of names) {
+      const b = el("button", { type: "button" }, name);
+      b.addEventListener("click", () => add(RESULT_SETS[name]!, name));
+      picker.append(b);
+    }
+    const all = el("button", { type: "button" }, "all");
+    all.addEventListener("click", () => names.forEach((n) => add(RESULT_SETS[n]!, n)));
+    picker.append(all);
+    header.append(picker);
+  }
   document.addEventListener("dragover", (e) => e.preventDefault());
   document.addEventListener("drop", async (e) => {
     e.preventDefault();
     for (const f of e.dataTransfer?.files ?? []) add(await f.text(), f.name);
   });
   draw();
+  for (const name of new URLSearchParams(location.search).getAll("set")) {
+    if (RESULT_SETS[name] !== undefined) add(RESULT_SETS[name]!, name);
+    else {
+      state.problems.push({ source: name, line: 0, message: "no such built-in run set" });
+      draw();
+    }
+  }
   for (const src of new URLSearchParams(location.search).getAll("src")) {
     fetch(src).then((r) => (r.ok ? r.text() : Promise.reject(new Error(`${r.status}`))))
       .then((t) => add(t, src))

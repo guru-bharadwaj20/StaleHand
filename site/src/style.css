@@ -3,6 +3,8 @@
 body { margin: 0; padding: 16px; font: 14px system-ui, sans-serif; color: var(--fg); background: var(--bg); }
 header { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 8px; }
 h1 { font-size: 20px; margin: 0; }
+.sets { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); }
+.sets button { font: inherit; color: var(--fg); background: var(--head); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; cursor: pointer; }
 h2 { font-size: 13px; text-transform: uppercase; color: var(--muted); margin: 8px 0 4px; width: 100%; }
 .sources, .count { color: var(--muted); }
 .controls { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 8px 0; }
