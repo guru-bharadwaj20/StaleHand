@@ -1,4 +1,4 @@
-Built from 3439 episodes with a harmless change. Missed: the first item the agent opened was not the correct one. The last two columns are over the missed episodes only.
+Built from 3584 episodes with a harmless change. Missed: the first item the agent opened was not the correct one. The last two columns are over the missed episodes only.
 
 | run set | architecture | guard | episodes | first open missed | then succeeded | then committed to a wrong item |
 |---|---|---|---|---|---|---|
@@ -9,6 +9,7 @@ Built from 3439 episodes with a harmless change. Missed: the first item the agen
 | domains_lab | hierarchical | none | 69 | 12% | 0% | 0% |
 | domains_lab | hierarchical | replan_every_step | 57 | 9% | 0% | 0% |
 | domains_lab | hierarchical | rebind_dom | 53 | 6% | 0% | 67% |
+| flat | flat | none | 145 | 74% | 53% | 31% |
 | main | hierarchical | replan_every_step | 145 | 10% | 0% | 100% |
 | main | hierarchical | rebind_step | 145 | 14% | 5% | 71% |
 | main | hierarchical | pixel_0.02_replan | 145 | 10% | 0% | 100% |

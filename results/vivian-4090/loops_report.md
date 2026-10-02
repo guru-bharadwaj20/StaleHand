@@ -1,4 +1,4 @@
-Built from 4904 episodes. Click loop: the episode hit the step limit and its last four actions were clicks within 15 px of one spot.
+Built from 5109 episodes. Click loop: the episode hit the step limit and its last four actions were clicks within 15 px of one spot.
 
 | run set | architecture | guard | episodes | no commit | ran out of steps | click loop | click loop among no commit |
 |---|---|---|---|---|---|---|---|
@@ -9,6 +9,7 @@ Built from 4904 episodes. Click loop: the episode hit the step limit and its las
 | domains_lab | hierarchical | none | 97 | 76% | 79% | 39% | 51% |
 | domains_lab | hierarchical | replan_every_step | 87 | 63% | 71% | 32% | 49% |
 | domains_lab | hierarchical | rebind_dom | 70 | 63% | 63% | 40% | 64% |
+| flat | flat | none | 205 | 17% | 40% | 5% | 12% |
 | main | hierarchical | replan_every_step | 205 | 14% | 40% | 5% | 38% |
 | main | hierarchical | rebind_step | 205 | 30% | 52% | 41% | 82% |
 | main | hierarchical | pixel_0.02_replan | 205 | 21% | 43% | 22% | 89% |
