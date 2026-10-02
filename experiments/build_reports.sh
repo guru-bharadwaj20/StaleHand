@@ -28,5 +28,5 @@ if compgen -G "results/vivian-4090/tokens/*.jsonl" > /dev/null; then
 fi
 python3 experiments/audit/summarize.py results/vivian-4090 > results/vivian-4090/checks_report.md
 python3 -m stalehand readme
-python3 -m stalehand final --results results/vivian-4090 --sets main timing main_stall delegated flat domains_lab \
+python3 -m stalehand final --results results/vivian-4090 --sets main timing main_stall delegated flat small_planner domains flat_internvl \
   --template docs/report_template.md --out results/REPORT.md

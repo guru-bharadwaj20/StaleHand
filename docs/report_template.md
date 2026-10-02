@@ -159,20 +159,63 @@ relevant changes and {{timing.none.harmless_success}} of harmless ones, the flat
 {{flat.none.relevant_success}} and {{flat.none.harmless_success}}. The guarded hierarchical agents still did better
 than the flat one on relevant changes, as the main and stall sections show.
 
-## New domains: incomplete
+## A weaker planner goes stale about as often, and the guards still work
 
-The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
-GPUs and our model servers stopped, and the planner's Python environment on worker-2 was removed. The
-{{domains_lab.episodes}} episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only
-{{domains_lab.rebind_dom.vs_none.pairs}} relevant-change scenarios finished under both `rebind_dom` and no guard,
-and {{domains_lab.replan_every_step.vs_none.pairs}} under re-planning at every step and no guard, so this report
-draws no conclusion about guards from them. They do show that these domains are harder for this agent: with no
-guard it succeeded on {{domains_lab.none.harmless_success}} of harmless changes, against
-{{main.none.harmless_success}} on the inbox and the shop.
+The small-planner run swaps Qwen3-VL-8B for Qwen3-VL-4B as the planner, keeps UI-TARS as the executor and runs four
+guards on the main scenarios ({{small_planner.episodes}} episodes), so every row pairs with the main run. With no
+guard the 4B planner's agent succeeded on {{small_planner.none.relevant_success}} of relevant changes and acted on the
+stale target in {{small_planner.none.relevant_stale}}, against {{main.none.relevant_success}} and
+{{main.none.relevant_stale}} with the 8B planner. It did worse on harmless changes:
+{{small_planner.none.harmless_success}} against {{main.none.harmless_success}}
+({{small_planner.none.harmless.diff}}, {{small_planner.none.harmless.ci}}, Holm {{small_planner.none.harmless.p_holm}}).
 
-## Not run yet
+The guards help this planner too. On relevant changes `rebind_dom` reached {{small_planner.rebind_dom.relevant_success}}
+({{small_planner.rebind_dom.vs_none.diff}} over no guard, {{small_planner.rebind_dom.vs_none.ci}}), re-planning at
+every step {{small_planner.replan_every_step.relevant_success}} ({{small_planner.replan_every_step.vs_none.diff}},
+{{small_planner.replan_every_step.vs_none.ci}}) and `dom_subtask_replan`
+{{small_planner.dom_subtask_replan.relevant_success}} ({{small_planner.dom_subtask_replan.vs_none.diff}},
+{{small_planner.dom_subtask_replan.vs_none.ci}}). The cheap guard costs more with the weaker planner: `rebind_dom`
+raised a false alarm on {{small_planner.rebind_dom.false_alarm}} of harmless changes, against
+{{main.rebind_dom.false_alarm}} with the 8B planner, and its harmless success was
+{{small_planner.rebind_dom.harmless_success}} against {{main.rebind_dom.harmless_success}}.
 
-- The rest of the new-domain run, once the lab GPUs are free (`runs/domains_lab.db` on worker-1 holds its state).
-- The second model family (InternVL3.5), the small-planner arm (Qwen3-VL-4B) and the eight-guard comparison on
-  the new domains. Their matrices are in `experiments/second_family/`, `experiments/small_planner/` and
-  `experiments/domains/`; since 2 October they run on the lab boxes (`CONTRIBUTING.md`).
+## The new domains mostly measure whether the agent can do the task at all
+
+The eight-guard run on calendar, chat, files and tickets finished ({{domains.episodes}} episodes). Most of it sits at
+the floor. In the files domain the agent succeeded on {{domains.none.domain.files.success}} of
+{{domains.none.domain.files.n}} episodes with no guard and {{domains.replan_every_step.domain.files.success}} with
+re-planning at every step, and {{domains.none.domain.files.max_steps}} of the no-guard episodes ran out of steps.
+Tickets fared about as badly: {{domains.none.domain.tickets.success}} with no guard and
+{{domains.replan_every_step.domain.tickets.success}} with re-planning at every step. Chat reached
+{{domains.none.domain.chat.success}} with no guard. In one files trace we read in full, the planner asks the executor
+to click the file to open it, and the executor clicks the same spot until the step budget runs out; whether the files
+and tickets apps support the action the planner asks for needs checking before these domains can say anything about
+guards.
+
+Calendar is the one domain where the comparison works. With no guard the agent succeeded on
+{{domains.none.domain.calendar.success}} of {{domains.none.domain.calendar.n}} calendar episodes, with re-planning at
+every step {{domains.replan_every_step.domain.calendar.success}}, with `dom_subtask_replan`
+{{domains.dom_subtask_replan.domain.calendar.success}} and with `rebind_dom` {{domains.rebind_dom.domain.calendar.success}}.
+Pooled over the four domains, the guards' gains on relevant changes were: re-planning at every step
+{{domains.replan_every_step.vs_none.diff}} ({{domains.replan_every_step.vs_none.ci}}, Holm
+{{domains.replan_every_step.vs_none.p_holm}}), `dom_subtask_replan` {{domains.dom_subtask_replan.vs_none.diff}}
+({{domains.dom_subtask_replan.vs_none.ci}}, Holm {{domains.dom_subtask_replan.vs_none.p_holm}}) and `rebind_dom`
+{{domains.rebind_dom.vs_none.diff}} ({{domains.rebind_dom.vs_none.ci}}, Holm {{domains.rebind_dom.vs_none.p_holm}}).
+The earlier partial three-guard run (`domains_lab`) is superseded by this one.
+
+## The second model family failed its check
+
+Before running the main matrices with InternVL3.5-8B as the executor, we ran it alone on the main scenarios
+({{flat_internvl.episodes}} episodes, no planner, as in the flat reference). It answered in UI-TARS's action format,
+but the action parser could not read {{flat_internvl.none.parse_failures}} of its {{flat_internvl.none.executor_calls}}
+replies, against {{flat.none.parse_failures}} for UI-TARS. The ones we looked at name a target without coordinates,
+for example `click(start_box='Sneha Kulkarni')`. It succeeded on {{flat_internvl.none.harmless_success}} of harmless changes and
+{{flat_internvl.none.relevant_success}} of relevant ones, against {{flat.none.harmless_success}} and
+{{flat.none.relevant_success}} for UI-TARS alone. A stale-subtask comparison on top of an executor that cannot ground
+would measure grounding, so the second-family runs were dropped. Mapping its named targets to page elements would
+give it help UI-TARS does not get.
+
+## Not run
+
+- The main and mid-step matrices with InternVL3.5 as the executor (`experiments/second_family/`), dropped after the
+  check above.
