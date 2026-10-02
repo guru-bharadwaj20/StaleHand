@@ -46,6 +46,16 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
   control would measure nothing we use. The Ada matrices moved: `experiments/second_family/flat.json` (InternVL
   flat run) and `experiments/small_planner/matrix.json` (now bf16).
 
+## Parser change for the second family (2 October)
+
+A smoke test of InternVL3.5-8B as executor (worker-1, three requests on one inbox screenshot) gave actions like
+`click(start_box='Spam[[23, 453, 150, 490]])`: the element's name, then its box on the 0-1000 grid, and no closing
+quote. The UI-TARS parser rejected all three, so a flat InternVL run would have measured the parser, not the model.
+The coordinates themselves pointed at the right elements. `fix: parse labelled boxes from InternVL` now reads an
+unclosed argument and takes coordinates from the last bracketed group. Replaying every action logged in the
+finished runs through the new parser gave the same action for all of them, and UI-TARS had no parse failures in
+those runs, so no earlier result changes. Parse failures stay part of the InternVL gate.
+
 ## Known confounds
 
 - **Executor click loops** (main runs, all guards). Most no-commit episodes end at the step limit with the executor
