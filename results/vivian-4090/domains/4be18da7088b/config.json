@@ -1,0 +1,51 @@
+{
+  "git": {
+    "commit": "3c35f79295dedfec21e418464ed863ef5533df7b",
+    "dirty": false
+  },
+  "host": "worker-1",
+  "job": {
+    "architecture": "hierarchical",
+    "change_timing": "after_handoff",
+    "executor": "ui-tars-1.5-7b",
+    "guard": "self_check",
+    "id": "4be18da7088b",
+    "matrix": "domains",
+    "max_steps": 12,
+    "planner": "qwen3-vl-8b",
+    "scenarios": "experiments/domains/shards/tickets-03.jsonl",
+    "seed": 0
+  },
+  "models": {
+    "executor": {
+      "backend": "openai",
+      "id": "ByteDance-Seed/UI-TARS-1.5-7B",
+      "name": "ui-tars-1.5-7b",
+      "revision": "683d002dd99d8f95104d31e70391a39348857f4e"
+    },
+    "planner": {
+      "backend": "openai",
+      "id": "Qwen/Qwen3-VL-8B-Instruct",
+      "name": "qwen3-vl-8b",
+      "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+    }
+  },
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "seed": 0,
+  "serving": {
+    "STALEHAND_BACKEND": "openai",
+    "STALEHAND_EXECUTOR_URL": "http://127.0.0.1:8002/v1",
+    "STALEHAND_PLANNER_URL": "http://127.0.0.1:8001/v1"
+  },
+  "started": "2026-10-02T12:25:34+00:00",
+  "versions": {
+    "accelerate": "1.14.0",
+    "huggingface-hub": "0.34.4",
+    "pillow": "10.3.0",
+    "playwright": "1.55.0",
+    "stalehand": "0.1.0",
+    "torch": "2.8.0",
+    "transformers": "4.57.6"
+  }
+}

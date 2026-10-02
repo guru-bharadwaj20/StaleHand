@@ -112,7 +112,7 @@ stall return (`results/vivian-4090/checks_report.md`).
 
 - **`rebind_dom`** gained the most. On relevant changes it went from 55% to
   75% (+20 pts,
-  [+9, +31], Holm p = 0.024). Its click loops fell
+  [+9, +31], Holm p = 0.035). Its click loops fell
   from 41% to 10% of episodes. The extra planner calls
   after a stall raised its cost from 2.8 to 4.3 calls per
   episode. Its false alarms were 14% of harmless changes, against
@@ -121,7 +121,7 @@ stall return (`results/vivian-4090/checks_report.md`).
   to 84% on relevant changes (+4 pts,
   [-5, +15]), still at 7.5 calls per episode.
 - **No guard** did better on harmless changes, 69% to 78%
-  (+9 pts, [+1, +19], Holm p = 0.054),
+  (+9 pts, [+1, +19], Holm p = 0.073),
   but the stall return does nothing about staleness: it acted on the stale target in
   53% of relevant changes.
 
@@ -149,7 +149,7 @@ The flat reference (205 episodes) runs UI-TARS alone on the main scenarios: no p
 It reads the task itself at every step, so no subtask can go stale. On relevant changes it succeeded
 33% of the time and acted on the stale target in 13% of them,
 against 4% and 44% for the hierarchical agent with no guard
-(+29 pts, [+11, +45], Holm p = 0.012).
+(+29 pts, [+11, +45], Holm p = 0.016).
 
 The timings are not quite matched. A flat agent has no handoff, so the change lands just before its first action,
 which is what the mid-step timing does to the hierarchical agent. Its first-open misses on harmless changes,
@@ -159,20 +159,63 @@ relevant changes and 61% of harmless ones, the flat agent on
 33% and 62%. The guarded hierarchical agents still did better
 than the flat one on relevant changes, as the main and stall sections show.
 
-## New domains: incomplete
+## A weaker planner goes stale about as often, and the guards still work
 
-The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
-GPUs and our model servers stopped, and the planner's Python environment on worker-2 was removed. The
-254 episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only
-2 relevant-change scenarios finished under both `rebind_dom` and no guard,
-and 11 under re-planning at every step and no guard, so this report
-draws no conclusion about guards from them. They do show that these domains are harder for this agent: with no
-guard it succeeded on 25% of harmless changes, against
-69% on the inbox and the shop.
+The small-planner run swaps Qwen3-VL-8B for Qwen3-VL-4B as the planner, keeps UI-TARS as the executor and runs four
+guards on the main scenarios (820 episodes), so every row pairs with the main run. With no
+guard the 4B planner's agent succeeded on 7% of relevant changes and acted on the
+stale target in 38%, against 4% and
+44% with the 8B planner. It did worse on harmless changes:
+54% against 69%
+(-14 pts, [-27, -2], Holm p = 0.008).
 
-## Not run yet
+The guards help this planner too. On relevant changes `rebind_dom` reached 62%
+(+55 pts over no guard, [+41, +68]), re-planning at
+every step 71% (+64 pts,
+[+48, +79]) and `dom_subtask_replan`
+53% (+45 pts,
+[+30, +62]). The cheap guard costs more with the weaker planner: `rebind_dom`
+raised a false alarm on 48% of harmless changes, against
+15% with the 8B planner, and its harmless success was
+47% against 68%.
 
-- The rest of the new-domain run, once the lab GPUs are free (`runs/domains_lab.db` on worker-1 holds its state).
-- The second model family (InternVL3.5), the small-planner arm (Qwen3-VL-4B) and the eight-guard comparison on
-  the new domains. Their matrices are in `experiments/second_family/`, `experiments/small_planner/` and
-  `experiments/domains/`; since 2 October they run on the lab boxes (`CONTRIBUTING.md`).
+## The new domains mostly measure whether the agent can do the task at all
+
+The eight-guard run on calendar, chat, files and tickets finished (1920 episodes). Most of it sits at
+the floor. In the files domain the agent succeeded on 0% of
+60 episodes with no guard and 0% with
+re-planning at every step, and 100% of the no-guard episodes ran out of steps.
+Tickets fared about as badly: 0% with no guard and
+0% with re-planning at every step. Chat reached
+13% with no guard. In one files trace we read in full, the planner asks the executor
+to click the file to open it, and the executor clicks the same spot until the step budget runs out; whether the files
+and tickets apps support the action the planner asks for needs checking before these domains can say anything about
+guards.
+
+Calendar is the one domain where the comparison works. With no guard the agent succeeded on
+60% of 60 calendar episodes, with re-planning at
+every step 90%, with `dom_subtask_replan`
+90% and with `rebind_dom` 75%.
+Pooled over the four domains, the guards' gains on relevant changes were: re-planning at every step
++28 pts ([+10, +46], Holm
+p = 0.001), `dom_subtask_replan` +28 pts
+([+10, +47], Holm p = 0.001) and `rebind_dom`
++14 pts ([+4, +27], Holm p = 0.078).
+The earlier partial three-guard run (`domains_lab`) is superseded by this one.
+
+## The second model family failed its check
+
+Before running the main matrices with InternVL3.5-8B as the executor, we ran it alone on the main scenarios
+(205 episodes, no planner, as in the flat reference). It answered in UI-TARS's action format,
+but the action parser could not read 34% of its 1738
+replies, against 0% for UI-TARS. The ones we looked at name a target without coordinates,
+for example `click(start_box='Sneha Kulkarni')`. It succeeded on 22% of harmless changes and
+22% of relevant ones, against 62% and
+33% for UI-TARS alone. A stale-subtask comparison on top of an executor that cannot ground
+would measure grounding, so the second-family runs were dropped. Mapping its named targets to page elements would
+give it help UI-TARS does not get.
+
+## Not run
+
+- The main and mid-step matrices with InternVL3.5 as the executor (`experiments/second_family/`), dropped after the
+  check above.

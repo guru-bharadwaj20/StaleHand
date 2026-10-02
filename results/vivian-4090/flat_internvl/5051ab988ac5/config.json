@@ -1,0 +1,46 @@
+{
+  "git": {
+    "commit": "0704d26942b174f654b7c9a4db92ba84a69cbc59",
+    "dirty": false
+  },
+  "host": "worker-1",
+  "job": {
+    "architecture": "flat",
+    "change_timing": "after_handoff",
+    "executor": "internvl3.5-8b",
+    "guard": "none",
+    "id": "5051ab988ac5",
+    "matrix": "flat_internvl",
+    "max_steps": 12,
+    "planner": "none",
+    "scenarios": "experiments/main/shards/shop-09.jsonl",
+    "seed": 0
+  },
+  "models": {
+    "executor": {
+      "backend": "openai",
+      "id": "OpenGVLab/InternVL3_5-8B-HF",
+      "name": "internvl3.5-8b",
+      "revision": "741a7d03020411e666c6109218ab71e08151ef86"
+    },
+    "planner": null
+  },
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "seed": 0,
+  "serving": {
+    "STALEHAND_BACKEND": "openai",
+    "STALEHAND_EXECUTOR_URL": "http://127.0.0.1:8002/v1",
+    "STALEHAND_PLANNER_URL": "http://127.0.0.1:8001/v1"
+  },
+  "started": "2026-10-02T10:39:50+00:00",
+  "versions": {
+    "accelerate": "1.14.0",
+    "huggingface-hub": "0.34.4",
+    "pillow": "10.3.0",
+    "playwright": "1.55.0",
+    "stalehand": "0.1.0",
+    "torch": "2.8.0",
+    "transformers": "4.57.6"
+  }
+}
