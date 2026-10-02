@@ -83,3 +83,17 @@ those runs, so no earlier result changes. Parse failures stay part of the Intern
   report code, serving provenance and the `hierarchical_stall` architecture, and `apps/` did not change, so the
   other architectures behave the same in every matrix. Every run is marked dirty because `results/` is not synced
   to the lab boxes.
+
+## The lab runs of 2 October
+
+- Both lab GPUs came back after a reboot on the afternoon of 2 October. From then on Codex launched and watched the
+  runs; `scripts/lab/campaign.sh` runs matrices back to back on worker-1, and `scripts/lab/planner_swap.sh` on
+  worker-2 swaps the planner when a matrix finishes (worker-1 cannot ssh to worker-2). Both servers ran with batches
+  of up to 16 and worker-1 ran 24 jobs at a time (earlier runs: batches of 4, 12 jobs). Batching changes floating-point
+  rounding but not which guard sees which scenario, so paired comparisons within a matrix are unaffected; the
+  small-planner rows paired against `main` cross this change.
+- InternVL3.5-8B failed the action-format gate (`flat_internvl`), so the second-family matrices were dropped.
+- The eight-guard domain run supersedes the partial `domains_lab`. Files and tickets sit at the floor under every
+  guard, so only calendar separates the guards; the cause (task design or the agent) is not yet known.
+- Run code: `domains`, `small_planner` and `flat_internvl` ran commit `0704d26`/`3c35f79` (identical `src/` and
+  `apps/`); the launch scripts changed between them.
