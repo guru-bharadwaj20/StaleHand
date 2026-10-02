@@ -41,6 +41,10 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
   heartbeat at 02:00 was not followed up overnight, so the failure went unnoticed until 08:22.
 - **Flat reference** moved out of the campaign and ran alone on worker-1 from 08:24, since it needs only the
   executor, which still fit next to the other team's job.
+- **fp8 precision control, dropped** (2 October). It was planned because Guru's Ada needed fp8 to hold a planner
+  and an executor. Since 2 October every GPU run is on the lab 4090s in bf16, so no result depends on fp8 and the
+  control would measure nothing we use. The Ada matrices moved: `experiments/second_family/flat.json` (InternVL
+  flat run) and `experiments/small_planner/matrix.json` (now bf16).
 
 ## Known confounds
 
