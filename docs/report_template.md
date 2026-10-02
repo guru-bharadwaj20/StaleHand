@@ -101,3 +101,54 @@ What a guard can do about it depends on when it looks:
   {{timing.dom_step_abort.harmless_success}} of harmless ones, because nearly every episode sees some change.
 
 Paired tables: `results/vivian-4090/contrasts_report.md` and `results/vivian-4090/timing_report.md`.
+
+## Breaking executor loops closes most of the gap
+
+The stall-return ablation ({{main_stall.episodes}} episodes) reruns three guards on the main scenarios with one
+change to the agent: after two actions in a row that leave the screenshot unchanged, the executor hands control back
+to the planner (architecture `hierarchical_stall`). The apps and scenarios are untouched, so every episode pairs
+with its counterpart in the main comparison. A model-free check found no scenario whose correct flow would trip the
+stall return (`results/vivian-4090/checks_report.md`).
+
+- **`rebind_dom`** gained the most. On relevant changes it went from {{main.rebind_dom.relevant_success}} to
+  {{main_stall.rebind_dom.relevant_success}} ({{main_stall.rebind_dom.relevant.diff}},
+  {{main_stall.rebind_dom.relevant.ci}}, Holm {{main_stall.rebind_dom.relevant.p_holm}}). Its click loops fell
+  from {{main.rebind_dom.click_loop}} to {{main_stall.rebind_dom.click_loop}} of episodes. The extra planner calls
+  after a stall raised its cost from {{main.rebind_dom.calls}} to {{main_stall.rebind_dom.calls}} calls per
+  episode. Its false alarms were {{main_stall.rebind_dom.false_alarm}} of harmless changes, against
+  {{main.rebind_dom.false_alarm}} before.
+- **Re-planning at every step** had little to gain, since it already escaped loops: {{main.replan_every_step.relevant_success}}
+  to {{main_stall.replan_every_step.relevant_success}} on relevant changes ({{main_stall.replan_every_step.relevant.diff}},
+  {{main_stall.replan_every_step.relevant.ci}}), still at {{main_stall.replan_every_step.calls}} calls per episode.
+- **No guard** did better on harmless changes, {{main.none.harmless_success}} to {{main_stall.none.harmless_success}}
+  ({{main_stall.none.harmless.diff}}, {{main_stall.none.harmless.ci}}, Holm {{main_stall.none.harmless.p_holm}}),
+  but the stall return does nothing about staleness: it acted on the stale target in
+  {{main_stall.none.relevant_stale}} of relevant changes.
+
+With loops broken, `rebind_dom` reached {{main_stall.rebind_dom.relevant_success}} on relevant changes against
+{{main_stall.replan_every_step.relevant_success}} for re-planning at every step, at {{main_stall.rebind_dom.calls}}
+calls per episode instead of {{main_stall.replan_every_step.calls}}, and with false alarms on
+{{main_stall.rebind_dom.false_alarm}} of harmless changes instead of all of them. We did not test the difference
+between those two guards directly. In the main comparison, part of re-planning's lead came from loop escape.
+
+## Delegating whole goals changes little
+
+In the delegated architecture ({{delegated.episodes}} episodes) the orchestrator hands over a goal, and the operator
+works on it alone for up to eight actions before reporting back. Paired with the hierarchical agent on the same
+guard and scenarios, no difference survived the Holm adjustment (`results/vivian-4090/contrasts_report.md`). The
+stale handoff is just as present: with no guard, the delegated agent succeeded on {{delegated.none.relevant_success}}
+of relevant changes and acted on the stale target in {{delegated.none.relevant_stale}}. The guards help about as much
+as before. `rebind_dom` gained {{delegated.rebind_dom.vs_none.diff}} over no guard ({{delegated.rebind_dom.vs_none.ci}})
+and re-planning at every step {{delegated.replan_every_step.vs_none.diff}} ({{delegated.replan_every_step.vs_none.ci}}).
+The operator's step budget also hands control back on its own, and click loops were rarer: {{delegated.none.click_loop}}
+of episodes with no guard, against {{main.none.click_loop}} for the hierarchical agent.
+
+## New domains: incomplete
+
+The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
+GPUs and our model servers stopped, and the planner's Python environment on worker-2 was removed. The
+{{domains_lab.episodes}} episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only {{domains_lab.rebind_dom.vs_none.pairs}} relevant-change
+scenarios finished under both `rebind_dom` and no guard, and {{domains_lab.replan_every_step.vs_none.pairs}} under
+re-planning at every step and no guard, so this report draws no conclusion about guards from them. They do show these domains are
+harder for this agent: with no guard it succeeded on {{domains_lab.none.harmless_success}} of harmless changes,
+against {{main.none.harmless_success}} on the inbox and the shop.

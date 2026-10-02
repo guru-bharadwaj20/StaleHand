@@ -101,3 +101,54 @@ What a guard can do about it depends on when it looks:
   16% of harmless ones, because nearly every episode sees some change.
 
 Paired tables: `results/vivian-4090/contrasts_report.md` and `results/vivian-4090/timing_report.md`.
+
+## Breaking executor loops closes most of the gap
+
+The stall-return ablation (615 episodes) reruns three guards on the main scenarios with one
+change to the agent: after two actions in a row that leave the screenshot unchanged, the executor hands control back
+to the planner (architecture `hierarchical_stall`). The apps and scenarios are untouched, so every episode pairs
+with its counterpart in the main comparison. A model-free check found no scenario whose correct flow would trip the
+stall return (`results/vivian-4090/checks_report.md`).
+
+- **`rebind_dom`** gained the most. On relevant changes it went from 55% to
+  75% (+20 pts,
+  [+9, +31], Holm p = 0.022). Its click loops fell
+  from 41% to 10% of episodes. The extra planner calls
+  after a stall raised its cost from 2.8 to 4.3 calls per
+  episode. Its false alarms were 14% of harmless changes, against
+  15% before.
+- **Re-planning at every step** had little to gain, since it already escaped loops: 80%
+  to 84% on relevant changes (+4 pts,
+  [-5, +15]), still at 7.5 calls per episode.
+- **No guard** did better on harmless changes, 69% to 78%
+  (+9 pts, [+1, +19], Holm p = 0.049),
+  but the stall return does nothing about staleness: it acted on the stale target in
+  53% of relevant changes.
+
+With loops broken, `rebind_dom` reached 75% on relevant changes against
+84% for re-planning at every step, at 4.3
+calls per episode instead of 7.5, and with false alarms on
+14% of harmless changes instead of all of them. We did not test the difference
+between those two guards directly. In the main comparison, part of re-planning's lead came from loop escape.
+
+## Delegating whole goals changes little
+
+In the delegated architecture (820 episodes) the orchestrator hands over a goal, and the operator
+works on it alone for up to eight actions before reporting back. Paired with the hierarchical agent on the same
+guard and scenarios, no difference survived the Holm adjustment (`results/vivian-4090/contrasts_report.md`). The
+stale handoff is just as present: with no guard, the delegated agent succeeded on 15%
+of relevant changes and acted on the stale target in 42%. The guards help about as much
+as before. `rebind_dom` gained +53 pts over no guard ([+40, +66])
+and re-planning at every step +60 pts ([+47, +73]).
+The operator's step budget also hands control back on its own, and click loops were rarer: 1%
+of episodes with no guard, against 19% for the hierarchical agent.
+
+## New domains: incomplete
+
+The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
+GPUs and our model servers stopped, and the planner's Python environment on worker-2 was removed. The
+254 episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only 2 relevant-change
+scenarios finished under both `rebind_dom` and no guard, and 11 under
+re-planning at every step and no guard, so this report draws no conclusion about guards from them. They do show these domains are
+harder for this agent: with no guard it succeeded on 25% of harmless changes,
+against 69% on the inbox and the shop.
