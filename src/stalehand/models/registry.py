@@ -12,8 +12,9 @@ MODELS = {
     "qwen3-vl-8b": ModelSpec("Qwen/Qwen3-VL-8B-Instruct", coords="rel1000"),
     "qwen3-vl-4b": ModelSpec("Qwen/Qwen3-VL-4B-Instruct", coords="rel1000"),
     "ui-tars-1.5-7b": ModelSpec("ByteDance-Seed/UI-TARS-1.5-7B", coords="abs"),
-    # second executor family: grounds on a 0-1000 grid like Qwen3-VL, so the UI-TARS action parser applies
-    "internvl3.5-8b": ModelSpec("OpenGVLab/InternVL3_5-8B", coords="rel1000"),
+    # second executor family: grounds on a 0-1000 grid like Qwen3-VL, so the UI-TARS action parser applies.
+    # The -HF repo holds the same weights in transformers' native format, which the hf backend can load.
+    "internvl3.5-8b": ModelSpec("OpenGVLab/InternVL3_5-8B-HF", coords="rel1000"),
 }
 
 

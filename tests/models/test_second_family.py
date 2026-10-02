@@ -15,7 +15,7 @@ def test_second_family_is_registered_with_a_different_publisher():
 
 def test_second_family_loads_on_the_openai_backend():
     m = registry.load("internvl3.5-8b", backend="openai", base_url="http://127.0.0.1:8001/v1")
-    assert isinstance(m, OpenAICompatVLM) and m.model == "OpenGVLab/InternVL3_5-8B"
+    assert isinstance(m, OpenAICompatVLM) and m.model == "OpenGVLab/InternVL3_5-8B-HF"
 
 
 def test_grid_point_maps_to_screen_pixels():
