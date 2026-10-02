@@ -9,6 +9,7 @@ Mean tokens per episode, recounted from the logged replies (output) and the scre
 | domains_lab | hierarchical | none | 97 | 34 | 941 | 0 | 14,774 |
 | domains_lab | hierarchical | replan_every_step | 87 | 233 | 733 | 0 | 20,358 |
 | domains_lab | hierarchical | rebind_dom | 70 | 46 | 744 | 5 | 13,474 |
+| flat | flat | none | 205 | 0 | 680 | 0 | 9,644 |
 | main | hierarchical | replan_every_step | 205 | 151 | 465 | 0 | 14,130 |
 | main | hierarchical | rebind_step | 205 | 56 | 768 | 59 | 20,939 |
 | main | hierarchical | pixel_0.02_replan | 205 | 102 | 562 | 0 | 13,288 |
