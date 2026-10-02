@@ -112,7 +112,7 @@ stall return (`results/vivian-4090/checks_report.md`).
 
 - **`rebind_dom`** gained the most. On relevant changes it went from 55% to
   75% (+20 pts,
-  [+9, +31], Holm p = 0.022). Its click loops fell
+  [+9, +31], Holm p = 0.024). Its click loops fell
   from 41% to 10% of episodes. The extra planner calls
   after a stall raised its cost from 2.8 to 4.3 calls per
   episode. Its false alarms were 14% of harmless changes, against
@@ -121,7 +121,7 @@ stall return (`results/vivian-4090/checks_report.md`).
   to 84% on relevant changes (+4 pts,
   [-5, +15]), still at 7.5 calls per episode.
 - **No guard** did better on harmless changes, 69% to 78%
-  (+9 pts, [+1, +19], Holm p = 0.049),
+  (+9 pts, [+1, +19], Holm p = 0.054),
   but the stall return does nothing about staleness: it acted on the stale target in
   53% of relevant changes.
 
@@ -143,6 +143,22 @@ and re-planning at every step +60 pts ([+47, +73]).
 The operator's step budget also hands control back on its own, and click loops were rarer: 1%
 of episodes with no guard, against 19% for the hierarchical agent.
 
+## Without a planner, there is no stale subtask to follow
+
+The flat reference (205 episodes) runs UI-TARS alone on the main scenarios: no planner and no guard.
+It reads the task itself at every step, so no subtask can go stale. On relevant changes it succeeded
+33% of the time and acted on the stale target in 13% of them,
+against 4% and 44% for the hierarchical agent with no guard
+(+29 pts, [+11, +45], Holm p = 0.012).
+
+The timings are not quite matched. A flat agent has no handoff, so the change lands just before its first action,
+which is what the mid-step timing does to the hierarchical agent. Its first-open misses on harmless changes,
+74%, match the mid-step run's 72%. Against that timing the
+gap is about the same: the hierarchical agent with no guard succeeded on 5% of
+relevant changes and 61% of harmless ones, the flat agent on
+33% and 62%. The guarded hierarchical agents still did better
+than the flat one on relevant changes, as the main and stall sections show.
+
 ## New domains: incomplete
 
 The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
@@ -157,6 +173,6 @@ guard it succeeded on 25% of harmless changes, against
 ## Not run yet
 
 - The rest of the new-domain run, once the lab GPUs are free (`runs/domains_lab.db` on worker-1 holds its state).
-- The second model family (InternVL3.5), the fp8 precision control, the small-planner arm and the eight-guard
-  comparison on the new domains. Their matrices are in `experiments/ada/`, `experiments/second_family/` and
+- The second model family (InternVL3.5), the small-planner arm (Qwen3-VL-4B) and the eight-guard comparison on
+  the new domains. Their matrices are in `experiments/second_family/`, `experiments/small_planner/` and
   `experiments/domains/`; since 2 October they run on the lab boxes (`CONTRIBUTING.md`).

@@ -143,6 +143,22 @@ and re-planning at every step {{delegated.replan_every_step.vs_none.diff}} ({{de
 The operator's step budget also hands control back on its own, and click loops were rarer: {{delegated.none.click_loop}}
 of episodes with no guard, against {{main.none.click_loop}} for the hierarchical agent.
 
+## Without a planner, there is no stale subtask to follow
+
+The flat reference ({{flat.episodes}} episodes) runs UI-TARS alone on the main scenarios: no planner and no guard.
+It reads the task itself at every step, so no subtask can go stale. On relevant changes it succeeded
+{{flat.none.relevant_success}} of the time and acted on the stale target in {{flat.none.relevant_stale}} of them,
+against {{main.none.relevant_success}} and {{main.none.relevant_stale}} for the hierarchical agent with no guard
+({{flat.none.relevant.diff}}, {{flat.none.relevant.ci}}, Holm {{flat.none.relevant.p_holm}}).
+
+The timings are not quite matched. A flat agent has no handoff, so the change lands just before its first action,
+which is what the mid-step timing does to the hierarchical agent. Its first-open misses on harmless changes,
+{{flat.none.first_open_missed}}, match the mid-step run's {{timing.none.first_open_missed}}. Against that timing the
+gap is about the same: the hierarchical agent with no guard succeeded on {{timing.none.relevant_success}} of
+relevant changes and {{timing.none.harmless_success}} of harmless ones, the flat agent on
+{{flat.none.relevant_success}} and {{flat.none.harmless_success}}. The guarded hierarchical agents still did better
+than the flat one on relevant changes, as the main and stall sections show.
+
 ## New domains: incomplete
 
 The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
