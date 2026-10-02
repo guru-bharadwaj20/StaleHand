@@ -157,6 +157,6 @@ guard it succeeded on {{domains_lab.none.harmless_success}} of harmless changes,
 ## Not run yet
 
 - The rest of the new-domain run, once the lab GPUs are free (`runs/domains_lab.db` on worker-1 holds its state).
-- The second model family (InternVL3.5), the fp8 precision control, the small-planner arm and the eight-guard
-  comparison on the new domains. Their matrices are in `experiments/ada/`, `experiments/second_family/` and
+- The second model family (InternVL3.5), the small-planner arm (Qwen3-VL-4B) and the eight-guard comparison on
+  the new domains. Their matrices are in `experiments/second_family/`, `experiments/small_planner/` and
   `experiments/domains/`; since 2 October they run on the lab boxes (`CONTRIBUTING.md`).
