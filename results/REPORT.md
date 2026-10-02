@@ -8,14 +8,13 @@ decoding and seed 0. Each run directory holds the job, model revisions, git comm
 `config.json`. Intervals are 95% bootstrap intervals over scenario templates. p-values are exact McNemar tests on
 paired episodes, Holm-adjusted within each family of comparisons.
 
-## The problem is real: a subtask written before a change goes stale
+## A subtask written before a change goes stale
 
 In the main comparison (1640 episodes on the inbox and the shop), the planner writes a subtask from
 one screen and the page changes before the executor looks at it. With no guard, the agent completed
 4% of the 55 episodes whose change moved or removed the planner's
 target, and acted on the stale target in 44% of them. On the 145
-episodes where nothing relevant changed, the same agent succeeded 69% of the time. That
-gap is the cost of a stale handoff.
+episodes where nothing relevant changed, the same agent succeeded 69% of the time.
 
 | What the planner saw | What the executor saw |
 |---|---|
@@ -26,10 +25,11 @@ Two of the main scenarios, drawn with `stalehand render`. Task: reply to the mos
 newer one arrives after the planner has picked the older one. Task: add the cheapest USB-C cable to the cart. The
 listing changes and a cheaper cable appears.
 
-## Every guard helps; they differ in what they cost
+## Every guard helps, at different costs
 
 Paired on the same relevant-change scenarios, every guard beat no guard (`results/vivian-4090/main_report.md`,
-"Paired against `none`"). The useful question is what each one costs in false alarms and model calls.
+"Paired against `none`"). They differ in how often they fire when nothing relevant changed, and in how many model
+calls they add.
 
 - **Re-planning at every step** had the highest success on relevant changes,
   80% (+76 pts over no guard,
@@ -40,8 +40,8 @@ Paired on the same relevant-change scenarios, every guard beat no guard (`result
   (+51 pts, [+33, +68]) with 2.8 calls per
   episode. It fired on 15% of harmless changes, the lowest of the guards that watch the
   page, and kept success on harmless episodes at 68%. It fired on
-  91% of the relevant changes, so detection is not what holds it back; the next
-  section is.
+  91% of the relevant changes, so it usually noticed them; many of its failures
+  after that were the click loops described next.
 - **Re-planning on a DOM change** (`dom_subtask_replan`) did about as well on relevant changes,
   58%, but fired on 76% of harmless
   changes, because any DOM change triggers it.
@@ -147,8 +147,16 @@ of episodes with no guard, against 19% for the hierarchical agent.
 
 The three-guard run on files, tickets, calendar and chat stopped partway. At 05:40 another team's jobs took the lab
 GPUs and our model servers stopped, and the planner's Python environment on worker-2 was removed. The
-254 episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only 2 relevant-change
-scenarios finished under both `rebind_dom` and no guard, and 11 under
-re-planning at every step and no guard, so this report draws no conclusion about guards from them. They do show these domains are
-harder for this agent: with no guard it succeeded on 25% of harmless changes,
-against 69% on the inbox and the shop.
+254 episodes that finished are in `results/vivian-4090/domains_lab_report.md`. Only
+2 relevant-change scenarios finished under both `rebind_dom` and no guard,
+and 11 under re-planning at every step and no guard, so this report
+draws no conclusion about guards from them. They do show that these domains are harder for this agent: with no
+guard it succeeded on 25% of harmless changes, against
+69% on the inbox and the shop.
+
+## Not run yet
+
+- The rest of the new-domain run, once the lab GPUs are free (`runs/domains_lab.db` on worker-1 holds its state).
+- The second model family (InternVL3.5), the fp8 precision control, the small-planner arm and the eight-guard
+  comparison on the new domains. Their matrices are in `experiments/ada/`, `experiments/second_family/` and
+  `experiments/domains/`; since 2 October they run on the lab boxes (`CONTRIBUTING.md`).
