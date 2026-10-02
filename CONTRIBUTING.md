@@ -19,7 +19,7 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 10 | Reports, docs and release | M11 | 30 | 8 | 3 | ❌ |
 | | **Total** | | **495** | **52** | **8** | **87% done** |
 
-Remaining work: **8 tasks**, split 5 to Vivian and 3 to Guru (see [Who does what next](#who-does-what-next)).
+Remaining work: **5 tasks**, all Vivian's (see [Who does what next](#who-does-what-next)).
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -138,7 +138,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | ✅ | Results section in `README.md`, generated from result files | Guru | `README.md` |
 | ✅ | Usage guide: generate scenarios, serve models, run a matrix, build a report | Guru | `docs/` |
 | ✅ | Worked examples (one scenario end to end, adding a new domain) | Guru | `docs/`, `examples/` |
-| ❌ | Choose a license before the repository is made public | Guru | `LICENSE` |
+| ✅ | Choose a license before the repository is made public (MIT) | Guru | `LICENSE` |
 | ✅ | Decide whether to add a real application (for example a self-hosted mail client) | Guru | `docs/design.md` |
 
 ## Who does what next
@@ -147,7 +147,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 |---|---|---|
 | 1 | ✅ Run the change-timing study | ✅ Load tonight's results into the explorer |
 | 2 | ✅ Run the stall-return ablation | ✅ Combined final report |
-| 3 | ✅ Run the delegated architecture | ❌ Choose a license |
+| 3 | ✅ Run the delegated architecture | ✅ Choose a license |
 | 4 | ❌ Finish the three-guard comparison on the new domains (partial) | |
 | 5 | ✅ Run the flat reference in bf16 | |
 | 6 | ❌ InternVL3.5 flat run and action-format gate | |
