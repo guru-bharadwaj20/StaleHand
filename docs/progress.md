@@ -30,6 +30,17 @@ Runs that failed, were skipped or are blocked are recorded here rather than drop
   Kept, but they don't measure staleness. The results bar still read "sorted by relevance", the planner kept
   asking to sort, and the executor searched for a sort control that does not exist. Rerun as `pilot_shop_rerun`
   after `fix: drop sort wording from shop results`. Use those rows for shop relative tasks instead.
+- **New-domain run, partial** (`results/vivian-4090/domains_lab`, 2 October). The run started at 04:56. At 05:40
+  another team started `multisports` jobs on both lab 4090s from the shared account. In the same minute our
+  executor server on worker-1 stopped with no error in its log, and `~/capstone_pilots/venvq`, the Python
+  environment the planner server ran from, was removed from worker-2. From then on every job failed after its
+  15-minute retry window. 19 jobs finished. The episodes that were scored before 05:40 are complete and kept; the
+  rest were not run. The campaign scripts on both boxes were stopped at 08:25 by their own process IDs. With the
+  other team's jobs on the cards, worker-2 had too little free memory for the planner, so the run can't resume
+  until the GPUs free up: reset the failed jobs in `runs/domains_lab.db` and run it again. The monitoring
+  heartbeat at 02:00 was not followed up overnight, so the failure went unnoticed until 08:22.
+- **Flat reference** moved out of the campaign and ran alone on worker-1 from 08:24, since it needs only the
+  executor, which still fit next to the other team's job.
 
 ## Known confounds
 
