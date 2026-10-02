@@ -133,7 +133,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | ✅ | Report builder that reads result files | Vivian | `src/stalehand/report/` |
 | ✅ | Paired contrasts across run sets (architecture, change timing), Holm-adjusted | Vivian | `src/stalehand/report/contrasts.py` |
 | ✅ | Results explorer: static site that reads and validates result JSONL | Guru | `site/` |
-| ❌ | Load tonight's lab results (main, timing, delegated, flat, domains) into the explorer as they land (built in from `results/` since 2 October; main and timing in, rebuild as the rest land) | Guru | `site/` |
+| ❌ | Load tonight's lab results (main, timing, delegated, flat, domains) into the explorer as they land (built in from `results/` since 2 October; main, timing, stall, delegated and partial domains in; flat to come) | Guru | `site/` |
 | ❌ | Combined final report across both machines' results | Guru | `src/stalehand/report/` |
 | ✅ | Charts for the main results (guard vs. stale rate, false alarms, cost) | Guru | `site/` |
 | ✅ | Results section in `README.md`, generated from result files | Guru | `README.md` |
