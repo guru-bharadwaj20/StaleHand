@@ -1,5 +1,5 @@
 {
-  "name": "flat_uitars_fp8",
+  "name": "small_planner",
   "scenarios": [
     "experiments/main/shards/inbox-00.jsonl",
     "experiments/main/shards/inbox-01.jsonl",
@@ -24,13 +24,16 @@
     "experiments/main/shards/shop-10.jsonl"
   ],
   "architectures": [
-    "flat"
+    "hierarchical"
   ],
   "guards": [
-    "none"
+    "none",
+    "replan_every_step",
+    "dom_subtask_replan",
+    "rebind_dom"
   ],
   "planners": [
-    "none"
+    "qwen3-vl-4b"
   ],
   "executors": [
     "ui-tars-1.5-7b"
