@@ -59,3 +59,11 @@ test("executor comes from run provenance when present", () => {
 });
 
 test("percentages have one decimal", () => assert.equal(pct(0.8111), "81.1%"));
+
+test("rows carry their run set, so sets loaded together can be split", () => {
+  const a = loadJsonl(jsonl(row()), "a.jsonl", validate, "vivian-4090/main").rows;
+  const b = loadJsonl(jsonl(row()), "b.jsonl", validate).rows;
+  assert.equal(FIELDS.run_set!(a[0]!), "vivian-4090/main");
+  assert.equal(FIELDS.run_set!(b[0]!), "b.jsonl");
+  assert.equal(filterRows([...a, ...b], FIELDS, { run_set: "vivian-4090/main" }).length, 1);
+});
