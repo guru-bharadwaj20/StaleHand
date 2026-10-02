@@ -10,6 +10,7 @@ from ..env.actions import Click, Done, Key, Scroll, Type, Wait
 
 _ACTION = re.compile(r"Action:\s*([a-z_]+)\((.*)\)\s*$", re.S)
 _NUM = re.compile(r"-?\d+(?:\.\d+)?")
+_GROUP = re.compile(r"\[\[[^\]]*\]\]|\([^()]*\)")
 _KEYS = {"enter": "Enter", "return": "Enter", "tab": "Tab", "esc": "Escape", "escape": "Escape", "space": " ",
          "backspace": "Backspace", "delete": "Delete", "ctrl": "Control", "control": "Control", "alt": "Alt",
          "shift": "Shift", "cmd": "Meta", "meta": "Meta", "up": "ArrowUp", "down": "ArrowDown",
@@ -28,7 +29,11 @@ def _unescape(s: str) -> str:
 
 def _point(args: str, screen: Tuple[int, int], mode: str) -> Optional[Tuple[int, int]]:
     raw = _arg(args, "start_box") or _arg(args, "point")
-    nums = [float(n) for n in _NUM.findall(raw or "")]
+    if raw is None:  # some models drop the closing quote: take the rest of the arguments
+        m = re.search(r"(?:start_box|point)\s*=\s*'(.*)", args, re.S)
+        raw = m.group(1) if m else ""
+    groups = _GROUP.findall(raw)  # a label may precede the box ("8:37 AM[[944, 797, 980, 815]]"): use the box
+    nums = [float(n) for n in _NUM.findall(groups[-1] if groups else raw)]
     if len(nums) == 4:
         nums = [(nums[0] + nums[2]) / 2, (nums[1] + nums[3]) / 2]
     if len(nums) != 2:

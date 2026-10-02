@@ -76,3 +76,14 @@ def test_clicks_are_clamped_to_screen():
 def test_unknown_mode_is_rejected():
     with pytest.raises(ValueError):
         p("Action: click(start_box='(1,2)')", mode="pixels?")
+
+
+def test_labelled_box_without_closing_quote_parses():
+    # InternVL3.5 names the element, then gives its box on the 0-1000 grid, and drops the closing quote
+    out = "Thought: open the Spam folder.\nAction: click(start_box='Spam[[23, 453, 150, 490]])"
+    assert parse_action(out, (1288, 728), "rel1000") == Click(111, 343)
+
+
+def test_digits_in_the_label_are_not_coordinates():
+    out = "Action: click(start_box='8:37 AM[[944, 797, 980, 815]])"
+    assert parse_action(out, (1288, 728), "rel1000") == Click(1239, 587)
