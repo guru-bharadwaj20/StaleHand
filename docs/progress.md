@@ -97,3 +97,26 @@ those runs, so no earlier result changes. Parse failures stay part of the Intern
   guard, so only calendar separates the guards; the cause (task design or the agent) is not yet known.
 - Run code: `domains`, `small_planner` and `flat_internvl` ran commit `0704d26`/`3c35f79` (identical `src/` and
   `apps/`); the launch scripts changed between them.
+
+## Why files and tickets floor under every guard (3 October)
+
+Guru's analysis task (`experiments/analysis/domain_floor.py report results/vivian-4090/domains`). The cause is one
+step upstream of the guards, so it is the same for all eight. Files and tickets commit only through a value typed
+into an empty field (a share recipient, a ticket assignee), and the executor almost never types: across 480 files
+episodes it emitted no `type` action at all, and across 480 tickets episodes only 59. It reaches the form and then
+clicks the empty field until the step budget runs out: files episodes end at the share dialog (210) or the open file
+(209), with 50 ending in `share_refused` from pressing Send on an empty box; 100% of files and ~98% of tickets
+episodes hit the step limit. Open and Share both work, so the earlier single trace ("the executor clicks the file and
+it never opens") was not representative; the wall is one step later, at text entry.
+
+Calendar is the one domain that separates the guards because its task commits by clicking Join, with no typed value
+(0 `type` actions in 480 episodes, 90% under re-plan-every-step). Inbox and shop succeed for the same reason: the
+reply body is pre-filled (`setBody` fires on its own) and add-to-cart is a click, so the main runs need almost no
+typing either (51 `type` actions in 1640 episodes). So the new-domain run currently measures whether the executor can
+fill a text form at all, not whether a guard catches a stale subtask; the guards cannot differ when every episode
+fails at the same executor step before any guard decision changes the outcome.
+
+Before files and tickets can say anything about guards, the executor has to get through text entry: either focus the
+field when the form opens and show a visible caret, so a click changes the screenshot and the executor stops looping
+and types, or make the commit reachable by clicking (a recipient picker, assignee buttons) as calendar is. That is an
+apps change (Vivian's half, the `window.stalehand` contract is untouched); the domains matrix would then be rerun.
