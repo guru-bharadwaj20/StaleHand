@@ -16,10 +16,10 @@ rules. ✅ means done and merged; ❌ means still to do.
 | 7 | Runner | M8 | 45 | 3 | 0 | ✅ |
 | 8 | More domains | M9 | 50 | 4 | 0 | ✅ |
 | 9 | Experiments | M10 | 40 | 17 | 0 | ✅ |
-| 10 | Reports, docs and release | M11 | 30 | 11 | 1 | ❌ |
-| | **Total** | | **495** | **60** | **1** | **98% done** |
+| 10 | Reports, docs and release | M11 | 30 | 11 | 0 | ✅ |
+| | **Total** | | **495** | **61** | **0** | **100% done** |
 
-Remaining work: **1 task**, Guru's (see [Who does what next](#who-does-what-next)).
+Remaining work: **none**.
 
 Each phase ends with tests passing and a short note in `docs/progress.md`. Commit budgets are for planning;
 every commit is one real change (see [Commits](#commits)).
@@ -148,7 +148,7 @@ The lab 4090s run Vivian's matrices back to back overnight on 1–2 October, fro
 | 1 | ✅ Run the change-timing study | ✅ Load tonight's results into the explorer |
 | 2 | ✅ Run the stall-return ablation | ✅ Combined final report |
 | 3 | ✅ Run the delegated architecture | ✅ Choose a license |
-| 4 | ✅ Finish the three-guard comparison on the new domains (superseded by 9) | ❌ Check why files and tickets fail under every guard (floor effect; see `results/REPORT.md`) |
+| 4 | ✅ Finish the three-guard comparison on the new domains (superseded by 9) | ✅ Check why files and tickets fail under every guard (floor effect; see `docs/progress.md`) |
 | 5 | ✅ Run the flat reference in bf16 | |
 | 6 | ✅ InternVL3.5 flat run and action-format gate (failed) | |
 | 7 | ✅ Small-planner arm | |
