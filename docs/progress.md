@@ -1,6 +1,6 @@
 # Progress
 
-Runs that failed, were skipped or are blocked are recorded here rather than dropped (see `CONTRIBUTING.md`).
+Runs that failed, were skipped or are blocked are recorded here rather than dropped.
 
 ## Blocked
 
